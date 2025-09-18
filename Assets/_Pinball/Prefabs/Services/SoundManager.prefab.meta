@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 393e1012855d44eb08111c95269092e0
+timeCreated: 1447257224
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Prefabs/Services/SoundManager.prefab
+  uploadId: 267157

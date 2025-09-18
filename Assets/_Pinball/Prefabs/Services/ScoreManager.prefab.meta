@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fa2aa775d925b4ceaaa126f0ea5c0f18
+timeCreated: 1449813361
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Prefabs/Services/ScoreManager.prefab
+  uploadId: 267157

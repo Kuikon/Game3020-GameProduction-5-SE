@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 11a241b9d13b4d24ebc9ee74488adc91
+timeCreated: 1481174219
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Prefabs/Game/Target/Target.prefab
+  uploadId: 267157

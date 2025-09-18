@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 087978ac6b8ae442e95beec2d691b35f
+timeCreated: 1468170313
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Fonts/License/OFL.txt
+  uploadId: 267157

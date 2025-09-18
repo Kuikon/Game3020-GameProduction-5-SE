@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 500593309aec244c38d2bdd8297a8ac1
+timeCreated: 1467861808
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Prefabs/Services/CameraBackground.prefab
+  uploadId: 267157

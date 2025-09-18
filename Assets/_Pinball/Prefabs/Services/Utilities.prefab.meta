@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9706668162b33434a9d826a03bed9868
+timeCreated: 1468248243
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Prefabs/Services/Utilities.prefab
+  uploadId: 267157

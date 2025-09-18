@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 842f811815c1279488663ca457f5e4db
+timeCreated: 1481173962
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Prefabs/Game/Obstacles/Obstacle.prefab
+  uploadId: 267157

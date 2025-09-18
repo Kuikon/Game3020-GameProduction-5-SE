@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c55cd235752e0449e8e9bce41750310b
+timeCreated: 1468170313
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Fonts/License/LICENSE-2.0.txt
+  uploadId: 267157

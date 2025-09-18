@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7cbbd970ba3032947b242b54351661d6
+timeCreated: 1480742882
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Scenes/Main.unity
+  uploadId: 267157

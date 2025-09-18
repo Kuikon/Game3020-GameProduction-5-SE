@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3c5a337b448f4ab45a57ceefc035c968
+timeCreated: 1481175336
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80053
+  packageName: Simple Pinball
+  packageVersion: 1.3
+  assetPath: Assets/_Pinball/Materials/Gold.mat
+  uploadId: 267157

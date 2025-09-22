@@ -3,9 +3,8 @@
 public class RandomWalker : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float walkSpeed = 2f;      // 通常の歩き速度
-    public float dashSpeed = 4f;      // ダッシュ速度
-    public float changeDirectionTime = 2f; // ランダム移動の方向を変える間隔（秒）
+    public float walkSpeed = 2f;            // Normal walking speed
+    public float changeDirectionTime = 2f;  // Interval to change movement direction (seconds)
 
     private Vector2 moveDir;
     private float timer;
@@ -24,7 +23,7 @@ public class RandomWalker : MonoBehaviour
     {
         timer -= Time.deltaTime;
 
-        // 一定時間ごとにランダムな方向を選ぶ
+        // Change direction every certain interval
         if (timer <= 0f)
         {
             PickRandomDirection();
@@ -32,28 +31,20 @@ public class RandomWalker : MonoBehaviour
 
         float speed;
 
-        // Idle 判定
+        // Idle state check
         if (moveDir == Vector2.zero)
         {
             rb.linearVelocity = Vector2.zero;
-            speed = 0f; // Idle用
+            speed = 0f; // Idle
         }
         else
         {
-            // ランダムに「歩き」か「ダッシュ」速度を選ぶ
-            if (Random.value > 0.7f) // 30%の確率でダッシュ
-            {
-                rb.linearVelocity = moveDir * dashSpeed;
-                speed = dashSpeed;
-            }
-            else
-            {
-                rb.linearVelocity = moveDir * walkSpeed;
-                speed = walkSpeed;
-            }
+            // Always move at walkSpeed
+            rb.linearVelocity = moveDir * walkSpeed;
+            speed = walkSpeed;
         }
 
-        // ✅ BlendTree に値を渡す
+        // ✅ Send values to BlendTree
         animator.SetFloat("MoveX", moveDir.x);
         animator.SetFloat("MoveY", moveDir.y);
         animator.SetFloat("Speed", speed);
@@ -63,39 +54,36 @@ public class RandomWalker : MonoBehaviour
     {
         Vector3 pos = transform.position;
 
-        // X方向チェック
+        // X-axis boundary check
         if (pos.x < -6f || pos.x > 6f)
         {
-            moveDir.x = -moveDir.x;                // 向きを反転
-            rb.linearVelocity = new Vector2(moveDir.x, rb.linearVelocity.y);
+            moveDir.x = -moveDir.x; // Reverse direction
+            rb.linearVelocity = new Vector2(moveDir.x * walkSpeed, rb.linearVelocity.y);
 
-            // はみ出し補正
             pos.x = Mathf.Clamp(pos.x, -6f, 6f);
         }
 
-        // Y方向チェック
+        // Y-axis boundary check
         if (pos.y < -4f || pos.y > 4f)
         {
-            moveDir.y = -moveDir.y;                // 向きを反転
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, moveDir.y);
+            moveDir.y = -moveDir.y; // Reverse direction
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, moveDir.y * walkSpeed);
 
-            // はみ出し補正
             pos.y = Mathf.Clamp(pos.y, -4f, 4f);
         }
 
         transform.position = pos;
     }
 
-
     void PickRandomDirection()
     {
-        // -1, 0, 1 の中からランダムに方向を決める
+        // Randomly choose -1, 0, or 1 for direction
         int x = Random.Range(-1, 2);
         int y = Random.Range(-1, 2);
 
         moveDir = new Vector2(x, y).normalized;
 
-        // 次に方向を変えるまでの時間をリセット
+        // Reset the timer for the next direction change
         timer = changeDirectionTime;
     }
 }

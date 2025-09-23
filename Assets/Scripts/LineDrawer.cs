@@ -6,7 +6,6 @@ public class LineDraw : MonoBehaviour
 {
     [SerializeField] private LineRenderer _rend;
     [SerializeField] private Camera _cam;
-
     private int posCount = 0;
     private float interval = 0.1f;
 
@@ -14,8 +13,11 @@ public class LineDraw : MonoBehaviour
     private PolygonCollider2D _poly;
 
     // オブジェクトが何回囲まれたか記録
-    private Dictionary<GameObject, int> insideCount = new Dictionary<GameObject, int>();
-
+    public Dictionary<GameObject, int> insideCount { get; private set; }
+    void Awake()
+    {
+        insideCount = new Dictionary<GameObject, int>();
+    }
     private void Start()
     {
         _rend.positionCount = 0;
@@ -55,7 +57,10 @@ public class LineDraw : MonoBehaviour
         _rend.positionCount = posCount;
         _rend.SetPosition(posCount - 1, pos);
     }
-
+    public Dictionary<GameObject, int> GetInsideCount()
+    {
+        return insideCount;
+    }
     private bool PosCheck(Vector3 pos)
     {
         if (posCount == 0) return true;
@@ -148,6 +153,11 @@ public class LineDraw : MonoBehaviour
 
                 if (insideCount[t] == 3)
                 {
+                    var gb = t.GetComponent<GhostBase>();
+                    if (gb != null)
+                    {
+                        gb.Kill();
+                    }
                     Debug.Log($"{t.name} は3回囲まれました！");
                 }
                 else

@@ -6,8 +6,7 @@ public class BossStageInitializer : MonoBehaviour
 {
     [Header("Fireball Settings")]
     public GameObject fireballPrefab;     
-    public Sprite fireballSprite;          
-    public Sprite meteorSprite;            
+    public Sprite fireballSprite;                     
     public int fireballCount = 12;
     public float fireballInterval = 0.2f;  
     public float circleRadius = 5f;        

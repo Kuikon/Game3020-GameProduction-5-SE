@@ -6,8 +6,8 @@ public class EnemySpawner : MonoBehaviour
     [Header("Spawn Settings")]
     public GameObject[] ghostPrefabs;      // Different ghost prefabs
     public GameObject spawnEffectPrefab;   // Effect prefab (particles, flash, etc.)
-    public Vector2 spawnAreaMin = new Vector2(-6f, -4f); // Bottom-left corner
-    public Vector2 spawnAreaMax = new Vector2(6f, 4f);   // Top-right corner
+    public Boundry screenVericalBoundry;
+    public Boundry screenHorizontalBoundry;   // Top-right corner
     public float delayBeforeSpawn = 0.5f;  // Delay between effect and spawn
     public float autoSpawnInterval = 5f;   // Auto spawn interval in seconds
 
@@ -33,8 +33,8 @@ public class EnemySpawner : MonoBehaviour
     {
         // Random position in the defined area
         Vector2 pos = new Vector2(
-            Random.Range(spawnAreaMin.x, spawnAreaMax.x),
-            Random.Range(spawnAreaMin.y, spawnAreaMax.y)
+            Random.Range(screenVericalBoundry.min, screenVericalBoundry.max),
+            Random.Range(screenHorizontalBoundry.min, screenHorizontalBoundry.max)
         );
 
         // Pick a random prefab from the list
@@ -53,7 +53,7 @@ public class EnemySpawner : MonoBehaviour
         if (spawnEffectPrefab != null)
         {
             GameObject effect = Instantiate(spawnEffectPrefab, pos, Quaternion.identity);
-            Destroy(effect, 2f); // auto destroy after 2 seconds
+            Destroy(effect, 3f); // auto destroy after 2 seconds
         }
 
         // 2. Wait before actual spawn

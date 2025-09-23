@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfa3c2b13af6b814887951d779b900f8, type: 3}
   m_Name: NormalGhost
   m_EditorClassIdentifier: Assembly-CSharp::GhostData
-  type: 0
+  type: 2
   walkSpeed: 2
   absorbTime: 10
   captureHitsNeeded: 3
   changeDirectionTime: 2
-  deathEffectPrefab: {fileID: 0}
   fireCirclePrefab: {fileID: 0}
   fireCircleLifetime: 3
   luckyChargeTime: 15

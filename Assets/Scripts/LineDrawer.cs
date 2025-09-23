@@ -6,18 +6,21 @@ public class LineDraw : MonoBehaviour
 {
     [SerializeField] private LineRenderer _rend;
     [SerializeField] private Camera _cam;
+
     private int posCount = 0;
     private float interval = 0.1f;
 
-    // 交差したら作るポリゴン
+    // 作られるポリゴン
     private PolygonCollider2D _poly;
 
     // オブジェクトが何回囲まれたか記録
     public Dictionary<GameObject, int> insideCount { get; private set; }
+
     void Awake()
     {
         insideCount = new Dictionary<GameObject, int>();
     }
+
     private void Start()
     {
         _rend.positionCount = 0;
@@ -25,27 +28,33 @@ public class LineDraw : MonoBehaviour
         _rend.endWidth = 0.1f;
         _rend.useWorldSpace = true;
         _rend.material = new Material(Shader.Find("Sprites/Default"));
+
+        if (_cam == null)
+            _cam = Camera.main; // Inspectorに指定が無ければ自動でMainCameraを使う
     }
 
     private void Update()
     {
-        Vector3 mousePos = _cam.ScreenToWorldPoint(Input.mousePosition);
+        // マウス座標取得（画面外なら処理しない）
+        Vector3 mousePos = Input.mousePosition;
+        if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mousePos))
+            return;
+
+        mousePos.z = Mathf.Abs(_cam.transform.position.z); // カメラからの距離を設定
+        mousePos = _cam.ScreenToWorldPoint(mousePos);
         mousePos.z = 0f;
 
+        // 線を引く処理
         if (Input.GetMouseButton(0))
         {
             SetPosition(mousePos);
 
-            // 新しい点が追加されたときに交差チェック
             if (posCount > 2)
-            {
                 CheckIntersection();
-            }
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            posCount = 0;
-            _rend.positionCount = 0;
+            ResetLine();
         }
     }
 
@@ -57,16 +66,19 @@ public class LineDraw : MonoBehaviour
         _rend.positionCount = posCount;
         _rend.SetPosition(posCount - 1, pos);
     }
-    public Dictionary<GameObject, int> GetInsideCount()
-    {
-        return insideCount;
-    }
+
     private bool PosCheck(Vector3 pos)
     {
         if (posCount == 0) return true;
 
         float distance = Vector3.Distance(_rend.GetPosition(posCount - 1), pos);
         return distance > interval;
+    }
+
+    private void ResetLine()
+    {
+        posCount = 0;
+        _rend.positionCount = 0;
     }
 
     /// <summary>
@@ -88,17 +100,14 @@ public class LineDraw : MonoBehaviour
 
                 // 交差点を含めたループの頂点リストを作成
                 List<Vector2> loopPoints = new List<Vector2>();
-
                 for (int j = i + 1; j < posCount; j++)
                 {
                     Vector3 wp = _rend.GetPosition(j);
                     loopPoints.Add(transform.InverseTransformPoint(wp));
                 }
+                loopPoints.Add(intersection); // 閉じる
 
-                // 交差点を最後に追加して閉じる
-                loopPoints.Add(intersection);
-
-                // PolygonCollider2D をセット
+                // PolygonCollider2D を生成
                 if (_poly != null) Destroy(_poly);
                 _poly = gameObject.AddComponent<PolygonCollider2D>();
                 _poly.isTrigger = true;
@@ -106,9 +115,10 @@ public class LineDraw : MonoBehaviour
 
                 // 中にいるオブジェクトをチェック
                 CheckObjectsInside();
-                Destroy(_poly);              // ポリゴン削除
-                _rend.positionCount = 0;     // LineRenderer リセット
-                posCount = 0;                // 頂点数リセット
+
+                // ポリゴン削除＆線リセット
+                Destroy(_poly);
+                ResetLine();
                 return;
             }
         }

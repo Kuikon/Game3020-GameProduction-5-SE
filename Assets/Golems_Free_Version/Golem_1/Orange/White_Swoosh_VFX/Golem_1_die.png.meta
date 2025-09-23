@@ -1,109 +1,112 @@
 fileFormatVersion: 2
-guid: 034c935e4f966e94089edfd241672b02
+guid: 39b07f1707af4814e9b727d898074f8f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7273716507066944919
-    second: pipo-gate01d192_0
+      213: -3499944936518720492
+    second: Golem_1_die_0
   - first:
-      213: 4424305431606032378
-    second: pipo-gate01d192_1
+      213: 2766055293292107051
+    second: Golem_1_die_1
   - first:
-      213: 3170471354801087818
-    second: pipo-gate01d192_2
+      213: -6396591571823419708
+    second: Golem_1_die_2
   - first:
-      213: 3494726738988284055
-    second: pipo-gate01d192_3
+      213: 2859483638002222463
+    second: Golem_1_die_3
   - first:
-      213: 8952415267755680309
-    second: pipo-gate01d192_4
+      213: 1903348830397019602
+    second: Golem_1_die_4
   - first:
-      213: 8988623232933079897
-    second: pipo-gate01d192_5
+      213: -6324878056589696706
+    second: Golem_1_die_5
   - first:
-      213: 1954343897308525706
-    second: pipo-gate01d192_6
+      213: 7942699683240710454
+    second: Golem_1_die_6
   - first:
-      213: -6372308791211396632
-    second: pipo-gate01d192_7
+      213: 1885493490258393147
+    second: Golem_1_die_7
   - first:
-      213: 4905950170212231010
-    second: pipo-gate01d192_8
+      213: 4288750568392514702
+    second: Golem_1_die_8
   - first:
-      213: -7557716116823013803
-    second: pipo-gate01d192_9
+      213: 851546784491743279
+    second: Golem_1_die_9
   - first:
-      213: 2264400530793726805
-    second: pipo-gate01d192_10
+      213: 3235447156533904297
+    second: Golem_1_die_10
   - first:
-      213: -7011224620943280183
-    second: pipo-gate01d192_11
+      213: 2748754730160506800
+    second: Golem_1_die_11
   - first:
-      213: 2643059564853379800
-    second: pipo-gate01d192_12
+      213: 4939873489552548844
+    second: Golem_1_die_12
   - first:
-      213: -7482382884153595973
-    second: pipo-gate01d192_13
+      213: 6585329745343848974
+    second: Golem_1_die_13
   - first:
-      213: 7955585068670344151
-    second: pipo-gate01d192_14
+      213: -2299476301834658063
+    second: Golem_1_die_14
   - first:
-      213: -6247767612064787037
-    second: pipo-gate01d192_15
+      213: 8326102325798928904
+    second: Golem_1_die_15
   - first:
-      213: 1123104395930185534
-    second: pipo-gate01d192_16
+      213: -3966987689900825244
+    second: Golem_1_die_16
   - first:
-      213: -1524197550163848037
-    second: pipo-gate01d192_17
+      213: 4995558060673151396
+    second: Golem_1_die_17
   - first:
-      213: -6917045510178049965
-    second: pipo-gate01d192_18
+      213: -7370445881969581563
+    second: Golem_1_die_18
   - first:
-      213: -8989526838504944615
-    second: pipo-gate01d192_19
+      213: -436326066663290158
+    second: Golem_1_die_19
   - first:
-      213: 2532624568033235276
-    second: pipo-gate01d192_20
+      213: -5520250034889243809
+    second: Golem_1_die_20
   - first:
-      213: 6933952671180680451
-    second: pipo-gate01d192_21
+      213: 8056609086297106070
+    second: Golem_1_die_21
   - first:
-      213: -8315232246673924384
-    second: pipo-gate01d192_22
+      213: 5257511135304682010
+    second: Golem_1_die_22
   - first:
-      213: -3401213668735928815
-    second: pipo-gate01d192_23
+      213: -6627988070023083533
+    second: Golem_1_die_23
   - first:
-      213: -5006857199909319917
-    second: pipo-gate01d192_24
+      213: 3842633016999177900
+    second: Golem_1_die_24
   - first:
-      213: -6698514432502379626
-    second: pipo-gate01d192_25
+      213: -4271488879998390822
+    second: Golem_1_die_25
   - first:
-      213: -2713725217827884752
-    second: pipo-gate01d192_26
+      213: 7121773239064227505
+    second: Golem_1_die_26
   - first:
-      213: -6927013041706562916
-    second: pipo-gate01d192_27
+      213: 4897008373694711551
+    second: Golem_1_die_27
   - first:
-      213: 8847484250519654723
-    second: pipo-gate01d192_28
+      213: 1921323288855611925
+    second: Golem_1_die_28
   - first:
-      213: -7472238742703669227
-    second: pipo-gate01d192_29
+      213: 4179644456496986321
+    second: Golem_1_die_29
   - first:
-      213: 6717934548338993617
-    second: pipo-gate01d192_30
+      213: 8073877965380687795
+    second: Golem_1_die_30
   - first:
-      213: -5125931886005647756
-    second: pipo-gate01d192_31
+      213: -1780916263551375620
+    second: Golem_1_die_31
   - first:
-      213: 4565424774698458041
-    second: pipo-gate01d192_32
+      213: 4773439375004723005
+    second: Golem_1_die_32
   - first:
-      213: -3371987730820063338
-    second: pipo-gate01d192_33
+      213: -457040906902760376
+    second: Golem_1_die_33
+  - first:
+      213: 6904830870619871899
+    second: Golem_1_die_34
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -136,7 +139,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -225,13 +228,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pipo-gate01d192_0
+      name: Golem_1_die_0
       rect:
         serializedVersion: 2
-        x: 403
-        y: 404
-        width: 153
-        height: 158
+        x: 25
+        y: 0
+        width: 40
+        height: 39
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -240,20 +243,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 79dce9810ae61f460800000000000000
-      internalID: 7273716507066944919
+      spriteID: 414ef5daf92bd6fc0800000000000000
+      internalID: -3499944936518720492
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_1
+      name: Golem_1_die_1
       rect:
         serializedVersion: 2
-        x: 636
-        y: 552
-        width: 18
-        height: 16
+        x: 115
+        y: 0
+        width: 41
+        height: 41
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -262,20 +265,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: af775bc595a466d30800000000000000
-      internalID: 4424305431606032378
+      spriteID: b25d3c152a0036620800000000000000
+      internalID: 2766055293292107051
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_2
+      name: Golem_1_die_2
       rect:
         serializedVersion: 2
-        x: 831
-        y: 560
-        width: 12
-        height: 11
+        x: 204
+        y: 0
+        width: 43
+        height: 44
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -284,20 +287,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a45687936e6cffb20800000000000000
-      internalID: 3170471354801087818
+      spriteID: 4ce15342bddba37a0800000000000000
+      internalID: -6396591571823419708
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_3
+      name: Golem_1_die_3
       rect:
         serializedVersion: 2
-        x: 17
-        y: 405
-        width: 155
-        height: 151
+        x: 292
+        y: 0
+        width: 30
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -306,20 +309,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 798b4780473cf7030800000000000000
-      internalID: 3494726738988284055
+      spriteID: f750a24f73deea720800000000000000
+      internalID: 2859483638002222463
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_4
+      name: Golem_1_die_4
       rect:
         serializedVersion: 2
-        x: 203
-        y: 405
-        width: 161
-        height: 154
+        x: 306
+        y: 13
+        width: 22
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -328,20 +331,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5326c5c014e5d3c70800000000000000
-      internalID: 8952415267755680309
+      spriteID: 2d538774dad0a6a10800000000000000
+      internalID: 1903348830397019602
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_5
+      name: Golem_1_die_5
       rect:
         serializedVersion: 2
-        x: 388
-        y: 479
+        x: 323
+        y: 0
         width: 15
-        height: 13
+        height: 23
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -350,20 +353,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 95bacc2e4310ebc70800000000000000
-      internalID: 8988623232933079897
+      spriteID: e31ee4d0be48938a0800000000000000
+      internalID: -6324878056589696706
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_6
+      name: Golem_1_die_6
       rect:
         serializedVersion: 2
-        x: 595
-        y: 402
-        width: 155
-        height: 153
+        x: 395
+        y: 11
+        width: 23
+        height: 33
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -372,20 +375,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a84f6088b693f1b10800000000000000
-      internalID: 1954343897308525706
+      spriteID: 6319b2997432a3e60800000000000000
+      internalID: 7942699683240710454
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_7
+      name: Golem_1_die_7
       rect:
         serializedVersion: 2
-        x: 782
-        y: 396
-        width: 161
-        height: 159
+        x: 486
+        y: 11
+        width: 22
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -394,173 +397,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8e1feb49ae20197a0800000000000000
-      internalID: -6372308791211396632
+      spriteID: b38b921f65e9a2a10800000000000000
+      internalID: 1885493490258393147
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_8
+      name: Golem_1_die_8
       rect:
         serializedVersion: 2
-        x: 21
-        y: 214
-        width: 157
-        height: 149
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 267644ddfaf651440800000000000000
-      internalID: 4905950170212231010
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_9
-      rect:
-        serializedVersion: 2
-        x: 213
-        y: 213
-        width: 159
-        height: 150
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5560587fb399d1790800000000000000
-      internalID: -7557716116823013803
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_10
-      rect:
-        serializedVersion: 2
-        x: 403
-        y: 213
-        width: 163
-        height: 153
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5538a231944cc6f10800000000000000
-      internalID: 2264400530793726805
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_11
-      rect:
-        serializedVersion: 2
-        x: 597
-        y: 213
-        width: 163
-        height: 156
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9c7f334ba5023be90800000000000000
-      internalID: -7011224620943280183
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_12
-      rect:
-        serializedVersion: 2
-        x: 789
-        y: 213
-        width: 154
-        height: 157
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8d2c843bba80ea420800000000000000
-      internalID: 2643059564853379800
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_13
-      rect:
-        serializedVersion: 2
-        x: 888
-        y: 357
-        width: 19
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bb7ef84096c392890800000000000000
-      internalID: -7482382884153595973
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_14
-      rect:
-        serializedVersion: 2
-        x: 356
-        y: 244
-        width: 18
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7db5f7e287ae76e60800000000000000
-      internalID: 7955585068670344151
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_15
-      rect:
-        serializedVersion: 2
-        x: 552
-        y: 245
-        width: 17
+        x: 575
+        y: 19
+        width: 11
         height: 15
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -570,19 +419,41 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3a510bb75787b49a0800000000000000
-      internalID: -6247767612064787037
+      spriteID: e8c5a4f4be3b48b30800000000000000
+      internalID: 4288750568392514702
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_16
+      name: Golem_1_die_9
       rect:
         serializedVersion: 2
-        x: 590
-        y: 238
-        width: 14
+        x: 575
+        y: 0
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f28a14fe94d41db00800000000000000
+      internalID: 851546784491743279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_10
+      rect:
+        serializedVersion: 2
+        x: 592
+        y: 19
+        width: 7
         height: 13
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -592,19 +463,63 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e3f29156f71169f00800000000000000
-      internalID: 1123104395930185534
+      spriteID: 9a340c6fb0e96ec20800000000000000
+      internalID: 3235447156533904297
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_17
+      name: Golem_1_die_11
       rect:
         serializedVersion: 2
-        x: 62
-        y: 200
-        width: 17
+        x: 666
+        y: 10
+        width: 10
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b744e11dd9852620800000000000000
+      internalID: 2748754730160506800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_12
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 9
+        width: 8
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce3262424c4fd8440800000000000000
+      internalID: 4939873489552548844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_13
+      rect:
+        serializedVersion: 2
+        x: 377
+        y: 0
+        width: 35
         height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -614,216 +529,18 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b9496f65766f8dae0800000000000000
-      internalID: -1524197550163848037
+      spriteID: e02a808438ac36b50800000000000000
+      internalID: 6585329745343848974
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_18
+      name: Golem_1_die_14
       rect:
         serializedVersion: 2
-        x: 259
-        y: 202
-        width: 8
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 35070aea1c7b100a0800000000000000
-      internalID: -6917045510178049965
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_19
-      rect:
-        serializedVersion: 2
-        x: 19
-        y: 18
-        width: 159
-        height: 152
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 91c821c08f8ce3380800000000000000
-      internalID: -8989526838504944615
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_20
-      rect:
-        serializedVersion: 2
-        x: 47
-        y: 164
-        width: 18
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c415c0f40a0b52320800000000000000
-      internalID: 2532624568033235276
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_21
-      rect:
-        serializedVersion: 2
-        x: 208
-        y: 13
-        width: 168
-        height: 156
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 30d681f77395a3060800000000000000
-      internalID: 6933952671180680451
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_22
-      rect:
-        serializedVersion: 2
-        x: 404
-        y: 22
-        width: 167
-        height: 147
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0ee9020e35c5a9c80800000000000000
-      internalID: -8315232246673924384
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_23
-      rect:
-        serializedVersion: 2
-        x: 587
-        y: 20
-        width: 177
-        height: 150
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 116bacd40367cc0d0800000000000000
-      internalID: -3401213668735928815
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_24
-      rect:
-        serializedVersion: 2
-        x: 790
-        y: 18
-        width: 158
-        height: 156
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 31b4c4677e1148ab0800000000000000
-      internalID: -5006857199909319917
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_25
-      rect:
-        serializedVersion: 2
-        x: 775
-        y: 129
-        width: 24
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 69b4ed72d981a03a0800000000000000
-      internalID: -6698514432502379626
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_26
-      rect:
-        serializedVersion: 2
-        x: 939
-        y: 84
-        width: 21
-        height: 19
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0317955da49e65ad0800000000000000
-      internalID: -2713725217827884752
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_27
-      rect:
-        serializedVersion: 2
-        x: 393
-        y: 24
+        x: 415
+        y: 0
         width: 19
         height: 17
       alignment: 0
@@ -834,42 +551,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c9a0596e65e4edf90800000000000000
-      internalID: -6927013041706562916
+      spriteID: 1fe57b39c7e9610e0800000000000000
+      internalID: -2299476301834658063
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_28
+      name: Golem_1_die_15
       rect:
         serializedVersion: 2
-        x: 436
-        y: 8
-        width: 18
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3415614cc0498ca70800000000000000
-      internalID: 8847484250519654723
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_29
-      rect:
-        serializedVersion: 2
-        x: 526
-        y: 19
+        x: 466
+        y: 0
         width: 19
-        height: 18
+        height: 9
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -878,86 +573,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5108c3004764d4890800000000000000
-      internalID: -7472238742703669227
+      spriteID: 8028cc4a3f14c8370800000000000000
+      internalID: 8326102325798928904
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pipo-gate01d192_30
+      name: Golem_1_die_16
       rect:
         serializedVersion: 2
-        x: 586
-        y: 22
-        width: 14
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1d9e11ae0e5ea3d50800000000000000
-      internalID: 6717934548338993617
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_31
-      rect:
-        serializedVersion: 2
-        x: 721
-        y: 19
-        width: 19
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 47609c7ab180dd8b0800000000000000
-      internalID: -5125931886005647756
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_32
-      rect:
-        serializedVersion: 2
-        x: 917
-        y: 16
-        width: 19
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9bb5ba8d4a5ab5f30800000000000000
-      internalID: 4565424774698458041
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pipo-gate01d192_33
-      rect:
-        serializedVersion: 2
-        x: 625
+        x: 485
         y: 4
         width: 17
-        height: 16
+        height: 9
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -966,8 +595,404 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 69f9e7d360b4431d0800000000000000
-      internalID: -3371987730820063338
+      spriteID: 4652d1bc6bd62f8c0800000000000000
+      internalID: -3966987689900825244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_17
+      rect:
+        serializedVersion: 2
+        x: 501
+        y: 6
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a1334da699c35540800000000000000
+      internalID: 4995558060673151396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_18
+      rect:
+        serializedVersion: 2
+        x: 506
+        y: 0
+        width: 19
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50266f8458ae6b990800000000000000
+      internalID: -7370445881969581563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_19
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 0
+        width: 21
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2da8a4e01cbd1f9f0800000000000000
+      internalID: -436326066663290158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_20
+      rect:
+        serializedVersion: 2
+        x: 597
+        y: 0
+        width: 18
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f53c61f37d12463b0800000000000000
+      internalID: -5520250034889243809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_21
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 0
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6966cea3743decf60800000000000000
+      internalID: 8056609086297106070
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_22
+      rect:
+        serializedVersion: 2
+        x: 663
+        y: 0
+        width: 39
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1a0f76a58e66f840800000000000000
+      internalID: 5257511135304682010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_23
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 2
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f94fb687f7a404a0800000000000000
+      internalID: -6627988070023083533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_24
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 0
+        width: 58
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cae6c6cae56c35530800000000000000
+      internalID: 3842633016999177900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_25
+      rect:
+        serializedVersion: 2
+        x: 789
+        y: 0
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: add2aa5be7f98b4c0800000000000000
+      internalID: -4271488879998390822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_26
+      rect:
+        serializedVersion: 2
+        x: 823
+        y: 0
+        width: 39
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1be6e45370f95d260800000000000000
+      internalID: 7121773239064227505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_27
+      rect:
+        serializedVersion: 2
+        x: 858
+        y: 0
+        width: 22
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff6cf20ab2ba5f340800000000000000
+      internalID: 4897008373694711551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_28
+      rect:
+        serializedVersion: 2
+        x: 872
+        y: 5
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51a8ce20a59e9aa10800000000000000
+      internalID: 1921323288855611925
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_29
+      rect:
+        serializedVersion: 2
+        x: 879
+        y: 0
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d8feec0d74110a30800000000000000
+      internalID: 4179644456496986321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_30
+      rect:
+        serializedVersion: 2
+        x: 914
+        y: 0
+        width: 48
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b79e567b3d2c0070800000000000000
+      internalID: 8073877965380687795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_31
+      rect:
+        serializedVersion: 2
+        x: 962
+        y: 2
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf6ed40181ae847e0800000000000000
+      internalID: -1780916263551375620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_32
+      rect:
+        serializedVersion: 2
+        x: 485
+        y: 0
+        width: 16
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d37e40022d9ae3240800000000000000
+      internalID: 4773439375004723005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_33
+      rect:
+        serializedVersion: 2
+        x: 969
+        y: 0
+        width: 8
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8441d3877b348a9f0800000000000000
+      internalID: -457040906902760376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Golem_1_die_34
+      rect:
+        serializedVersion: 2
+        x: 1025
+        y: 0
+        width: 32
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9ad27de713e2df50800000000000000
+      internalID: 6904830870619871899
       vertices: []
       indices: 
       edges: []
@@ -986,40 +1011,41 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      pipo-gate01d192_0: 7273716507066944919
-      pipo-gate01d192_1: 4424305431606032378
-      pipo-gate01d192_10: 2264400530793726805
-      pipo-gate01d192_11: -7011224620943280183
-      pipo-gate01d192_12: 2643059564853379800
-      pipo-gate01d192_13: -7482382884153595973
-      pipo-gate01d192_14: 7955585068670344151
-      pipo-gate01d192_15: -6247767612064787037
-      pipo-gate01d192_16: 1123104395930185534
-      pipo-gate01d192_17: -1524197550163848037
-      pipo-gate01d192_18: -6917045510178049965
-      pipo-gate01d192_19: -8989526838504944615
-      pipo-gate01d192_2: 3170471354801087818
-      pipo-gate01d192_20: 2532624568033235276
-      pipo-gate01d192_21: 6933952671180680451
-      pipo-gate01d192_22: -8315232246673924384
-      pipo-gate01d192_23: -3401213668735928815
-      pipo-gate01d192_24: -5006857199909319917
-      pipo-gate01d192_25: -6698514432502379626
-      pipo-gate01d192_26: -2713725217827884752
-      pipo-gate01d192_27: -6927013041706562916
-      pipo-gate01d192_28: 8847484250519654723
-      pipo-gate01d192_29: -7472238742703669227
-      pipo-gate01d192_3: 3494726738988284055
-      pipo-gate01d192_30: 6717934548338993617
-      pipo-gate01d192_31: -5125931886005647756
-      pipo-gate01d192_32: 4565424774698458041
-      pipo-gate01d192_33: -3371987730820063338
-      pipo-gate01d192_4: 8952415267755680309
-      pipo-gate01d192_5: 8988623232933079897
-      pipo-gate01d192_6: 1954343897308525706
-      pipo-gate01d192_7: -6372308791211396632
-      pipo-gate01d192_8: 4905950170212231010
-      pipo-gate01d192_9: -7557716116823013803
+      Golem_1_die_0: -3499944936518720492
+      Golem_1_die_1: 2766055293292107051
+      Golem_1_die_10: 3235447156533904297
+      Golem_1_die_11: 2748754730160506800
+      Golem_1_die_12: 4939873489552548844
+      Golem_1_die_13: 6585329745343848974
+      Golem_1_die_14: -2299476301834658063
+      Golem_1_die_15: 8326102325798928904
+      Golem_1_die_16: -3966987689900825244
+      Golem_1_die_17: 4995558060673151396
+      Golem_1_die_18: -7370445881969581563
+      Golem_1_die_19: -436326066663290158
+      Golem_1_die_2: -6396591571823419708
+      Golem_1_die_20: -5520250034889243809
+      Golem_1_die_21: 8056609086297106070
+      Golem_1_die_22: 5257511135304682010
+      Golem_1_die_23: -6627988070023083533
+      Golem_1_die_24: 3842633016999177900
+      Golem_1_die_25: -4271488879998390822
+      Golem_1_die_26: 7121773239064227505
+      Golem_1_die_27: 4897008373694711551
+      Golem_1_die_28: 1921323288855611925
+      Golem_1_die_29: 4179644456496986321
+      Golem_1_die_3: 2859483638002222463
+      Golem_1_die_30: 8073877965380687795
+      Golem_1_die_31: -1780916263551375620
+      Golem_1_die_32: 4773439375004723005
+      Golem_1_die_33: -457040906902760376
+      Golem_1_die_34: 6904830870619871899
+      Golem_1_die_4: 1903348830397019602
+      Golem_1_die_5: -6324878056589696706
+      Golem_1_die_6: 7942699683240710454
+      Golem_1_die_7: 1885493490258393147
+      Golem_1_die_8: 4288750568392514702
+      Golem_1_die_9: 851546784491743279
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -4,7 +4,8 @@ using UnityEngine.SceneManagement;
 public class GhostBase : MonoBehaviour
 {
     public GhostData data;
-
+     private　Transform capturePoint;
+    [SerializeField] private float captureSpeed = 2f;
     private bool isDead;
     private Vector2 moveDir;
     private float dirTimer;
@@ -17,16 +18,37 @@ public class GhostBase : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-
+        var obj = GameObject.Find("CapturePoint");
+        if (obj != null)
+            capturePoint = obj.transform;
         lifeTimer = data.absorbTime;
         PickRandomDirection();
     }
 
     void Update()
     {
-        if (isDead) return;
+        if (isDead)
+        {
+            if (capturePoint != null)
+            {
+                // ゆるやかに吸い込まれる (Lerp)
+                transform.position = Vector3.Lerp(
+                    transform.position,
+                    capturePoint.position,
+                    captureSpeed * Time.deltaTime
+                );
 
-        // 共通処理（移動）
+                // capturePoint に十分近づいたら削除
+                float distance = Vector3.Distance(transform.position, capturePoint.position);
+                if (distance < 1f) // 閾値は調整可
+                {
+                    Destroy(gameObject);
+                }
+            }
+            return; // 捕まったら通常処理はしない
+        }
+
+        // ↓ここからは通常の生きてるときの処理
         dirTimer -= Time.deltaTime;
         if (dirTimer <= 0f)
             PickRandomDirection();
@@ -37,30 +59,26 @@ public class GhostBase : MonoBehaviour
         animator.SetFloat("MoveY", moveDir.y);
         animator.SetFloat("Speed", rb.linearVelocity.magnitude);
 
-        // 共通：自然吸収
         lifeTimer -= Time.deltaTime;
         if (lifeTimer <= 0f && (data.type == GhostType.Normal || data.type == GhostType.Quick || data.type == GhostType.Tank))
         {
-            Kill();
+            GameObject dragon = GameObject.Find("Dragon");
+            if (dragon != null)
+            {
+                Absorb(dragon.transform);
+            }
         }
 
-        // 特殊挙動
         switch (data.type)
         {
             case GhostType.Quick:
-                // 吸収時間を短縮
-                if (lifeTimer <= data.absorbTime * 0.5f)
-                    Kill();
+                if (lifeTimer <= data.absorbTime * 0.5f) Kill();
                 break;
-
             case GhostType.Tank:
-                // Tankは absorbTime が長い or captureHitsNeeded を増やすで対応
                 break;
-
             case GhostType.Suicide:
                 UpdateSuicide();
                 break;
-
             case GhostType.Lucky:
                 UpdateLucky();
                 break;
@@ -117,10 +135,19 @@ public class GhostBase : MonoBehaviour
             var circle = Instantiate(data.fireCirclePrefab, transform.position, Quaternion.identity);
             Destroy(circle, data.fireCircleLifetime);
         }
-
-        Destroy(gameObject);
     }
+    public void Absorb(Transform absorbPoint)
+    {
+        if (isDead) return;
+        isDead = true;
 
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+
+        animator.SetBool("Dead", true);
+
+        capturePoint = absorbPoint;
+    }
     private void PickRandomDirection()
     {
         int x = Random.Range(-1, 2);

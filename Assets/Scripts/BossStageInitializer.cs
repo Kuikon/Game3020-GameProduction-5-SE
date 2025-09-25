@@ -80,7 +80,6 @@ public class BossStageInitializer : MonoBehaviour
             if (fb != null) Destroy(fb);
         }
         spawnedFireballs.Clear();
-        Debug.Log("🔥 火の玉が消えた！");
     }
 
     void DropMeteors()

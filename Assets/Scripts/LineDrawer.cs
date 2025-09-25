@@ -10,10 +10,8 @@ public class LineDraw : MonoBehaviour
     private int posCount = 0;
     private float interval = 0.1f;
 
-    // 作られるポリゴン
     private PolygonCollider2D _poly;
 
-    // オブジェクトが何回囲まれたか記録
     public Dictionary<GameObject, int> insideCount { get; private set; }
 
     void Awake()
@@ -30,21 +28,19 @@ public class LineDraw : MonoBehaviour
         _rend.material = new Material(Shader.Find("Sprites/Default"));
 
         if (_cam == null)
-            _cam = Camera.main; // Inspectorに指定が無ければ自動でMainCameraを使う
+            _cam = Camera.main; 
     }
 
     private void Update()
     {
-        // マウス座標取得（画面外なら処理しない）
         Vector3 mousePos = Input.mousePosition;
         if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mousePos))
             return;
 
-        mousePos.z = Mathf.Abs(_cam.transform.position.z); // カメラからの距離を設定
+        mousePos.z = Mathf.Abs(_cam.transform.position.z);
         mousePos = _cam.ScreenToWorldPoint(mousePos);
         mousePos.z = 0f;
 
-        // 線を引く処理
         if (Input.GetMouseButton(0))
         {
             SetPosition(mousePos);
@@ -81,9 +77,6 @@ public class LineDraw : MonoBehaviour
         _rend.positionCount = 0;
     }
 
-    /// <summary>
-    /// 新しい線分と過去の線分が交差していたらポリゴンを作る
-    /// </summary>
     private void CheckIntersection()
     {
         Vector3 p1 = _rend.GetPosition(posCount - 2);
@@ -96,27 +89,23 @@ public class LineDraw : MonoBehaviour
 
             if (LineSegmentsIntersect(p1, p2, p3, p4, out Vector2 intersection))
             {
-                Debug.Log("交差発見！ポリゴンを生成");
 
-                // 交差点を含めたループの頂点リストを作成
                 List<Vector2> loopPoints = new List<Vector2>();
                 for (int j = i + 1; j < posCount; j++)
                 {
                     Vector3 wp = _rend.GetPosition(j);
                     loopPoints.Add(transform.InverseTransformPoint(wp));
                 }
-                loopPoints.Add(intersection); // 閉じる
+                loopPoints.Add(intersection);
 
-                // PolygonCollider2D を生成
+
                 if (_poly != null) Destroy(_poly);
                 _poly = gameObject.AddComponent<PolygonCollider2D>();
                 _poly.isTrigger = true;
                 _poly.points = loopPoints.ToArray();
 
-                // 中にいるオブジェクトをチェック
                 CheckObjectsInside();
 
-                // ポリゴン削除＆線リセット
                 Destroy(_poly);
                 ResetLine();
                 return;
@@ -124,14 +113,11 @@ public class LineDraw : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 線分交差判定
-    /// </summary>
     private bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 intersection)
     {
         intersection = Vector2.zero;
         float d = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
-        if (Mathf.Approximately(d, 0f)) return false; // 平行
+        if (Mathf.Approximately(d, 0f)) return false; 
 
         float u = ((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) / d;
         float v = ((p3.x - p1.x) * (p4.y - p3.y) - (p3.y - p1.y) * (p4.x - p3.x)) / d;
@@ -143,10 +129,6 @@ public class LineDraw : MonoBehaviour
         }
         return false;
     }
-
-    /// <summary>
-    /// ポリゴンの中にいるオブジェクトをチェックして回数カウント
-    /// </summary>
     private void CheckObjectsInside()
     {
         GameObject[] targets = GameObject.FindGameObjectsWithTag("Dog");
@@ -168,11 +150,11 @@ public class LineDraw : MonoBehaviour
                     {
                         gb.Kill();
                     }
-                    Debug.Log($"{t.name} は3回囲まれました！");
+                    Debug.Log($"{t.name} Captured 3");
                 }
                 else
                 {
-                    Debug.Log($"{t.name} は {insideCount[t]} 回囲まれました");
+                    Debug.Log($"{t.name} Caputured {insideCount[t]} times");
                 }
             }
         }

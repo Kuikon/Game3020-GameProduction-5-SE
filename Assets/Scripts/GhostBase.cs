@@ -10,7 +10,7 @@ public class GhostBase : MonoBehaviour
     private Vector2 moveDir;
     private float dirTimer;
     private float lifeTimer;
-    private float chargeTimer; // Lucky 用
+    private float chargeTimer; 
     private Rigidbody2D rb;
     private Animator animator;
 
@@ -31,24 +31,21 @@ public class GhostBase : MonoBehaviour
         {
             if (capturePoint != null)
             {
-                // ゆるやかに吸い込まれる (Lerp)
                 transform.position = Vector3.Lerp(
                     transform.position,
                     capturePoint.position,
                     captureSpeed * Time.deltaTime
                 );
 
-                // capturePoint に十分近づいたら削除
                 float distance = Vector3.Distance(transform.position, capturePoint.position);
-                if (distance < 1f) // 閾値は調整可
+                if (distance < 1f) 
                 {
                     Destroy(gameObject);
                 }
             }
-            return; // 捕まったら通常処理はしない
+            return; 
         }
 
-        // ↓ここからは通常の生きてるときの処理
         dirTimer -= Time.deltaTime;
         if (dirTimer <= 0f)
             PickRandomDirection();

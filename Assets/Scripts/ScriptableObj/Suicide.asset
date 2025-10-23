@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dfa3c2b13af6b814887951d779b900f8, type: 3}
-  m_Name: Golem
+  m_Name: Suicide
   m_EditorClassIdentifier: Assembly-CSharp::GhostData
-  type: 2
+  type: 3
   walkSpeed: 2
   absorbTime: 10
-  captureHitsNeeded: 5
+  captureHitsNeeded: 3
   changeDirectionTime: 2
-  fireCirclePrefab: {fileID: 0}
+  fireCirclePrefab: {fileID: 1783280966794433788, guid: d9006dc16de09304ebeac112b7faf131,
+    type: 3}
   fireCircleLifetime: 3
   luckyChargeTime: 15

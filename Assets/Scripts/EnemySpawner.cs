@@ -52,8 +52,8 @@ public class EnemySpawner : MonoBehaviour
         // 1. Spawn effect
         if (spawnEffectPrefab != null)
         {
-            GameObject effect = Instantiate(spawnEffectPrefab, pos, Quaternion.identity);
-            Destroy(effect, 3f); // auto destroy after 2 seconds
+            GameObject effect = Instantiate(spawnEffectPrefab, pos , Quaternion.identity);
+            Destroy(effect, 1f); // auto destroy after 2 seconds
         }
 
         // 2. Wait before actual spawn

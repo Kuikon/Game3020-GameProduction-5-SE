@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5179119827861847104}
   - component: {fileID: 4714380755447837539}
   - component: {fileID: 67833075177672880}
-  - component: {fileID: 3095449651160952280}
+  - component: {fileID: 441180833190706293}
   m_Layer: 0
   m_Name: NormalGhost
   m_TagString: Dog
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 4448715427215634006, guid: bf70ca9dfe1c24e4d8f84cf266033948,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -108,6 +108,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RandomWalker
   data: {fileID: 11400000, guid: a923d55bad54f124aba95ef33e1fdac9, type: 2}
+  xBoundary:
+    max: 5.5
+    min: -5.5
+  yBoundary:
+    max: 3
+    min: -3
+  captureSpeed: 2
 --- !u!95 &4714380755447837539
 Animator:
   serializedVersion: 7
@@ -156,9 +163,9 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
---- !u!61 &3095449651160952280
-BoxCollider2D:
+  m_Constraints: 4
+--- !u!70 &441180833190706293
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -192,14 +199,5 @@ BoxCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8, y: 0.92}
-    newSize: {x: 0.4, y: 0.46}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1.25, y: 1.4375}
-  m_EdgeRadius: 0
+  m_Size: {x: 0.8, y: 0.92}
+  m_Direction: 0

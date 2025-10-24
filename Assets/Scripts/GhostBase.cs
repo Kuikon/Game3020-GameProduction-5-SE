@@ -16,6 +16,7 @@ public class GhostBase : MonoBehaviour
 
     private bool isDead;
     private bool isStartIdle = true;
+    private bool quickSpeedBoosted = false;
 
     private Vector2 moveDir;
     private float dirTimer;
@@ -108,7 +109,7 @@ public class GhostBase : MonoBehaviour
 
         if (dirTimer <= 0f)
             PickRandomDirection();
-
+        data.walkSpeed = 1f;
         // Move naturally
         rb.linearVelocity = moveDir * data.walkSpeed;
 
@@ -210,8 +211,11 @@ public class GhostBase : MonoBehaviour
         switch (data.type)
         {
             case GhostType.Quick:
-                if (lifeTimer <= data.absorbTime * 0.5f)
-                    Kill();
+                if (!quickSpeedBoosted)
+                {
+                    data.walkSpeed *= 2f;
+                    quickSpeedBoosted = true;
+                }
                 break;
             case GhostType.Tank:
                 // No special behavior yet

@@ -13,11 +13,10 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] GameObject[] ghostPrefabs;      // Array of ghost prefabs to spawn
     [SerializeField] GameObject spawnEffectPrefab;   // Optional spawn effect (smoke, glow, etc.)
     [SerializeField] float delayBeforeSpawn = 0.5f;  // Delay between effect and actual spawn
+    [SerializeField] float continuousSpawnInterval = 3f;
+    private Coroutine spawnLoop;
 
-    private void Start()
-    {
-       
-    }
+
     /// <summary>
     /// Handles the spawn effect → delay → ghost spawn sequence.
     /// </summary>
@@ -26,7 +25,7 @@ public class EnemySpawner : MonoBehaviour
         // ① Spawn effect
         if (spawnEffectPrefab != null)
         {
-            Vector3 effectPos = pos + new Vector3(0f, -0.5f, 0f);
+            Vector3 effectPos = pos + new Vector3(0f, -.5f, 0f);
             GameObject effect = Instantiate(spawnEffectPrefab, effectPos, Quaternion.identity);
             Destroy(effect, 2f);
         }

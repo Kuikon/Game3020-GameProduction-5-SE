@@ -2282,7 +2282,7 @@ MonoBehaviour:
   patrolTilemap: {fileID: 2098639746}
   targetTile: {fileID: 11400000, guid: 73bbd31fe92d966459f047f033c8dd90, type: 2}
   moveSpeed: 2
-  waitTime: 1.5
+  waitTime: 5
   loopPatrol: 1
   enemySpawner: {fileID: 7740075164244518574}
   animator: {fileID: 1286716260}
@@ -2662,14 +2662,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   ghostPrefabs:
-  - {fileID: 5233573436572110791, guid: c71098364592c3c49ac03f919662cd7d, type: 3}
-  - {fileID: 9223000364438897506, guid: db933418495143a439a3b33383650b9c, type: 3}
   - {fileID: 4142727764344632615, guid: 5b159ad427b65734fbda814361a7b575, type: 3}
-  - {fileID: 3271102081527936997, guid: 142b06e8f3ed94e439a91f26053f8bcc, type: 3}
-  - {fileID: 499914241013057535, guid: 7d189b34a7e01654188d5bc5b6240021, type: 3}
   spawnEffectPrefab: {fileID: 8117543156932406295, guid: ba03d909fd287954a8d7c5b3e81d196c,
     type: 3}
-  delayBeforeSpawn: 0.5
+  delayBeforeSpawn: 0.1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

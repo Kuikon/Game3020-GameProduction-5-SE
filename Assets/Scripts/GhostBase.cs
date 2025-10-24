@@ -5,11 +5,11 @@ using UnityEngine.SceneManagement;
 public class GhostBase : MonoBehaviour
 {
     [Header("Ghost Data")]
-    public GhostData data;
+    [SerializeField] GhostData data;
 
     [Header("Movement Boundaries")]
-    public Boundry xBoundary;
-    public Boundry yBoundary;
+    [SerializeField] Boundry xBoundary;
+    [SerializeField] Boundry yBoundary;
 
     private Transform capturePoint;
     [SerializeField] private float captureSpeed = 2f;

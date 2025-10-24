@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class BossStageInitializer : MonoBehaviour
 {
     [Header("Fireball Settings")]
-    public GameObject fireballPrefab;     
+    private GameObject fireballPrefab;     
     public Sprite fireballSprite;                     
     public int fireballCount = 12;
     public float fireballInterval = 0.2f;  
@@ -27,6 +27,7 @@ public class BossStageInitializer : MonoBehaviour
     private int fireballShotIndex = 0; 
     void Start()
     {
+        fireballPrefab = Resources.Load<GameObject>("Prefabs/Fireball");
         StartCoroutine(StageIntroSequence());
     }
 

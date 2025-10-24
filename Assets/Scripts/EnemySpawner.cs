@@ -1,78 +1,48 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
+using UnityEngine.Tilemaps;
 using System.Collections;
+using System.Collections.Generic;
 
+/// <summary>
+/// Automatically detects "grave tiles" on a Tilemap
+/// and spawns ghosts randomly on top of them.
+/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("Spawn Settings")]
-    public GameObject[] ghostPrefabs;      // Different ghost prefabs
-    public GameObject spawnEffectPrefab;   // Effect prefab (particles, flash, etc.)
-    public Boundry screenVericalBoundry;
-    public Boundry screenHorizontalBoundry;   // Top-right corner
-    public float delayBeforeSpawn = 0.5f;  // Delay between effect and spawn
-    public float autoSpawnInterval = 5f;   // Auto spawn interval in seconds
+    [Header(" Spawn Settings")]
+    [SerializeField] GameObject[] ghostPrefabs;      // Array of ghost prefabs to spawn
+    [SerializeField] GameObject spawnEffectPrefab;   // Optional spawn effect (smoke, glow, etc.)
+    [SerializeField] float delayBeforeSpawn = 0.5f;  // Delay between effect and actual spawn
 
     private void Start()
     {
-        // Start auto-spawning (remove this if you only want manual spawning)
-        StartCoroutine(AutoSpawnRoutine());
+       
     }
-
-    private void Update()
-    {
-        // Manual spawn with Space key
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SpawnWalker();
-        }
-    }
-
     /// <summary>
-    /// Spawns a random ghost at a random position
+    /// Handles the spawn effect ‚Üí delay ‚Üí ghost spawn sequence.
     /// </summary>
-    public void SpawnWalker()
+    private IEnumerator SpawnSequence(Vector3 pos, GameObject prefab)
     {
-        // Random position in the defined area
-        Vector2 pos = new Vector2(
-            Random.Range(screenVericalBoundry.min, screenVericalBoundry.max),
-            Random.Range(screenHorizontalBoundry.min, screenHorizontalBoundry.max)
-        );
-
-        // Pick a random prefab from the list
-        int index = Random.Range(0, ghostPrefabs.Length);
-        GameObject prefab = ghostPrefabs[index];
-
-        StartCoroutine(SpawnRoutine(pos, prefab));
-    }
-
-    /// <summary>
-    /// Coroutine: effect Å® delay Å® spawn ghost
-    /// </summary>
-    private IEnumerator SpawnRoutine(Vector2 pos, GameObject prefab)
-    {
-        // 1. Spawn effect
+        // ‚ë† Spawn effect
         if (spawnEffectPrefab != null)
         {
-            GameObject effect = Instantiate(spawnEffectPrefab, pos , Quaternion.identity);
-            Destroy(effect, 1f); // auto destroy after 2 seconds
+            Vector3 effectPos = pos + new Vector3(0f, -0.5f, 0f);
+            GameObject effect = Instantiate(spawnEffectPrefab, effectPos, Quaternion.identity);
+            Destroy(effect, 2f);
         }
 
-        // 2. Wait before actual spawn
+        // ‚ë° Wait before spawning
         yield return new WaitForSeconds(delayBeforeSpawn);
 
-        // 3. Spawn the ghost
+        // ‚ë¢ Spawn the ghost
         Instantiate(prefab, pos, Quaternion.identity);
-        Debug.Log($"Spawned {prefab.name} at {pos}");
+        Debug.Log($"üëª Spawned {prefab.name} on a grave at {pos}.");
     }
-
-    /// <summary>
-    /// Auto spawn every few seconds
-    /// </summary>
-    private IEnumerator AutoSpawnRoutine()
+    public void SpawnAtPosition(Vector3 pos)
     {
-        while (true)
-        {
-            yield return new WaitForSeconds(autoSpawnInterval);
-            SpawnWalker();
-        }
+        if (ghostPrefabs.Length == 0) return;
+
+        GameObject ghostPrefab = ghostPrefabs[Random.Range(0, ghostPrefabs.Length)];
+        StartCoroutine(SpawnSequence(pos, ghostPrefab));
     }
 }

@@ -12,11 +12,13 @@ public class GhostBase : MonoBehaviour
     [SerializeField] Boundry yBoundary;
 
     private Transform capturePoint;
+    private Transform releasePoint;
     [SerializeField] private float captureSpeed = 2f;
 
     private bool isDead;
     private bool isStartIdle = true;
     private bool quickSpeedBoosted = false;
+    private bool absorbedByDragon = false;
 
     private Vector2 moveDir;
     private float dirTimer;
@@ -38,6 +40,9 @@ public class GhostBase : MonoBehaviour
         var obj = GameObject.Find("CapturePoint");
         if (obj != null)
             capturePoint = obj.transform;
+        var obj1 = GameObject.Find("GhostBallSpawner");
+        if (obj1 != null)
+            releasePoint = obj1.transform;
 
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
@@ -92,7 +97,15 @@ public class GhostBase : MonoBehaviour
             );
 
             if (Vector3.Distance(transform.position, capturePoint.position) < 1f)
+            {
+
+                if (!absorbedByDragon && releasePoint != null)
+                {
+                    GhostEvents.RaiseGhostCaptured(data.type, releasePoint.position);
+                }
                 Destroy(gameObject);
+            }
+               
         }
 
         return true;
@@ -166,7 +179,7 @@ public class GhostBase : MonoBehaviour
         {
             GameObject dragon = GameObject.Find("Dragon");
             if (dragon != null)
-                Absorb(dragon.transform);
+                Absorb(dragon.transform, true);
         }
     }
 
@@ -284,7 +297,7 @@ public class GhostBase : MonoBehaviour
         }
     }
 
-    public void Absorb(Transform absorbPoint)
+    public void Absorb(Transform absorbPoint, bool isFromDragon = false)
     {
         if (isDead) return;
         isDead = true;
@@ -294,6 +307,7 @@ public class GhostBase : MonoBehaviour
         animator.SetBool("Dead", true);
 
         capturePoint = absorbPoint;
+        absorbedByDragon = isFromDragon;
     }
 
     private void PickRandomDirection()

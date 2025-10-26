@@ -115,6 +115,11 @@ MonoBehaviour:
     max: 3
     min: -3
   captureSpeed: 2
+  luckyButton: {fileID: 6426993631740770223, guid: 6f7be4f98b01b3d48a17f8ffe10f2fc4,
+    type: 3}
+  magnetPoint: {fileID: 4234086167712947991, guid: e0b5a04902580ed4dbe373fa85f32942,
+    type: 3}
+  magnetHoldTime: 3
 --- !u!95 &7619690905225710060
 Animator:
   serializedVersion: 7

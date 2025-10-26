@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using System.Collections.Generic;
 
 public class BoxManager : MonoBehaviour
 {
@@ -8,40 +8,54 @@ public class BoxManager : MonoBehaviour
 
     [Header("Score UI")]
     public Text scoreText;
-    private int score = 0;
 
+    private int score = 0;
+    private Dictionary<GhostType, UIBox> boxDict = new();
+    private Dictionary<GhostType, int> typeCounts = new();
     void Awake()
     {
         Instance = this;
+
+        foreach (var box in FindObjectsOfType<UIBox>())
+        {
+            if (!boxDict.ContainsKey(box.boxType))
+            {
+                boxDict.Add(box.boxType, box);
+                Debug.Log($"[BoxManager] Registered box: {box.boxType}");
+            }
+        }
+        foreach (GhostType t in System.Enum.GetValues(typeof(GhostType)))
+            typeCounts[t] = 0;
     }
 
-    public void ProcessDrop(BallController ball, UIBox box)
+
+    public void ProcessDrop(BallController ball, UIBox targetBox)
     {
-        if (ball.type == box.boxType)
+        GhostType type = ball.type;
+        if (boxDict.TryGetValue(ball.type, out var correctBox) && targetBox == correctBox)
         {
-            // ✅ Correct
-            score += 10;
-            UpdateScore();
-            StartCoroutine(ball.MoveToBoxCenter(box.RectTransform.position));
-            Debug.Log($"✅ Correct! {ball.type} → {box.boxType}");
+           
+            Debug.Log($"✅ Correct: {ball.type} → {targetBox.name}");
+
+            typeCounts[type]++;
+            targetBox.AddBall();
+            Destroy(ball.gameObject);
         }
         else
         {
-            // ❌ Incorrect
+            Debug.Log($"❌ Wrong: {ball.type} → {targetBox.name}");
             score -= 5;
             UpdateScore();
 
             Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
-            rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.linearVelocity = Vector2.zero;
             rb.AddForce(Vector2.up * 3f, ForceMode2D.Impulse);
-            Debug.Log($"❌ Wrong! {ball.type} → {box.boxType}");
         }
     }
 
     private void UpdateScore()
     {
         if (scoreText != null)
-            scoreText.text = "Score: " + score;
+            scoreText.text = $"Score: {score}";
     }
+
 }

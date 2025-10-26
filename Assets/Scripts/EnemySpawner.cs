@@ -35,7 +35,7 @@ public class EnemySpawner : MonoBehaviour
 
         // ③ Spawn the ghost
         Instantiate(prefab, pos, Quaternion.identity);
-        Debug.Log($"👻 Spawned {prefab.name} on a grave at {pos}.");
+        //Debug.Log($"👻 Spawned {prefab.name} on a grave at {pos}.");
     }
     public void SpawnAtPosition(Vector3 pos)
     {

@@ -18,5 +18,5 @@ public class GhostData : ScriptableObject
     public float fireCircleLifetime = 3f;
 
     [Header("Lucky Only")]
-    public float luckyChargeTime = 15f;
+    public  int luckyScore = 0;
 }

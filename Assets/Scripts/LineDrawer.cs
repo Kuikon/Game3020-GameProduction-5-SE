@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 [RequireComponent(typeof(LineRenderer))]
 public class LineDraw : MonoBehaviour
@@ -11,7 +12,8 @@ public class LineDraw : MonoBehaviour
     private float interval = 0.1f;
 
     private PolygonCollider2D _poly;
-
+    private Coroutine lineFadeCoroutine;
+    public float lineLifeTime = 2.5f;
     public Dictionary<GameObject, int> insideCount { get; private set; }
 
     void Awake()
@@ -33,6 +35,12 @@ public class LineDraw : MonoBehaviour
 
     private void Update()
     {
+        if (BallController.IsAnyBallBeingDragged)
+        {
+            if (_rend.positionCount > 0)
+                ResetLine(); 
+            return;
+        }
         Vector3 mousePos = Input.mousePosition;
         if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mousePos))
             return;
@@ -52,6 +60,7 @@ public class LineDraw : MonoBehaviour
         {
             ResetLine();
         }
+
     }
 
     private void SetPosition(Vector3 pos)
@@ -159,4 +168,5 @@ public class LineDraw : MonoBehaviour
             }
         }
     }
+
 }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-
+using UnityEngine.UI;
+using TMPro;
+using System.Collections;
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
 public class GhostBase : MonoBehaviour
 {
@@ -14,21 +15,30 @@ public class GhostBase : MonoBehaviour
     private Transform capturePoint;
     private Transform releasePoint;
     [SerializeField] private float captureSpeed = 2f;
-
-    private bool isDead;
+    [SerializeField] private Button luckyButton;
+    [SerializeField] private Transform magnetPoint;
+    [SerializeField] private float magnetHoldTime = 3f;
+    public  bool isDead;
     private bool isStartIdle = true;
     private bool quickSpeedBoosted = false;
     private bool absorbedByDragon = false;
+    private bool suicideTargetSet = false;
 
+    private Vector3 suicideTargetPos;
     private Vector2 moveDir;
     private float dirTimer;
     private float lifeTimer;
     private float chargeTimer;
     private float startIdleTimer = 1f;
     private float bounceCooldown = 0f;
+    private float absorbRadius = 3f;     
+    private float absorbCooldown = 0f;
+    private int runtimeLuckyScore = 0;
+
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private BallController targetBall = null;
     // ============================================================
     // Initialization
     // ============================================================
@@ -46,6 +56,8 @@ public class GhostBase : MonoBehaviour
 
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
+        if (luckyButton != null)
+            luckyButton.gameObject.SetActive(false);
     }
 
     // ============================================================
@@ -117,6 +129,8 @@ public class GhostBase : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (data.type == GhostType.Suicide && suicideTargetSet)
+            return;
         dirTimer -= Time.fixedDeltaTime;
         bounceCooldown -= Time.fixedDeltaTime;
 
@@ -231,7 +245,7 @@ public class GhostBase : MonoBehaviour
                 }
                 break;
             case GhostType.Tank:
-                // No special behavior yet
+                UpdateTank();
                 break;
             case GhostType.Suicide:
                 UpdateSuicide();
@@ -247,14 +261,40 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     private void UpdateSuicide()
     {
-        if (!Input.GetMouseButton(0)) return;
-        if (Camera.main == null) return;
+        if (!suicideTargetSet)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (Camera.main == null) return;
 
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+                Vector3 mousePos = Input.mousePosition;
+                mousePos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+                Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
 
-        transform.position = Vector3.MoveTowards(transform.position, worldPos, data.walkSpeed * 2f * Time.deltaTime);
+                suicideTargetPos = worldPos;      
+                suicideTargetSet = true;          
+
+                Vector2 dir = (worldPos - transform.position).normalized;
+                animator.SetFloat("MoveX", dir.x);
+                animator.SetFloat("MoveY", dir.y);
+                animator.SetFloat("Speed", 1f);
+
+                Debug.Log($"🎯 Suicide target set: {suicideTargetPos}");
+            }
+            return;
+        }
+
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            suicideTargetPos,
+            data.walkSpeed * 2f * Time.deltaTime
+        );
+
+        if (Vector3.Distance(transform.position, suicideTargetPos) < 0.3f)
+        {
+            suicideTargetSet = false;
+            Kill();
+        }
     }
 
 
@@ -263,14 +303,69 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     private void UpdateLucky()
     {
-        chargeTimer += Time.deltaTime;
-        if (chargeTimer >= data.luckyChargeTime)
-        {
-            CaptureAll();
-            chargeTimer = 0f;
-        }
+       
     }
 
+    private void UpdateTank()
+    {
+        absorbCooldown -= Time.deltaTime;
+        if (absorbCooldown > 0f) return;
+        if (targetBall == null)
+        {
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, absorbRadius);
+            float nearestDist = float.MaxValue;
+            BallController nearestBall = null;
+
+            foreach (var hit in hits)
+            {
+                BallController ball = hit.GetComponent<BallController>();
+                if (ball != null)
+                {
+                    float dist = Vector2.Distance(transform.position, ball.transform.position);
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearestBall = ball;
+                    }
+                }
+            }
+
+            if (nearestBall != null)
+            {
+                targetBall = nearestBall;
+                Debug.Log($"🎯 Tank {name} found target ball {targetBall.name}");
+            }
+        }
+
+        if (targetBall != null)
+        {
+            Vector3 targetPos = targetBall.transform.position;
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetPos,
+                data.walkSpeed * Time.deltaTime
+            );
+
+            Vector2 dir = (targetPos - transform.position).normalized;
+            animator.SetFloat("MoveX", dir.x);
+            animator.SetFloat("MoveY", dir.y);
+            animator.SetFloat("Speed", 1f);
+
+            float distToBall = Vector2.Distance(transform.position, targetPos);
+            if (distToBall < 0.4f)
+            {
+                Debug.Log($"💪 Tank {name} absorbed ball {targetBall.name}");
+                Destroy(targetBall.gameObject);
+
+                GameObject dragon = GameObject.Find("Dragon");
+                if (dragon != null)
+                    Absorb(dragon.transform, true);
+
+                absorbCooldown = 5f;
+                targetBall = null; 
+            }
+        }
+    }
     private void CaptureAll()
     {
         GhostBase[] all = FindObjectsByType<GhostBase>(FindObjectsSortMode.None);
@@ -278,9 +373,31 @@ public class GhostBase : MonoBehaviour
         {
             if (g != this) g.Kill();
         }
-        Debug.Log("Lucky Ghost absorbed all ghosts!");
+        //Debug.Log("Lucky Ghost absorbed all ghosts!");
+    }
+ 
+  
+    public IEnumerator MoveToPointAndFreeze(Vector3 targetPos, float speed)
+    {
+        if (rb == null) yield break;
+
+        while (Vector3.Distance(transform.position, targetPos) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+            yield return null;
+        }
+
+        rb.simulated = false;
+        animator.SetFloat("Speed", 0f);
     }
 
+
+    public void ResumeMovement()
+    {
+        if (rb != null)
+            rb.simulated = true;
+        animator.SetFloat("Speed", 1f);
+    }
     // ============================================================
     // Common utilities: Kill / Absorb / Random Direction
     // ============================================================
@@ -294,6 +411,14 @@ public class GhostBase : MonoBehaviour
         {
             var circle = Instantiate(data.fireCirclePrefab, transform.position, Quaternion.identity);
             Destroy(circle, data.fireCircleLifetime);
+        }
+        if (data.type == GhostType.Lucky)
+        {
+            GameManager.Instance?.AddLuckyScore();
+        }
+        if (luckyButton != null && luckyButton.gameObject.activeInHierarchy)
+        {
+            luckyButton.onClick.RemoveAllListeners();
         }
     }
 

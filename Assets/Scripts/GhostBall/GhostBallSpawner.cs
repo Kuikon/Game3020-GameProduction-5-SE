@@ -28,12 +28,10 @@ public class GhostBallSpawner : MonoBehaviour
         // 🎯 Create a single ball
         GameObject ball = Instantiate(ballPrefab, position, Quaternion.identity);
 
-        // ✅ GhostType を BallController に共有
         BallController bc = ball.GetComponent<BallController>();
         if (bc != null)
         {
             bc.type = type;
-            Debug.Log($"Ball created with type: {type}");
         }
 
         // 🎨 Optional: change color based on type

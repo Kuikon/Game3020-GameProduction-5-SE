@@ -6,6 +6,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class BallController : MonoBehaviour
 {
+    public static bool IsAnyBallBeingDragged = false;
     public Vector2 initialDirection;
     public GhostType type;
     private Rigidbody2D rb;
@@ -18,7 +19,6 @@ public class BallController : MonoBehaviour
 
     [Header("Force Settings")]
     public float returnForce = 1f;
-    private UIBox hoveredBox;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -27,12 +27,11 @@ public class BallController : MonoBehaviour
     void Update()
     {
         ClampPosition();
-        if (isDragging)
-            DetectUIBoxUnderCursor();
     }
     void OnMouseDown()
     {
         isDragging = true;
+        IsAnyBallBeingDragged = true;
         rb.bodyType = RigidbodyType2D.Kinematic;
         Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         offset = transform.position - new Vector3(mousePos.x, mousePos.y, 0);
@@ -40,72 +39,28 @@ public class BallController : MonoBehaviour
 
     void OnMouseDrag()
     {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = Mathf.Abs(cam.transform.position.z - transform.position.z);
-        Vector3 worldPos = cam.ScreenToWorldPoint(mousePos);
-        Vector3 targetPos = worldPos + offset;
-
-        targetPos.x = Mathf.Clamp(targetPos.x, xBoundary.min, xBoundary.max);
-        targetPos.y = Mathf.Clamp(targetPos.y, yBoundary.min, yBoundary.max);
-
-        rb.MovePosition(targetPos);
+        Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+        mousePos.z = 0f;
+        transform.position = mousePos + offset;
     }
 
     void OnMouseUp()
     {
         isDragging = false;
+        IsAnyBallBeingDragged = false;
         rb.bodyType = RigidbodyType2D.Dynamic;
-
-        rb.angularVelocity = 0f;
-
-        if (hoveredBox != null)
-        {
- 
-            BoxManager.Instance.ProcessDrop(this, hoveredBox);
-        }
-        else
-        {
-            rb.AddForce(initialDirection * returnForce, ForceMode2D.Impulse);
-        }
-
-        hoveredBox = null;
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(initialDirection * returnForce, ForceMode2D.Impulse);
     }
-    private void DetectUIBoxUnderCursor()
+    private void OnTriggerStay2D(Collider2D other)
     {
-        hoveredBox = null;
-
-        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        if (!isDragging) return;
+        UIBox box = other.GetComponent<UIBox>();
+        if (box != null)
         {
-            position = Input.mousePosition
-        };
-
-        var results = new System.Collections.Generic.List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        foreach (var r in results)
-        {
-            var box = r.gameObject.GetComponent<UIBox>();
-            if (box != null)
-            {
-                hoveredBox = box;
-                break;
-            }
+            Debug.Log($"🎯 Ball {name} entered {box.name}");
+            BoxManager.Instance.ProcessDrop(this, box);
         }
-    }
-    public IEnumerator MoveToBoxCenter(Vector3 target)
-    {
-        rb.bodyType = RigidbodyType2D.Kinematic;
-        float t = 0f;
-        Vector3 start = transform.position;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 2f;
-            transform.position = Vector3.Lerp(start, target, t);
-            yield return null;
-        }
-
-        //Destroy(gameObject); 
     }
     private void ClampPosition()
     {
@@ -124,5 +79,10 @@ public class BallController : MonoBehaviour
         pos.x = Mathf.Clamp(pos.x, xBoundary.min, xBoundary.max);
         pos.y = Mathf.Clamp(pos.y, yBoundary.min, yBoundary.max);
         transform.position = pos;
+    }
+    void OnDestroy()
+    {
+        if (IsAnyBallBeingDragged)
+            IsAnyBallBeingDragged = false;
     }
 }

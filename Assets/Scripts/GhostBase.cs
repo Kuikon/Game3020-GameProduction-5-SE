@@ -15,9 +15,7 @@ public class GhostBase : MonoBehaviour
     private Transform capturePoint;
     private Transform releasePoint;
     [SerializeField] private float captureSpeed = 2f;
-    [SerializeField] private Button luckyButton;
-    [SerializeField] private Transform magnetPoint;
-    [SerializeField] private float magnetHoldTime = 3f;
+ 
     public  bool isDead;
     private bool isStartIdle = true;
     private bool quickSpeedBoosted = false;
@@ -56,8 +54,6 @@ public class GhostBase : MonoBehaviour
 
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
-        if (luckyButton != null)
-            luckyButton.gameObject.SetActive(false);
     }
 
     // ============================================================
@@ -383,6 +379,8 @@ public class GhostBase : MonoBehaviour
 
         while (Vector3.Distance(transform.position, targetPos) > 0.1f)
         {
+            if (this == null || gameObject == null)
+                yield break;
             transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
             yield return null;
         }
@@ -415,10 +413,6 @@ public class GhostBase : MonoBehaviour
         if (data.type == GhostType.Lucky)
         {
             GameManager.Instance?.AddLuckyScore();
-        }
-        if (luckyButton != null && luckyButton.gameObject.activeInHierarchy)
-        {
-            luckyButton.onClick.RemoveAllListeners();
         }
     }
 

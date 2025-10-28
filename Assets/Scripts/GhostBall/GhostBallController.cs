@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class BallController : MonoBehaviour
@@ -11,6 +12,7 @@ public class BallController : MonoBehaviour
     public GhostType type;
     private Rigidbody2D rb;
     private bool isDragging;
+    public bool allowAutoCollision = false;
     private Vector3 offset;
     private Camera cam;
 
@@ -52,14 +54,16 @@ public class BallController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(initialDirection * returnForce, ForceMode2D.Impulse);
     }
-    private void OnTriggerStay2D(Collider2D other)
+  
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!isDragging) return;
+        if (!isDragging && !allowAutoCollision) return;
         UIBox box = other.GetComponent<UIBox>();
         if (box != null)
         {
             Debug.Log($"🎯 Ball {name} entered {box.name}");
             BoxManager.Instance.ProcessDrop(this, box);
+
         }
     }
     private void ClampPosition()

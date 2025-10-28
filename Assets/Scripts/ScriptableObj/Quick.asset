@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GhostData
   type: 1
   walkSpeed: 2
-  absorbTime: 10
+  absorbTime: 60
   captureHitsNeeded: 3
   changeDirectionTime: 2
   fireCirclePrefab: {fileID: 0}
   fireCircleLifetime: 3
-  luckyChargeTime: 15
+  luckyScore: 0

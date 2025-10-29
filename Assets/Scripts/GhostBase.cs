@@ -353,26 +353,13 @@ public class GhostBase : MonoBehaviour
                 Debug.Log($"💪 Tank {name} absorbed ball {targetBall.name}");
                 Destroy(targetBall.gameObject);
 
-                GameObject dragon = GameObject.Find("Dragon");
-                if (dragon != null)
-                    Absorb(dragon.transform, true);
+               
 
                 absorbCooldown = 5f;
                 targetBall = null; 
             }
         }
     }
-    private void CaptureAll()
-    {
-        GhostBase[] all = FindObjectsByType<GhostBase>(FindObjectsSortMode.None);
-        foreach (GhostBase g in all)
-        {
-            if (g != this) g.Kill();
-        }
-        //Debug.Log("Lucky Ghost absorbed all ghosts!");
-    }
- 
-  
     public IEnumerator MoveToPointAndFreeze(Vector3 targetPos, float speed)
     {
         if (rb == null) yield break;

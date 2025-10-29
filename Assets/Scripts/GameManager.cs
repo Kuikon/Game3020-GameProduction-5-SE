@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
     public Transform magnetPoint;
     public float magnetHoldTime = 3f;
     [Header("Type Gather Control")]
-    public Button gatherButton;
-    public float gatherSpeed = 3f;
+    public Button sortButton;
+    public float sortSpeed = 3f;
     [Header("Ball Type Target Points")]
     public Transform normalPoint;
     public Transform quickPoint;
@@ -26,10 +26,10 @@ public class GameManager : MonoBehaviour
         Instance = this;
         if (luckyButton != null)
             luckyButton.gameObject.SetActive(false);
-        if (gatherButton != null)
+        if (sortButton != null)
         {
-            gatherButton.onClick.RemoveAllListeners();
-            gatherButton.onClick.AddListener(() =>
+            sortButton.onClick.RemoveAllListeners();
+            sortButton.onClick.AddListener(() =>
             {
                 StartCoroutine(GatherAllBallsByType());
             });
@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
             Transform target = GetTargetByType(ball.type);
             if (target != null)
             {
-                StartCoroutine(MoveBallToTarget(ball, target.position, gatherSpeed));
+                StartCoroutine(MoveBallToTarget(ball, target.position, sortSpeed));
             }
         }
 

@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 9223000364438897506}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.18, y: 0.13, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -115,11 +115,7 @@ MonoBehaviour:
     max: 3
     min: -3
   captureSpeed: 2
-  luckyButton: {fileID: 6426993631740770223, guid: 6f7be4f98b01b3d48a17f8ffe10f2fc4,
-    type: 3}
-  magnetPoint: {fileID: 4234086167712947991, guid: e0b5a04902580ed4dbe373fa85f32942,
-    type: 3}
-  magnetHoldTime: 3
+  isDead: 0
 --- !u!95 &7619690905225710060
 Animator:
   serializedVersion: 7

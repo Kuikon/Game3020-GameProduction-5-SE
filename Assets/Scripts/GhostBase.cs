@@ -31,8 +31,6 @@ public class GhostBase : MonoBehaviour
     private float bounceCooldown = 0f;
     private float absorbRadius = 3f;     
     private float absorbCooldown = 0f;
-    private int runtimeLuckyScore = 0;
-
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
@@ -104,7 +102,7 @@ public class GhostBase : MonoBehaviour
                 captureSpeed * Time.deltaTime
             );
 
-            if (Vector3.Distance(transform.position, capturePoint.position) < 1f)
+            if (Vector3.Distance(transform.position, capturePoint.position) < 2f)
             {
 
                 if (!absorbedByDragon && releasePoint != null)
@@ -364,16 +362,23 @@ public class GhostBase : MonoBehaviour
     {
         if (rb == null) yield break;
 
-        while (Vector3.Distance(transform.position, targetPos) > 0.1f)
+        while (true)
         {
-            if (this == null || gameObject == null)
+            if (this == null || gameObject == null || transform == null)
                 yield break;
+
+            if (Vector3.Distance(transform.position, targetPos) <= 0.1f)
+                break;
+
             transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
             yield return null;
         }
 
-        rb.simulated = false;
-        animator.SetFloat("Speed", 0f);
+        if (rb != null)
+            rb.simulated = false;
+
+        if (animator != null)
+            animator.SetFloat("Speed", 0f);
     }
 
 
@@ -391,7 +396,7 @@ public class GhostBase : MonoBehaviour
         if (isDead) return;
         isDead = true;
         animator.SetBool("Dead", true);
-
+        UIManager.Instance?.HideOverheadText(gameObject);
         if (data.type == GhostType.Suicide && data.fireCirclePrefab != null)
         {
             var circle = Instantiate(data.fireCirclePrefab, transform.position, Quaternion.identity);

@@ -4,8 +4,9 @@ public class GhostBallSpawner : MonoBehaviour
 {
     [Header("Ball Settings")]
     [SerializeField] private GameObject ballPrefab;
-    [SerializeField] private int ballCount = 8;
     [SerializeField] private float launchForce = 5f;
+    [SerializeField, Range(0f, 90f)]
+    private float maxAngle = 15f;
 
     private void OnEnable()
     {
@@ -41,10 +42,13 @@ public class GhostBallSpawner : MonoBehaviour
             sr.color = GetColorByType(type);
         }
 
-        // 💥 Launch in a random direction (8-way)
-        int randomIndex = Random.Range(0, ballCount);
-        float angle = randomIndex * Mathf.PI * 2f / ballCount;
-        Vector2 dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        int direction = Random.value < 0.5f ? -1 : 1;
+        float randomAngle = Random.Range(-maxAngle, maxAngle) * Mathf.Deg2Rad; 
+
+        Vector2 dir = new Vector2(
+            direction * Mathf.Cos(randomAngle),
+            Mathf.Sin(randomAngle)
+        ).normalized;
 
         Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
         if (rb != null)
@@ -59,7 +63,7 @@ public class GhostBallSpawner : MonoBehaviour
         switch (type)
         {
             case GhostType.Normal: return Color.white;
-            case GhostType.Quick: return new Color(1f, 0.7f, 0.7f);
+            case GhostType.Quick: return Color.blue;
             case GhostType.Tank: return new Color(0.6f, 0.6f, 1f);
             case GhostType.Suicide: return new Color(1f, 0.4f, 0.4f);
             case GhostType.Lucky: return new Color(1f, 1f, 0.6f);

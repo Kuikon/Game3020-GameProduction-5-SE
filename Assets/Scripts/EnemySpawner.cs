@@ -13,7 +13,6 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] GameObject[] ghostPrefabs;      // Array of ghost prefabs to spawn
     [SerializeField] GameObject spawnEffectPrefab;   // Optional spawn effect (smoke, glow, etc.)
     [SerializeField] float delayBeforeSpawn = 0.5f;  // Delay between effect and actual spawn
-    [SerializeField] float continuousSpawnInterval = 3f;
     private Coroutine spawnLoop;
 
 

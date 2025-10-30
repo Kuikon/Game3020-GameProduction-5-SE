@@ -66,14 +66,16 @@ public class GameManager : MonoBehaviour
         foreach (var ghost in ghosts)
         {
             if (ghost == null || ghost.isDead) continue;
+            if (ghost.gameObject == null) continue;
             StartCoroutine(ghost.MoveToPointAndFreeze(magnetPoint.position, 3f));
+            yield return new WaitForSeconds(0.02f);
         }
 
         yield return new WaitForSeconds(magnetHoldTime);
 
         foreach (var ghost in ghosts)
         {
-            if (ghost != null && !ghost.isDead)
+            if (ghost != null && ghost.gameObject != null && !ghost.isDead)
                 ghost.ResumeMovement();
         }
     }

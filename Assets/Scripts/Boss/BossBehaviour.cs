@@ -15,7 +15,6 @@ public class BossBehaviour : MonoBehaviour
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float waitTime = 2f;
     [SerializeField] private float baseWaitTime = 4f;
-    [SerializeField] private bool loopPatrol = true;
     [SerializeField] private Vector3 patrolOffset = new Vector3(0f, 1.5f, 0f);
     [SerializeField] private Vector3 spawnOffset = new Vector3(0f, -1.5f, 0f);
 
@@ -31,7 +30,6 @@ public class BossBehaviour : MonoBehaviour
     private List<GameObject> graveList = new();
     private List<Vector3> patrolPoints = new();
     private int currentIndex = 0;
-    private bool isMoving = false;
     private bool hasCompletedLoop = false;
     private Coroutine spawnLoop;
     [HideInInspector] public Vector3 basePoint;
@@ -115,7 +113,6 @@ public class BossBehaviour : MonoBehaviour
     {
       
         if (patrolPoints.Count == 0) yield break;
-        isMoving = true;
 
         Vector3 basePos = patrolPoints[currentIndex];
         Vector3 targetPos = basePos + patrolOffset;
@@ -165,7 +162,6 @@ public class BossBehaviour : MonoBehaviour
             currentIndex = 0;
         }
 
-        isMoving = false;
     }
 
     private IEnumerator ReturnToBasePoint()
@@ -275,7 +271,6 @@ public class BossBehaviour : MonoBehaviour
         CacheGravePositions(); 
         currentIndex = 0;
         hasCompletedLoop = false;
-        isMoving = false;
 
         if (patrolPoints.Count > 0)
             StartCoroutine(PatrolRoutine());

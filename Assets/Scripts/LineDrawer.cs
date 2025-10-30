@@ -64,10 +64,6 @@ public class LineDraw : MonoBehaviour
             HideAllTextsWithTag("Grave");
         }
     }
-
-    // ============================================================
-    // 線を管理する処理
-    // ============================================================
     private void SetPosition(Vector3 pos)
     {
         if (!PosCheck(pos)) return;
@@ -86,10 +82,8 @@ public class LineDraw : MonoBehaviour
     {
         while (linePoints.Count >= 2 && GetTotalLength(linePoints) > maxLineLength)
         {
-            // 最古の点を削除
             linePoints.Dequeue();
 
-            // LineRendererを更新
             Vector3[] updated = linePoints.ToArray();
             _rend.positionCount = updated.Length;
             _rend.SetPositions(updated);
@@ -124,9 +118,6 @@ public class LineDraw : MonoBehaviour
         linePoints.Clear();
     }
 
-    // ============================================================
-    // 線が交差したときの処理（囲み検出）
-    // ============================================================
     private void CheckIntersection()
     {
         Vector3 p1 = _rend.GetPosition(posCount - 2);
@@ -160,14 +151,10 @@ public class LineDraw : MonoBehaviour
         _poly.isTrigger = true;
         _poly.points = loopPoints.ToArray();
 
-        CheckObjectsInside();  // 🔹囲まれたオブジェクトを確認
-        Destroy(_poly);
+        CheckObjectsInside();
+        _poly.enabled = false;
         ResetLine();
     }
-
-    // ============================================================
-    // 囲み検出処理のメイン関数
-    // ============================================================
     private void CheckObjectsInside()
     {
         bool isMouseHeld = Input.GetMouseButton(0);
@@ -176,9 +163,6 @@ public class LineDraw : MonoBehaviour
         CheckGraves(isMouseHeld);
     }
 
-    // ------------------------------------------------------------
-    // 👻 ゴースト処理
-    // ------------------------------------------------------------
     private void CheckGhosts(bool isMouseHeld)
     {
         GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Dog");
@@ -199,9 +183,6 @@ public class LineDraw : MonoBehaviour
             HideAllTextsWithTag("Dog");
     }
 
-    // ------------------------------------------------------------
-    // 🪦 墓処理
-    // ------------------------------------------------------------
     private void CheckGraves(bool isMouseHeld)
     {
         GameObject[] graves = GameObject.FindGameObjectsWithTag("Grave");
@@ -222,9 +203,6 @@ public class LineDraw : MonoBehaviour
             HideAllTextsWithTag("Grave");
     }
 
-    // ------------------------------------------------------------
-    // 🧩 共通ユーティリティ関数
-    // ------------------------------------------------------------
     private bool IsInsidePolygon(GameObject obj)
     {
         Vector2 localPos = transform.InverseTransformPoint(obj.transform.position);
@@ -267,9 +245,6 @@ public class LineDraw : MonoBehaviour
             UIManager.Instance.HideOverheadText(obj);
     }
 
-    // ------------------------------------------------------------
-    // 🟡 視覚エフェクト処理
-    // ------------------------------------------------------------
     private void HighlightGrave(GameObject target)
     {
         SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
@@ -287,9 +262,6 @@ public class LineDraw : MonoBehaviour
             sr.color = Color.white;
     }
 
-    // ============================================================
-    // 線の交差判定
-    // ============================================================
     private bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 intersection)
     {
         intersection = Vector2.zero;

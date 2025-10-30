@@ -16,7 +16,7 @@ public class BoxManager : MonoBehaviour
     {
         Instance = this;
 
-        foreach (var box in FindObjectsOfType<UIBox>())
+        foreach (var box in FindObjectsByType<UIBox>(FindObjectsSortMode.None))
         {
             if (!boxDict.ContainsKey(box.boxType))
             {

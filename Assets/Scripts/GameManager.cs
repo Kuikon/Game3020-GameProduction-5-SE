@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,10 +22,22 @@ public class GameManager : MonoBehaviour
     public Transform tankPoint;
     public Transform suicidePoint;
     public Transform luckyPoint;
-
+    [Header("Game Stats")]
+    public Dictionary<GhostType, int> capturedGhosts = new();
+    public int damageTaken = 0;
+    public int sortFails = 0;
+    private bool isGameOver = false;
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         if (luckyButton != null)
             luckyButton.gameObject.SetActive(false);
         if (sortButton != null)
@@ -34,8 +48,25 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(GatherAllBallsByType());
             });
         }
+        foreach (GhostType type in System.Enum.GetValues(typeof(GhostType)))
+        {
+            capturedGhosts[type] = 0;
+        }
+    }
+    public void RegisterGhostCapture(GhostType type)
+    {
+        capturedGhosts[type]++;
     }
 
+    public void RegisterDamage()
+    {
+        damageTaken++;
+    }
+
+    public void RegisterSortFail()
+    {
+        sortFails++;
+    }
     public void AddLuckyScore()
     {
         luckyScore++;
@@ -134,5 +165,22 @@ public class GameManager : MonoBehaviour
             case GhostType.Lucky: return luckyPoint;
             default: return null;
         }
+    }
+    public void GameOver()
+    {
+        if (isGameOver) return; 
+        isGameOver = true;
+        StartCoroutine(LoadGameOverScene());
+    }
+    public void Victory()
+    {
+        if (isGameOver) return;
+        isGameOver = true;
+        SceneManager.LoadScene("VictoryScene");
+    }
+    private System.Collections.IEnumerator LoadGameOverScene()
+    {
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene("GameOverScene");
     }
 }

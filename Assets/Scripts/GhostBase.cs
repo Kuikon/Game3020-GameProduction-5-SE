@@ -108,6 +108,7 @@ public class GhostBase : MonoBehaviour
 
                 if (!absorbedByDragon && releasePoint != null)
                 {
+                    GameManager.Instance.RegisterGhostCapture(data.type);
                     GhostEvents.RaiseGhostCaptured(data.type, releasePoint.position);
                 }
                 Destroy(gameObject);

@@ -247,6 +247,7 @@ public class BossBehaviour : MonoBehaviour
         lastGraveCount = newCount;
         graveList.Clear();
         patrolPoints.Clear();
+        RemoveAllBrokenGraves();
         float minDistance = 2f;
         for (int i = 0; i < newCount; i++)
         {
@@ -262,6 +263,16 @@ public class BossBehaviour : MonoBehaviour
 
         StartCoroutine(PatrolRoutine());
 
+    }
+    private void RemoveAllBrokenGraves()
+    {
+        GameObject[] brokenGraves = GameObject.FindGameObjectsWithTag("BrokenGrave");
+        foreach (GameObject broken in brokenGraves)
+        {
+            if (broken != null)
+                Destroy(broken);
+        }
+        Debug.Log($"Removed {brokenGraves.Length} broken graves before rebuilding.");
     }
     public void RecalculatePatrolPoints()
     {

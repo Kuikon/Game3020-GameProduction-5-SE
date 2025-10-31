@@ -9,7 +9,6 @@ public class BoxManager : MonoBehaviour
     [Header("Score UI")]
     public Text scoreText;
 
-    private int score = 0;
     private Dictionary<GhostType, UIBox> boxDict = new();
     private Dictionary<GhostType, int> typeCounts = new();
     void Awake()
@@ -44,18 +43,10 @@ public class BoxManager : MonoBehaviour
         else
         {
             Debug.Log($"❌ Wrong: {ball.type} → {targetBox.name}");
-            score -= 5;
-            UpdateScore();
-
+            GameManager.Instance.RegisterSortFail();
             Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
             rb.AddForce(Vector2.up * 3f, ForceMode2D.Impulse);
         }
-    }
-
-    private void UpdateScore()
-    {
-        if (scoreText != null)
-            scoreText.text = $"Score: {score}";
     }
 
 }

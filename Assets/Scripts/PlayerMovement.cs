@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private Vector2 lastMoveDir = Vector2.down;
     public float moveSpeed = 3f;
-
+    [SerializeField] private PlayerHealth playerHealth;
     void Start()
     {
         MiniMapManager.Instance?.RegisterPlayer(gameObject);
@@ -43,7 +43,16 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("moveY", animDir.y);
     }
 
-
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag("Dog"))
+        {
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(1);
+            }
+        }
+    }
     private void FlipSprite(float moveX)
     {
         if (Mathf.Abs(moveX) > 0.1f)

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class PlayerHealth : MonoBehaviour
@@ -7,7 +7,7 @@ public class PlayerHealth : MonoBehaviour
     public int maxHP = 10;
     public int currentHP = 10;
 
-    [SerializeField] private�@UIManager hpUI;
+    [SerializeField] private　UIManager hpUI;
 
     private void Start()
     {
@@ -19,8 +19,12 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHP = Mathf.Clamp(currentHP - damage, 0, maxHP);
         hpUI.UpdateHP(currentHP);
+        GameManager.Instance.RegisterDamage();
+        if (currentHP <= 0)
+        {
+            GameManager.Instance.GameOver();
+        }
     }
-
     public void Heal(int amount)
     {
         currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);

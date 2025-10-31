@@ -221,6 +221,7 @@ public class LineDraw : MonoBehaviour
         UIManager.Instance.HideOverheadText(ghost);
         var gb = ghost.GetComponent<GhostBase>();
         if (gb != null) gb.Kill();
+        UIManager.Instance.AddEnemyBlock();
         Debug.Log($"{ghost.name} Captured 3");
     }
 
@@ -229,7 +230,7 @@ public class LineDraw : MonoBehaviour
         Debug.Log($"🪦 {grave.name} Grave captured!");
         HighlightGrave(grave);
         UIManager.Instance.HideOverheadText(grave);
-
+        UIManager.Instance.AddEnemyBlock();
         BossBehaviour boss = FindFirstObjectByType<BossBehaviour>();
         if (boss != null)
         {

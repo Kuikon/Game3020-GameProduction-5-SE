@@ -40,6 +40,7 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     void Start()
     {
+        MiniMapManager.Instance?.RegisterGhost(gameObject, data.type);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();

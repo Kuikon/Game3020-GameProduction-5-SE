@@ -7,7 +7,9 @@ public class LineDraw : MonoBehaviour
 {
     [SerializeField] private LineRenderer _rend;
     [SerializeField] private Camera _cam;
-    [SerializeField] private float maxLineLength = 5f; 
+    [SerializeField] private float maxLineLength = 5f;
+    [SerializeField] private LineVisualEffectManager effectManager;
+
     private float currentLineLength = 0f;
     private Queue<Vector3> linePoints = new();
     private int posCount = 0;
@@ -36,12 +38,6 @@ public class LineDraw : MonoBehaviour
 
     private void Update()
     {
-        if (BallController.IsAnyBallBeingDragged)
-        {
-            if (_rend.positionCount > 0)
-                ResetLine();
-            return;
-        }
 
         Vector3 mousePos = Input.mousePosition;
         if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mousePos))
@@ -59,9 +55,9 @@ public class LineDraw : MonoBehaviour
         }
         else if (Input.GetMouseButtonUp(0))
         {
+            RestoreAllGhosts();
             ResetLine();
-            HideAllTextsWithTag("Dog");
-            HideAllTextsWithTag("Grave");
+            insideCount.Clear();
         }
     }
     private void SetPosition(Vector3 pos)
@@ -130,6 +126,8 @@ public class LineDraw : MonoBehaviour
 
             if (LineSegmentsIntersect(p1, p2, p3, p4, out Vector2 intersection))
             {
+                if (LineVisualEffectManager.Instance != null)
+                    LineVisualEffectManager.Instance.CreateLineAfterImage(_rend);
                 CreatePolygonFromLoop(i, intersection);
                 return;
             }
@@ -169,19 +167,40 @@ public class LineDraw : MonoBehaviour
 
         foreach (GameObject ghost in ghosts)
         {
-            if (!IsInsidePolygon(ghost)) continue;
+            if (!IsInsidePolygon(ghost))
+            {
+                if (!isMouseHeld)
+                {
+                    var gb = ghost.GetComponent<GhostBase>();
+                    if (gb != null)
+                        gb.Restore();
+                }
+                continue;
+            }
 
+            var ghostBase = ghost.GetComponent<GhostBase>();
+            if (ghostBase == null) continue;
+
+            // 捕獲回数を増やす
             IncrementCaptureCount(ghost);
-            if (isMouseHeld)
-                UIManager.Instance.ShowOverheadText(ghost, insideCount[ghost].ToString(), Color.yellow);
+            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, ghost.transform);
 
-            if (insideCount[ghost] == 3)
+            int count = insideCount[ghost];
+
+            // 🎯 ゴーストの必要捕獲数を取得
+            int needed = ghostBase.data.captureHitsNeeded;
+
+            // 📉 捕獲進捗に応じてだんだん小さくなる
+            float progress = Mathf.Clamp01((float)count / needed);
+            float targetScale = Mathf.Lerp(1f, 0.6f, progress);
+            ghostBase.Shrink(targetScale);
+
+            // 🏁 規定回数で捕獲完了
+            if (count >= needed)
                 HandleGhostCaptured(ghost);
         }
-
-        if (!isMouseHeld)
-            HideAllTextsWithTag("Dog");
     }
+
 
     private void CheckGraves(bool isMouseHeld)
     {
@@ -192,15 +211,10 @@ public class LineDraw : MonoBehaviour
             if (!IsInsidePolygon(grave)) continue;
 
             IncrementCaptureCount(grave);
-            if (isMouseHeld)
-                UIManager.Instance.ShowOverheadText(grave, insideCount[grave].ToString(), Color.yellow);
 
             if (insideCount[grave] == 5)
                 HandleGraveCaptured(grave);
         }
-
-        if (!isMouseHeld)
-            HideAllTextsWithTag("Grave");
     }
 
     private bool IsInsidePolygon(GameObject obj)
@@ -218,33 +232,30 @@ public class LineDraw : MonoBehaviour
 
     private void HandleGhostCaptured(GameObject ghost)
     {
-        UIManager.Instance.HideOverheadText(ghost);
         var gb = ghost.GetComponent<GhostBase>();
         if (gb != null) gb.Kill();
+        effectManager.PlayHitEffect(gb.transform.position);
+        GhostType capturedType = gb.data.type;
+        if (capturedType == GhostType.Lucky)
+        {
+            capturedType = GhostType.Normal;
+        }
+
+        GhostEvents.RaiseGhostCaptured(capturedType, ghost.transform.position);
         UIManager.Instance.AddEnemyBlock();
-        Debug.Log($"{ghost.name} Captured 3");
+        Debug.Log($"{ghost.name} Captured as {capturedType}");
     }
 
     private void HandleGraveCaptured(GameObject grave)
     {
         Debug.Log($"🪦 {grave.name} Grave captured!");
         HighlightGrave(grave);
-        UIManager.Instance.HideOverheadText(grave);
         UIManager.Instance.AddEnemyBlock();
         BossBehaviour boss = FindFirstObjectByType<BossBehaviour>();
-        if (boss != null)
-        {
-            List<GameObject> captured = new List<GameObject> { grave };
-            boss.ReplaceCapturedGraves(captured);
-        }
+        List<GameObject> captured = new List<GameObject> { grave };
+        GhostEvents.RaiseGravesCaptured(captured);
     }
 
-    private void HideAllTextsWithTag(string tag)
-    {
-        GameObject[] objs = GameObject.FindGameObjectsWithTag(tag);
-        foreach (GameObject obj in objs)
-            UIManager.Instance.HideOverheadText(obj);
-    }
 
     private void HighlightGrave(GameObject target)
     {
@@ -262,7 +273,17 @@ public class LineDraw : MonoBehaviour
         if (sr != null)
             sr.color = Color.white;
     }
+    private void RestoreAllGhosts()
+    {
+        GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Dog");
 
+        foreach (GameObject ghost in ghosts)
+        {
+            var gb = ghost.GetComponent<GhostBase>();
+            if (gb != null)
+                gb.Restore();  // 👈 元のサイズに戻す
+        }
+    }
     private bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 intersection)
     {
         intersection = Vector2.zero;

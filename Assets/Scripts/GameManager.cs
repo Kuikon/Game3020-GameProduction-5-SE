@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
     public int damageTaken = 0;
     public int sortFails = 0;
     private bool isGameOver = false;
+    [SerializeField] private List<GhostData> allGhostData;
+    private Dictionary<GhostType, GhostData> ghostDataDict = new();
     private void Awake()
     {
         if (Instance == null)
@@ -52,6 +54,11 @@ public class GameManager : MonoBehaviour
         {
             capturedGhosts[type] = 0;
         }
+        foreach (var data in allGhostData)
+        {
+            if (data != null && !ghostDataDict.ContainsKey(data.type))
+                ghostDataDict.Add(data.type, data);
+        }
     }
     public void RegisterGhostCapture(GhostType type)
     {
@@ -66,6 +73,18 @@ public class GameManager : MonoBehaviour
     public void RegisterSortFail()
     {
         sortFails++;
+    }
+    public Color GetGhostColor(GhostType type)
+    {
+        if (ghostDataDict.TryGetValue(type, out var data))
+            return data.ghostColor;
+        return Color.gray;
+    }
+    public GhostData GetGhostData(GhostType type)
+    {
+        if (ghostDataDict.TryGetValue(type, out var data))
+            return data;
+        return null;
     }
     public void AddLuckyScore()
     {
@@ -142,7 +161,6 @@ public class GameManager : MonoBehaviour
         if (rb == null) yield break;
 
         rb.simulated = false;
-        ball.allowAutoCollision = true;
         while (Vector3.Distance(ball.transform.position, targetPos) > 0.05f)
         {
             ball.transform.position = Vector3.MoveTowards(ball.transform.position, targetPos, speed * Time.deltaTime);

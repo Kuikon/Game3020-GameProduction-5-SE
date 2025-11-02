@@ -57,6 +57,14 @@ public class BossBehaviour : MonoBehaviour
             StartCoroutine(PatrolRoutine());
         }
     }
+    private void OnEnable() => GhostEvents.OnGravesCaptured += OnGravesCaptured;
+    private void OnDisable() => GhostEvents.OnGravesCaptured -= OnGravesCaptured;
+    private void OnGravesCaptured(List<GameObject> captured)
+    {
+        Debug.Log($"💀 Boss reacting to {captured.Count} captured grave(s)");
+        ReplaceCapturedGraves(captured);
+    }
+
     private void SpawnInitialGraves(int count)
     {
         float minDistance = 2f;

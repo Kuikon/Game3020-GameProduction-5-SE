@@ -9,6 +9,10 @@ public class PlayerController : MonoBehaviour
     private Vector2 lastMoveDir = Vector2.down;
     public float moveSpeed = 3f;
     [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float bulletSpeed = 10f;
+    [SerializeField] private LineRenderer aimLine;
+    [SerializeField] private Camera mainCam;
     void Start()
     {
         MiniMapManager.Instance?.RegisterPlayer(gameObject);
@@ -16,9 +20,21 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
+        if (mainCam == null)
+            mainCam = Camera.main;
+
+        if (aimLine != null)
+            aimLine.enabled = false;
+            aimLine.startWidth = 0.02f;
+            aimLine.endWidth = 0.02f;
     }
 
     void Update()
+    {
+        HandleMovement();
+        HandleAimLine();
+    }
+    private void HandleMovement()
     {
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.y = Input.GetAxisRaw("Vertical");
@@ -42,7 +58,45 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("moveX", animDir.x);
         animator.SetFloat("moveY", animDir.y);
     }
+    private void HandleAimLine()
+    {
+        if (aimLine == null) return;
 
+        if (Input.GetMouseButton(1)) // 右クリック押している間
+        {
+            aimLine.enabled = true;
+
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = Mathf.Abs(mainCam.transform.position.z);
+            Vector3 worldPos = mainCam.ScreenToWorldPoint(mousePos);
+            worldPos.z = 0f;
+
+            aimLine.positionCount = 2;
+            aimLine.SetPosition(0, transform.position);
+            aimLine.SetPosition(1, worldPos);
+            if (Input.GetMouseButtonDown(0))
+            {
+                ShootBullet(worldPos);
+            }
+        }
+        else
+        {
+            aimLine.enabled = false;
+        }
+    }
+    private void ShootBullet(Vector3 targetPos)
+    {
+        if (bulletPrefab == null) return;
+
+        Vector2 direction = (targetPos - transform.position).normalized;
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
+        if (rbBullet != null)
+        {
+            rbBullet.linearVelocity = direction * bulletSpeed;
+        }
+        bullet.transform.right = direction;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.CompareTag("Dog"))

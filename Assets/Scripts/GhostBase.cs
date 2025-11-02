@@ -6,7 +6,7 @@ using System.Collections;
 public class GhostBase : MonoBehaviour
 {
     [Header("Ghost Data")]
-    [SerializeField] GhostData data;
+    public GhostData data;
 
     [Header("Movement Boundaries")]
     [SerializeField] Boundry xBoundary;
@@ -24,6 +24,11 @@ public class GhostBase : MonoBehaviour
 
     private Vector3 suicideTargetPos;
     private Vector2 moveDir;
+    private Vector3 originalScale;
+    private Coroutine scaleRoutine;
+
+    private float floatTimer; 
+    private float blinkTimer;
     private float dirTimer;
     private float lifeTimer;
     private float chargeTimer;
@@ -44,13 +49,13 @@ public class GhostBase : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        var obj = GameObject.Find("CapturePoint");
+        var obj = GameObject.Find("Player");
         if (obj != null)
             capturePoint = obj.transform;
         var obj1 = GameObject.Find("GhostBallSpawner");
         if (obj1 != null)
             releasePoint = obj1.transform;
-
+        originalScale = transform.localScale;
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
     }
@@ -94,31 +99,18 @@ public class GhostBase : MonoBehaviour
     private bool HandleDeadState()
     {
         if (!isDead) return false;
-
-        if (capturePoint != null)
-        {
-            transform.position = Vector3.Lerp(
-                transform.position,
-                capturePoint.position,
-                captureSpeed * Time.deltaTime
-            );
-
-            if (Vector3.Distance(transform.position, capturePoint.position) < 2f)
-            {
-
-                if (!absorbedByDragon && releasePoint != null)
-                {
-                    GameManager.Instance.RegisterGhostCapture(data.type);
-                    GhostEvents.RaiseGhostCaptured(data.type, releasePoint.position);
-                }
-                Destroy(gameObject);
-            }
-               
-        }
-
+        StartCoroutine(DestroyAfterDelay(0.2f));
         return true;
     }
-
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (GhostBallSpawner.Instance != null)
+        {
+            GhostBallSpawner.Instance.SpawnBulletByType(data.type, transform.position);
+        }
+        Destroy(gameObject);
+    }
     // ============================================================
     // Movement and boundary handling
     // ============================================================
@@ -196,35 +188,63 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     // Change appearance depending on GhostType
     // ============================================================
-    private void ApplyVisualStyleByType()
+  private void ApplyVisualStyleByType()
+{
+    if (data == null)
     {
-        switch (data.type)
+        Debug.LogWarning($"{name}: GhostData not assigned!");
+        return;
+    }
+
+    // 🧩 基本見た目（色とスケール）
+    spriteRenderer.color = data.ghostColor;
+    transform.localScale = Vector3.one * data.baseScale;
+
+    // タイマー初期化（アニメ用）
+    floatTimer = Random.Range(0f, Mathf.PI * 2f);
+    blinkTimer = Random.Range(0f, Mathf.PI * 2f);
+}
+    private void HandleVisualEffects()
+    {
+        if (spriteRenderer == null || data == null) return;
+
+        // 🎈 上下ふわふわアニメーション
+        floatTimer += Time.deltaTime * data.floatSpeed;
+        float offsetY = Mathf.Sin(floatTimer) * data.floatAmplitude;
+
+        // ゴーストの位置をふわっと上下させる
+        Vector3 pos = transform.position;
+        pos.y += offsetY * Time.deltaTime; // 徐々に反映してなめらかに
+        transform.position = pos;
+
+        // 💡 点滅アニメーション（blinkSpeed > 0 の場合のみ）
+        if (data.blinkSpeed > 0f && data.blinkIntensity > 0f)
         {
-            case GhostType.Normal:
-                transform.localScale = Vector3.one * 1f;
-                spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
-                break;
+            blinkTimer += Time.deltaTime * data.blinkSpeed;
+            float blink = Mathf.Sin(blinkTimer) * 0.5f + 0.5f;
+            float brightness = Mathf.Lerp(1f - data.blinkIntensity, 1f, blink);
 
-            case GhostType.Quick:
-                transform.localScale = Vector3.one * 0.8f; 
-                spriteRenderer.color = new Color(1f, 0.8f, 0.8f, 0.9f); 
-                break;
-
-            case GhostType.Tank:
-                transform.localScale = Vector3.one * 1.4f; 
-                spriteRenderer.color = new Color(0.6f, 0.6f, 1f, 1f); 
-                break;
-
-            case GhostType.Suicide:
-                transform.localScale = Vector3.one * 1.2f;
-                spriteRenderer.color = new Color(1f, 0.5f, 0.5f, 0.8f); 
-                break;
-
-            case GhostType.Lucky:
-                transform.localScale = Vector3.one * 1.1f;
-                spriteRenderer.color = new Color(1f, 1f, 0.6f, 1f); 
-                break;
+            Color c = data.ghostColor * brightness;
+            c.a = data.ghostColor.a; // 透明度は維持
+            spriteRenderer.color = c;
         }
+    }
+    public static Color GetColorByType(GhostType type)
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("GameManager not found! Returning gray color.");
+            return Color.gray;
+        }
+
+        GhostData data = GameManager.Instance.GetGhostData(type);
+        if (data == null)
+        {
+            Debug.LogWarning($"No GhostData found for type: {type}");
+            return Color.gray;
+        }
+
+        return data.ghostColor;
     }
     // ============================================================
     // Type-specific ghost behavior
@@ -398,7 +418,6 @@ public class GhostBase : MonoBehaviour
         if (isDead) return;
         isDead = true;
         animator.SetBool("Dead", true);
-        UIManager.Instance?.HideOverheadText(gameObject);
         if (data.type == GhostType.Suicide && data.fireCirclePrefab != null)
         {
             var circle = Instantiate(data.fireCirclePrefab, transform.position, Quaternion.identity);
@@ -435,5 +454,30 @@ public class GhostBase : MonoBehaviour
 
         moveDir = new Vector2(x, y).normalized;
         dirTimer = data.changeDirectionTime;
+    }
+    public void Shrink(float targetScale = 0.8f, float duration = 0.3f)
+    {
+        if (scaleRoutine != null) StopCoroutine(scaleRoutine);
+        scaleRoutine = StartCoroutine(ScaleTo(targetScale, duration));
+    }
+
+    public void Restore(float duration = 0.3f)
+    {
+        if (scaleRoutine != null) StopCoroutine(scaleRoutine);
+        scaleRoutine = StartCoroutine(ScaleTo(originalScale.x, duration));
+    }
+
+    private IEnumerator ScaleTo(float targetScale, float duration)
+    {
+        Vector3 startScale = transform.localScale;
+        Vector3 endScale = Vector3.one * targetScale;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            transform.localScale = Vector3.Lerp(startScale, endScale, elapsed / duration);
+            yield return null;
+        }
     }
 }

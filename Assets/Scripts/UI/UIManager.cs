@@ -9,11 +9,14 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("Prefabs & Settings")]
-    [SerializeField] private GameObject overheadTextPrefab;
-    [SerializeField] private Vector3 textOffset = new Vector3(0, 1.2f, 0);
-    [SerializeField] private Canvas mainCanvas;
-
+    [System.Serializable]
+    public class GhostUISlot
+    {
+        public GhostType type;
+        public Image icon;
+        public TextMeshProUGUI countText;
+        public Transform stackParent;
+    }
     [Header("HP Bar Settings")]
     [SerializeField] private GameObject hpBlockPrefab;          
     [SerializeField] private Transform hpBlockContainer;        
@@ -27,11 +30,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] private int maxEnemy = 10;
     [SerializeField] private Color enemyActiveColor = Color.red;
     [SerializeField] private Vector2 enemyBlockSize = new Vector2(15f, 40f);
+    [Header("Bullet Slots")]
+    [SerializeField] private List<GhostUISlot> ghostSlots;
+    [SerializeField] private Color inactiveSlotColor = new Color(0.4f, 0.4f, 0.4f, 0.6f);
+    [SerializeField] private Color activeSlotColor = Color.white;
+    [SerializeField] private GameObject stackBlockPrefab;
+    [SerializeField] private float blockSpacing = 20f;
     private List<Image> hpBlocks = new();
     private List<Image> enemyBlocks = new();
      private int currentEnemyCount = 0;
-    private Dictionary<GameObject, GameObject> activeTexts = new();
-
+    private const int MaxVisualBlocks = 10;
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -40,49 +48,139 @@ public class UIManager : MonoBehaviour
         CreateEnemyBlocks();
     }
 
-    public void ShowOverheadText(GameObject target, string message, UnityEngine.Color color)
+
+    private void OnEnable()
     {
-        if (!activeTexts.ContainsKey(target))
+        GhostEvents.OnGhostCaptured += OnGhostCaptured;
+    }
+
+    private void OnDisable()
+    {
+        GhostEvents.OnGhostCaptured -= OnGhostCaptured;
+    }
+
+    private void OnGhostCaptured(GhostType type, Vector3 pos)
+    {
+        // LuckyはNormal扱い
+        if (type == GhostType.Lucky)
+            type = GhostType.Normal;
+
+        // GameManagerでカウント済みの値を参照
+        //int count = GameManager.Instance.capturedGhosts[type] + 1;
+        //UpdateSlot(type, count);
+    }
+    private void Start()
+    {
+        InitializeSlots();
+    }
+    private void InitializeSlots()
+    {
+        foreach (var slot in ghostSlots)
         {
-            GameObject textObj = Instantiate(overheadTextPrefab, mainCanvas.transform);
-            activeTexts[target] = textObj;
+            // --- アイコン色をゴーストタイプ別に設定 ---
+            if (slot.icon != null)
+            {
+                // GhostBaseの定義したタイプごとの色を使用
+                Color baseColor = GhostBase.GetColorByType(slot.type);
+
+                // 未捕獲状態では半透明・暗めに
+                slot.icon.color = baseColor * 0.5f;
+            }
+
+            // --- テキストを初期化 ---
+            if (slot.countText != null)
+            {
+                slot.countText.text = "0";
+            }
+
+            // --- 既存ブロックを削除 ---
+            foreach (Transform child in slot.stackParent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            // --- ブロックを10個生成して灰色に設定 ---
+            for (int i = 0; i < MaxVisualBlocks; i++)
+            {
+                GameObject block = Instantiate(stackBlockPrefab, slot.stackParent);
+                RectTransform rt = block.GetComponent<RectTransform>();
+
+                if (rt != null)
+                {
+                    // blockSpacingで縦に積む
+                    rt.anchoredPosition = new Vector2(0, i * blockSpacing);
+                }
+
+                Image img = block.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.color = inactiveColor; // 初期状態は灰色
+                }
+            }
         }
 
-        var tmp = activeTexts[target].GetComponent<TMPro.TextMeshProUGUI>();
-        tmp.text = message;
-        tmp.color = color;
-
-        UpdateTextPosition(target);
-
+        Debug.Log("🎨 All ghost slots initialized (10 gray blocks each, type-based icons set).");
     }
 
-    public void HideOverheadText(GameObject target)
+    public void UpdateSlot(GhostType type, int count)
     {
-        if (activeTexts.ContainsKey(target) && activeTexts[target] != null)
+        var slot = ghostSlots.Find(s => s.type == type);
+        if (slot == null) return;
+
+        // --- アイコン色 ---
+        if (slot.icon != null)
         {
-            Destroy(activeTexts[target]);
-            activeTexts.Remove(target);
+            Color baseColor = GhostBase.GetColorByType(slot.type);
+            slot.icon.color = (count > 0) ? baseColor : baseColor * 0.5f;
+        }
+
+        // --- テキスト更新 ---
+        // 10体未満では非表示（空欄）
+        if (count < MaxVisualBlocks)
+        {
+            slot.countText.text = ""; // テキスト非表示
+        }
+        else
+        {
+            slot.countText.text = count.ToString() + "+"; // 10体以上で表示
+        }
+
+        // --- ブロック生成（常に10個固定） ---
+        int blockCount = slot.stackParent.childCount;
+        if (blockCount < MaxVisualBlocks)
+        {
+            for (int i = blockCount; i < MaxVisualBlocks; i++)
+            {
+                GameObject block = Instantiate(stackBlockPrefab, slot.stackParent);
+                RectTransform rt = block.GetComponent<RectTransform>();
+                if (rt != null)
+                {
+                    rt.anchoredPosition = new Vector2(0, i * blockSpacing);
+                }
+
+                Image img = block.GetComponent<Image>();
+                if (img != null)
+                    img.color = inactiveColor;
+            }
+        }
+
+        // --- ブロック色変更（最大10まで） ---
+        int visibleBlocks = Mathf.Min(count, MaxVisualBlocks);
+
+        for (int i = 0; i < MaxVisualBlocks; i++)
+        {
+            Transform child = slot.stackParent.GetChild(i);
+            Image img = child.GetComponent<Image>();
+            if (img != null)
+            {
+                if (i < visibleBlocks)
+                    img.color = activeSlotColor; // 捕獲済み
+                else
+                    img.color = inactiveColor;   // 未捕獲
+            }
         }
     }
-    private void UpdateTextPosition(GameObject target)
-    {
-        if (!activeTexts.ContainsKey(target) || activeTexts[target] == null) return;
 
-        Vector3 worldPos = target.transform.position + textOffset;
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
-        activeTexts[target].transform.position = screenPos;
-    }
-    private void LateUpdate()
-    {
-        foreach (var kvp in activeTexts)
-        {
-            GameObject target = kvp.Key;
-            GameObject textObj = kvp.Value;
-            if (target == null || textObj == null) continue;
-
-            UpdateTextPosition(target);
-        }
-    }
     private void CreateHPBlocks()
     {
         foreach (Transform child in hpBlockContainer)

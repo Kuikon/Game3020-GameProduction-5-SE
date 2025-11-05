@@ -9,45 +9,113 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    //=============================================
+    // 🟣 Ghost Slot UI
+    //=============================================
     [System.Serializable]
     public class GhostUISlot
     {
         public GhostType type;
+        public Image slotBackground;
         public Image icon;
         public TextMeshProUGUI countText;
         public Transform stackParent;
     }
-    [Header("HP Bar Settings")]
-    [SerializeField] private GameObject hpBlockPrefab;          
-    [SerializeField] private Transform hpBlockContainer;        
-    [SerializeField] private int maxHP = 10;                  
-    [SerializeField] private Color hpActiveColor = Color.red;   
-    [SerializeField] private Color inactiveColor = new Color(0.3f, 0.3f, 0.3f); 
-    [SerializeField] private Vector2 hpBlockSize = new Vector2(15f, 40f);
-    [Header("Enemy  Bar Settings")]
-    [SerializeField] private GameObject enemyBlockPrefab;
-    [SerializeField] private Transform enemyBlockContainer;
-    [SerializeField] private int maxEnemy = 10;
-    [SerializeField] private Color enemyActiveColor = Color.red;
-    [SerializeField] private Vector2 enemyBlockSize = new Vector2(15f, 40f);
+
+    //=============================================
+    // 🔴 共通バークラス
+    //=============================================
+    [System.Serializable]
+    public class BarUI
+    {
+        public string barName;                  // "HP", "MiniHP", "Enemy"など
+        public GameObject blockPrefab;          // ブロックプレハブ
+        public Transform container;             // 配置先
+        public int maxBlocks = 10;              // 最大ブロック数
+        public Color activeColor = Color.red;   // 有効色
+        public Color inactiveColor = new Color(0.3f, 0.3f, 0.3f);
+        public Vector2 blockSize = new Vector2(15f, 40f);
+        [HideInInspector] public List<Image> blocks = new();
+
+        public void CreateBlocks()
+        {
+            if (container == null || blockPrefab == null) return;
+
+            foreach (Transform child in container)
+                GameObject.Destroy(child.gameObject);
+
+            blocks.Clear();
+
+            for (int i = 0; i < maxBlocks; i++)
+            {
+                GameObject block = GameObject.Instantiate(blockPrefab, container);
+                Image img = block.GetComponent<Image>();
+                RectTransform rt = block.GetComponent<RectTransform>();
+                if (img != null) img.color = activeColor;
+                if (rt != null) rt.sizeDelta = blockSize;
+                blocks.Add(img);
+            }
+        }
+
+        public void UpdateBlocks(int current)
+        {
+            if (blocks == null || blocks.Count == 0) return;
+            for (int i = 0; i < blocks.Count; i++)
+                blocks[i].color = (i < current) ? activeColor : inactiveColor;
+        }
+    }
+
+    //=============================================
+    // 🎨 Serialized Fields
+    //=============================================
+    [Header("Bar Settings")]
+    [SerializeField] private List<BarUI> bars = new();
+
     [Header("Bullet Slots")]
     [SerializeField] private List<GhostUISlot> ghostSlots;
     [SerializeField] private Color inactiveSlotColor = new Color(0.4f, 0.4f, 0.4f, 0.6f);
     [SerializeField] private Color activeSlotColor = Color.white;
     [SerializeField] private GameObject stackBlockPrefab;
     [SerializeField] private float blockSpacing = 20f;
-    private List<Image> hpBlocks = new();
-    private List<Image> enemyBlocks = new();
-     private int currentEnemyCount = 0;
+    [SerializeField] private Color focusColor = new Color(1f, 1f, 0.3f, 1f);
+    [SerializeField] private Color normalSlotColor = new Color(1f, 1f, 1f, 0.4f);
+
+    [Header("UI Move Settings")]
+    [SerializeField] private RectTransform hpAndEnemyGroup;
+    [SerializeField] private RectTransform bulletSlotsGroup;
+    [SerializeField] private Vector3 hpHiddenPos = new Vector3(0, 200f, 0);
+    [SerializeField] private Vector3 hpVisiblePos = new Vector3(0, 0, 0);
+    [SerializeField] private Vector3 bulletHiddenPos = new Vector3(0, -300f, 0);
+    [SerializeField] private Vector3 bulletVisiblePos = new Vector3(0, 0, 0);
+    [SerializeField] private float moveSpeed = 10f;
+
+    [SerializeField] private RectTransform miniHpUI;
+    [SerializeField] private Vector3 miniHpVisiblePos = new Vector3(-50f, 50f, 0);
+    [SerializeField] private Vector3 miniHpHiddenPos = new Vector3(-50f, -200f, 0);
+
+    //=============================================
+    // 🧠 内部変数
+    //=============================================
     private const int MaxVisualBlocks = 10;
+    private Dictionary<GhostType, int> bulletStock = new();
+    private Dictionary<string, BarUI> barDict = new();
+    private int currentEnemyCount = 0;
+
+    //=============================================
+    // ⚙️ Awake / Start / Update
+    //=============================================
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-        CreateHPBlocks();
-        CreateEnemyBlocks();
-    }
 
+        // すべてのバーを初期化
+        foreach (var bar in bars)
+        {
+            bar.CreateBlocks();
+            barDict[bar.barName] = bar;
+        }
+    }
 
     private void OnEnable()
     {
@@ -59,192 +127,205 @@ public class UIManager : MonoBehaviour
         GhostEvents.OnGhostCaptured -= OnGhostCaptured;
     }
 
-    private void OnGhostCaptured(GhostType type, Vector3 pos)
-    {
-        // LuckyはNormal扱い
-        if (type == GhostType.Lucky)
-            type = GhostType.Normal;
-
-        // GameManagerでカウント済みの値を参照
-        //int count = GameManager.Instance.capturedGhosts[type] + 1;
-        //UpdateSlot(type, count);
-    }
     private void Start()
     {
         InitializeSlots();
     }
+
+    private void Update()
+    {
+        HandleUIVisibility();
+    }
+
+    //=============================================
+    // 📦 Ghost UI 関連
+    //=============================================
+    private void OnGhostCaptured(GhostType type, Vector3 pos)
+    {
+        if (type == GhostType.Lucky)
+            type = GhostType.Normal;
+        // GameManager側でカウント更新済み想定
+        // UpdateSlot(type, newCount);
+    }
+
     private void InitializeSlots()
     {
         foreach (var slot in ghostSlots)
         {
-            // --- アイコン色をゴーストタイプ別に設定 ---
             if (slot.icon != null)
             {
-                // GhostBaseの定義したタイプごとの色を使用
                 Color baseColor = GhostBase.GetColorByType(slot.type);
-
-                // 未捕獲状態では半透明・暗めに
                 slot.icon.color = baseColor * 0.5f;
             }
 
-            // --- テキストを初期化 ---
             if (slot.countText != null)
-            {
                 slot.countText.text = "0";
-            }
 
-            // --- 既存ブロックを削除 ---
             foreach (Transform child in slot.stackParent)
-            {
                 Destroy(child.gameObject);
-            }
 
-            // --- ブロックを10個生成して灰色に設定 ---
             for (int i = 0; i < MaxVisualBlocks; i++)
             {
                 GameObject block = Instantiate(stackBlockPrefab, slot.stackParent);
                 RectTransform rt = block.GetComponent<RectTransform>();
-
                 if (rt != null)
-                {
-                    // blockSpacingで縦に積む
                     rt.anchoredPosition = new Vector2(0, i * blockSpacing);
-                }
 
                 Image img = block.GetComponent<Image>();
                 if (img != null)
-                {
-                    img.color = inactiveColor; // 初期状態は灰色
-                }
+                    img.color = inactiveSlotColor;
             }
+
+            UpdateSlot(slot.type, 0);
         }
 
-        Debug.Log("🎨 All ghost slots initialized (10 gray blocks each, type-based icons set).");
+        foreach (GhostType type in System.Enum.GetValues(typeof(GhostType)))
+            bulletStock[type] = 0;
+
+        Debug.Log("🎨 Ghost slots initialized.");
     }
 
     public void UpdateSlot(GhostType type, int count)
     {
+        if (type == GhostType.Lucky)
+            type = GhostType.Normal;
+
+        bulletStock[type] = count;
         var slot = ghostSlots.Find(s => s.type == type);
         if (slot == null) return;
 
-        // --- アイコン色 ---
         if (slot.icon != null)
         {
             Color baseColor = GhostBase.GetColorByType(slot.type);
             slot.icon.color = (count > 0) ? baseColor : baseColor * 0.5f;
         }
 
-        // --- テキスト更新 ---
-        // 10体未満では非表示（空欄）
         if (count < MaxVisualBlocks)
-        {
-            slot.countText.text = ""; // テキスト非表示
-        }
+            slot.countText.text = "";
         else
-        {
-            slot.countText.text = count.ToString() + "+"; // 10体以上で表示
-        }
+            slot.countText.text = count.ToString() + "+";
 
-        // --- ブロック生成（常に10個固定） ---
-        int blockCount = slot.stackParent.childCount;
-        if (blockCount < MaxVisualBlocks)
-        {
-            for (int i = blockCount; i < MaxVisualBlocks; i++)
-            {
-                GameObject block = Instantiate(stackBlockPrefab, slot.stackParent);
-                RectTransform rt = block.GetComponent<RectTransform>();
-                if (rt != null)
-                {
-                    rt.anchoredPosition = new Vector2(0, i * blockSpacing);
-                }
-
-                Image img = block.GetComponent<Image>();
-                if (img != null)
-                    img.color = inactiveColor;
-            }
-        }
-
-        // --- ブロック色変更（最大10まで） ---
         int visibleBlocks = Mathf.Min(count, MaxVisualBlocks);
-
         for (int i = 0; i < MaxVisualBlocks; i++)
         {
             Transform child = slot.stackParent.GetChild(i);
             Image img = child.GetComponent<Image>();
             if (img != null)
-            {
-                if (i < visibleBlocks)
-                    img.color = activeSlotColor; // 捕獲済み
-                else
-                    img.color = inactiveColor;   // 未捕獲
-            }
+                img.color = (i < visibleBlocks) ? activeSlotColor : inactiveSlotColor;
         }
     }
 
-    private void CreateHPBlocks()
+    public bool TryUseBullet(GhostType type)
     {
-        foreach (Transform child in hpBlockContainer)
-            Destroy(child.gameObject);
-        hpBlocks.Clear();
+        if (!bulletStock.ContainsKey(type)) return false;
+        if (bulletStock[type] <= 0) return false;
+        bulletStock[type]--;
+        UpdateSlot(type, bulletStock[type]);
+        return true;
+    }
 
-        for (int i = 0; i < maxHP; i++)
-        {
-            GameObject block = Instantiate(hpBlockPrefab, hpBlockContainer);
-            Image img = block.GetComponent<Image>();
-            img.color = hpActiveColor;
-            RectTransform rt = block.GetComponent<RectTransform>();
-            rt.sizeDelta = hpBlockSize;
-            hpBlocks.Add(img);
-        }
-    }
-    private void CreateEnemyBlocks()
+    public void FocusBulletSlot(GhostType type)
     {
-        foreach (Transform child in enemyBlockContainer)
-            Destroy(child.gameObject);
-        enemyBlocks.Clear();
+        foreach (var slot in ghostSlots)
+        {
+            if (slot.slotBackground == null) continue;
+            bool hasBullets = bulletStock.ContainsKey(slot.type) && bulletStock[slot.type] > 0;
 
-        for (int i = 0; i < maxEnemy; i++)
-        {
-            GameObject enemyBlock = Instantiate(enemyBlockPrefab, enemyBlockContainer);
-            Image img = enemyBlock.GetComponent<Image>();
-            img.color = inactiveColor;
-            RectTransform rt = enemyBlock.GetComponent<RectTransform>();
-            rt.sizeDelta = enemyBlockSize;
-            enemyBlocks.Add(img);
+            if (slot.type == type)
+                slot.slotBackground.color = hasBullets ? focusColor : focusColor * 0.8f;
+            else
+                slot.slotBackground.color = hasBullets ? normalSlotColor : inactiveSlotColor;
         }
-        currentEnemyCount = 0;
+
+        Debug.Log($"🎯 Focused Bullet Slot: {type}");
     }
-    public void UpdateHP(int currentHP)
+
+    //=============================================
+    // 🩸 共通バー制御 (HP, Enemy, MiniHPなど)
+    //=============================================
+    public void UpdateBar(string barName, int currentValue)
     {
-        for (int i = 0; i < hpBlocks.Count; i++)
+        if (barDict.TryGetValue(barName, out var bar))
         {
-            hpBlocks[i].color = (i < currentHP) ? hpActiveColor : inactiveColor;
+            bar.UpdateBlocks(currentValue);
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ Bar '{barName}' not found!");
         }
     }
+
+    public void SetupBar(string barName, int newMax)
+    {
+        if (barDict.TryGetValue(barName, out var bar))
+        {
+            bar.maxBlocks = newMax;
+            bar.CreateBlocks();
+        }
+    }
+
+    //=============================================
+    // 🧱 Enemy 専用の追加メソッド（互換維持）
+    //=============================================
     public void AddEnemyBlock()
     {
-        if (currentEnemyCount >= maxEnemy)
+        if (!barDict.ContainsKey("Enemy")) return;
+        var enemyBar = barDict["Enemy"];
+
+        if (currentEnemyCount >= enemyBar.maxBlocks)
         {
             Debug.Log("🧱 Enemy block is already full!");
             return;
         }
 
-        enemyBlocks[currentEnemyCount].color = enemyActiveColor;
+        enemyBar.blocks[currentEnemyCount].color = enemyBar.activeColor;
         currentEnemyCount++;
-
-        Debug.Log($"👹 Enemy captured! Total: {currentEnemyCount}/{maxEnemy}");
+        Debug.Log($"👹 Enemy captured! Total: {currentEnemyCount}/{enemyBar.maxBlocks}");
     }
+
     public void ResetEnemyBlocks()
     {
-        foreach (var block in enemyBlocks)
-        {
-            block.color = inactiveColor;
-        }
+        if (!barDict.ContainsKey("Enemy")) return;
+        var enemyBar = barDict["Enemy"];
+        foreach (var block in enemyBar.blocks)
+            block.color = enemyBar.inactiveColor;
         currentEnemyCount = 0;
     }
-    public void SetupHPBar(int newMaxHP)
+
+    //=============================================
+    // 🎥 UI移動制御
+    //=============================================
+    private void HandleUIVisibility()
     {
-        maxHP = newMaxHP; 
-        CreateHPBlocks(); 
+        bool leftClick = Input.GetMouseButton(0);
+        bool rightClick = Input.GetMouseButton(1);
+
+        hpAndEnemyGroup.anchoredPosition = Vector3.Lerp(
+            hpAndEnemyGroup.anchoredPosition,
+            (leftClick || rightClick) ? hpHiddenPos : hpVisiblePos,
+            Time.deltaTime * moveSpeed
+        );
+
+        bulletSlotsGroup.anchoredPosition = Vector3.Lerp(
+            bulletSlotsGroup.anchoredPosition,
+            rightClick ? bulletVisiblePos : bulletHiddenPos,
+            Time.deltaTime * moveSpeed
+        );
+
+        miniHpUI.anchoredPosition = Vector3.Lerp(
+            miniHpUI.anchoredPosition,
+            (leftClick && !rightClick) ? miniHpVisiblePos : miniHpHiddenPos,
+            Time.deltaTime * moveSpeed
+        );
+    }
+
+    //=============================================
+    // 🔍 ヘルパー
+    //=============================================
+    public int GetCurrentCount(GhostType type)
+    {
+        if (!bulletStock.ContainsKey(type))
+            return 0;
+        return bulletStock[type];
     }
 }

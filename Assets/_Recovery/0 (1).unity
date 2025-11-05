@@ -152,6 +152,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LineDrawer
   _rend: {fileID: 66342300}
   _cam: {fileID: 519420031}
+  maxLineLength: 5
+  effectManager: {fileID: 0}
+  lineLifeTime: 2.5
 --- !u!120 &66342300
 LineRenderer:
   serializedVersion: 2
@@ -567,7 +570,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -718,11 +721,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24b90e991c1f0a14db5999c3b1a7a17f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossStageInitializer
-  fireballPrefab: {fileID: 4758947002119039073, guid: 998d253f19885974cad9d14d0876bf21,
-    type: 3}
   fireballSprite: {fileID: -4454798041136216650, guid: cd442702f8e270b41b4077657150dbbc,
-    type: 3}
-  meteorSprite: {fileID: -4454798041136216650, guid: cd442702f8e270b41b4077657150dbbc,
     type: 3}
   fireballCount: 12
   fireballInterval: 0.2
@@ -779,12 +778,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56999cb2aa30026408cb33c9aa0ebfab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  walkerPrefab: {fileID: 5233573436572110791, guid: c71098364592c3c49ac03f919662cd7d,
-    type: 3}
+  ghostPrefabs: []
   spawnEffectPrefab: {fileID: 1548587925514725668, guid: 805444a1a01402249902d6ec875b142a,
     type: 3}
-  spawnAreaMin: {x: -6, y: -4}
-  spawnAreaMax: {x: 6, y: 4}
   delayBeforeSpawn: 0.5
 --- !u!4 &1890296795
 Transform:

@@ -13,11 +13,16 @@ MonoBehaviour:
   m_Name: Suicide
   m_EditorClassIdentifier: Assembly-CSharp::GhostData
   type: 3
-  walkSpeed: 2
+  walkSpeed: 1
   absorbTime: 60
-  captureHitsNeeded: 3
+  captureHitsNeeded: 1
   changeDirectionTime: 2
+  ghostColor: {r: 1, g: 0.20392159, b: 0.11764707, a: 1}
+  baseScale: 1
+  floatAmplitude: 0.2
+  floatSpeed: 2
+  blinkSpeed: 3
+  blinkIntensity: 0.4
   fireCirclePrefab: {fileID: 1783280966794433788, guid: d9006dc16de09304ebeac112b7faf131,
     type: 3}
   fireCircleLifetime: 3
-  luckyScore: 0

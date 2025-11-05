@@ -24,7 +24,6 @@ public class GhostBase : MonoBehaviour
 
     private Vector3 suicideTargetPos;
     private Vector2 moveDir;
-    private Vector3 originalScale;
     private Coroutine scaleRoutine;
 
     private float floatTimer; 
@@ -55,7 +54,6 @@ public class GhostBase : MonoBehaviour
         var obj1 = GameObject.Find("GhostBallSpawner");
         if (obj1 != null)
             releasePoint = obj1.transform;
-        originalScale = transform.localScale;
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
     }
@@ -455,16 +453,21 @@ public class GhostBase : MonoBehaviour
         moveDir = new Vector2(x, y).normalized;
         dirTimer = data.changeDirectionTime;
     }
-    public void Shrink(float targetScale = 0.8f, float duration = 0.3f)
+    public void Shrink(float scaleMultiplier = 0.8f, float duration = 0.3f)
     {
         if (scaleRoutine != null) StopCoroutine(scaleRoutine);
+        float currentScale = transform.localScale.x;  // 現在のサイズを取得
+        float targetScale = currentScale * scaleMultiplier; // さらに0.8倍に
+
         scaleRoutine = StartCoroutine(ScaleTo(targetScale, duration));
     }
 
     public void Restore(float duration = 0.3f)
     {
         if (scaleRoutine != null) StopCoroutine(scaleRoutine);
-        scaleRoutine = StartCoroutine(ScaleTo(originalScale.x, duration));
+        float targetScale = (data != null) ? data.baseScale : 1f;
+
+        scaleRoutine = StartCoroutine(ScaleTo(targetScale, duration));
     }
 
     private IEnumerator ScaleTo(float targetScale, float duration)
@@ -479,5 +482,8 @@ public class GhostBase : MonoBehaviour
             transform.localScale = Vector3.Lerp(startScale, endScale, elapsed / duration);
             yield return null;
         }
+
+        transform.localScale = endScale; // ← 最後に正確に固定
     }
+
 }

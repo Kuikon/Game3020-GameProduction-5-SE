@@ -1,109 +1,130 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
+[RequireComponent(typeof(Animator))]
 public class BossBehaviour : MonoBehaviour
 {
-    [Header("Grave Settings")]
-    [SerializeField] private GameObject gravePrefab;     
-    [SerializeField] private GameObject brokenGravePrefab;
-    [SerializeField] private int initialGraveCount = 5;
-    [SerializeField] private int lastGraveCount;
+    [Header("References")]
+    [SerializeField] private GraveManager graveManager;
+    [SerializeField] private BossSpawnerController spawnerController;
+    [SerializeField] private Animator animator;
+    [SerializeField] private UIBoxManager uiBoxManager;
 
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float waitTime = 2f;
     [SerializeField] private float baseWaitTime = 4f;
-    [SerializeField] private Vector3 patrolOffset = new Vector3(0f, 1.5f, 0f);
-    [SerializeField] private Vector3 spawnOffset = new Vector3(0f, -1.5f, 0f);
+    [SerializeField] private Vector3 patrolOffset = new(0, 1.5f, 0);
+    [SerializeField] private Vector3 spawnOffset = new(0, -1.5f, 0);
 
-    [Header("Spawner Reference")]
-    [SerializeField] private EnemySpawner enemySpawner;
-    [SerializeField] private float continuousSpawnInterval = 3f;
-
-    [Header("Animation")]
-    [SerializeField] private Animator animator;
-
-    [SerializeField] private Boundry xBoundary;
-    [SerializeField] private Boundry yBoundary;
-    private List<GameObject> graveList = new();
     private List<Vector3> patrolPoints = new();
     private int currentIndex = 0;
     private bool hasCompletedLoop = false;
-    private Coroutine spawnLoop;
-    [HideInInspector] public Vector3 basePoint;
+    private Vector3 basePoint;
+    private Coroutine patrolRoutine;
 
+    // =========================================================
+    // Setup
+    // =========================================================
     private void Awake()
     {
         basePoint = transform.position;
+
+        // 🔹 自動的に参照を見つける
+        if (graveManager == null)
+            graveManager = FindFirstObjectByType<GraveManager>();
+        if (spawnerController == null)
+            spawnerController = GetComponent<BossSpawnerController>();
+        if (uiBoxManager == null)
+            uiBoxManager = FindFirstObjectByType<UIBoxManager>();
     }
 
-    // ============================================================
-    // Initialization
-    // ============================================================
     private void Start()
     {
-        lastGraveCount = initialGraveCount;
-        SpawnInitialGraves(initialGraveCount);
-        CacheGravePositions();
-
-        if (animator == null)
-            animator = GetComponent<Animator>();
+        if (graveManager != null)
+        {
+            graveManager.InitializeGraves();
+            patrolPoints = graveManager.GetPatrolPoints();
+            Debug.Log($"📍 Patrol points count: {patrolPoints.Count}");
+        }
+        else
+        {
+            Debug.LogError("❌ GraveManager reference is missing in BossBehaviour!");
+        }
 
         if (patrolPoints.Count > 0)
-        {
-            transform.position = patrolPoints[0];
-            StartCoroutine(PatrolRoutine());
-        }
+            patrolRoutine = StartCoroutine(PatrolRoutine());
+        else
+            Debug.LogWarning("⚠️ No patrol points available at Start!");
     }
+
+
     private void OnEnable() => GhostEvents.OnGravesCaptured += OnGravesCaptured;
     private void OnDisable() => GhostEvents.OnGravesCaptured -= OnGravesCaptured;
-    private void OnGravesCaptured(List<GameObject> captured)
-    {
-        Debug.Log($"💀 Boss reacting to {captured.Count} captured grave(s)");
-        ReplaceCapturedGraves(captured);
-    }
 
-    private void SpawnInitialGraves(int count)
+    // =========================================================
+    // Event Reaction
+    // =========================================================
+    public void OnGravesCaptured(List<GameObject> captured)
     {
-        float minDistance = 2f;
+        if (graveManager == null) return;
 
-        for (int i = 0; i < count; i++)
+        graveManager.ReplaceCapturedGraves(captured);
+
+        if (graveManager.AllGravesBroken())
         {
-            Vector3 pos = GetValidSpawnPosition(minDistance);
-            GameObject grave = Instantiate(gravePrefab, pos, Quaternion.identity);
-            graveList.Add(grave);
+            Debug.Log("⚰️ All graves broken — starting rebuild...");
+            StopAllCoroutines();
+            StartCoroutine(RebuildAndRestart());
         }
-        Debug.Log($"🪦 Spawned {count} graves at start.");
-    }
-    // ============================================================
-    // Find all grave GameObjects
-    // ============================================================
-    private void CacheGravePositions()
-    {
-        patrolPoints.Clear();
-        List<GameObject> aliveGraves = new();
-        foreach (GameObject grave in graveList)
+        else
         {
-            if (grave == null) continue;
-            if (!grave.CompareTag("BrokenGrave"))
-            {
-                aliveGraves.Add(grave);
-                patrolPoints.Add(grave.transform.position);
-            }
+            patrolPoints = graveManager.GetPatrolPoints();
+            currentIndex = Mathf.Clamp(currentIndex, 0, Mathf.Max(0, patrolPoints.Count - 1)); // ✅ 安全リセット
+            RestartPatrol();
         }
-        graveList = aliveGraves;
-        Debug.Log($"📍 Found {patrolPoints.Count} active graves for patrol.");
     }
 
-    // ============================================================
-    // Patrol behavior loop
-    // ============================================================
+    private IEnumerator RebuildAndRestart()
+    {
+        if (graveManager == null) yield break;
+
+        yield return StartCoroutine(graveManager.RebuildGravesRoutine());
+        patrolPoints = graveManager.GetPatrolPoints();
+        currentIndex = 0;
+        RestartPatrol();
+    }
+
+    private void RestartPatrol()
+    {
+        if (patrolRoutine != null)
+            StopCoroutine(patrolRoutine);
+
+        if (patrolPoints.Count == 0)
+        {
+            Debug.LogWarning("⚠️ No patrol points to restart.");
+            return;
+        }
+
+        patrolRoutine = StartCoroutine(PatrolRoutine());
+    }
+
+    // =========================================================
+    // Patrol Logic
+    // =========================================================
     private IEnumerator PatrolRoutine()
     {
+        uiBoxManager?.ClearBoxes();
+
         while (true)
         {
+            if (patrolPoints == null || patrolPoints.Count == 0)
+            {
+                Debug.LogWarning("⚠️ Patrol points empty, waiting...");
+                yield break;
+            }
+
             yield return StartCoroutine(MoveToNextPoint());
 
             if (hasCompletedLoop)
@@ -114,74 +135,43 @@ public class BossBehaviour : MonoBehaviour
         }
     }
 
-    // ============================================================
-    // Move to the next patrol point
-    // ============================================================
     private IEnumerator MoveToNextPoint()
     {
-      
-        if (patrolPoints.Count == 0) yield break;
+        if (patrolPoints == null || patrolPoints.Count == 0) yield break;
 
-        Vector3 basePos = patrolPoints[currentIndex];
-        Vector3 targetPos = basePos + patrolOffset;
-        Vector3 startPos = transform.position;
-        Vector3 dir = (targetPos - startPos).normalized;
+        currentIndex = Mathf.Clamp(currentIndex, 0, patrolPoints.Count - 1);
+        Vector3 target = patrolPoints[currentIndex] + patrolOffset;
 
-        if (animator != null)
+        Vector3 dir = (target - transform.position).normalized;
+        animator.SetFloat("MoveX", dir.x);
+        animator.SetFloat("MoveY", dir.y);
+
+        while (Vector3.Distance(transform.position, target) > 0.05f)
         {
-            animator.SetFloat("MoveX", dir.x);
-            animator.SetFloat("MoveY", dir.y);
-        }
-
-        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
             yield return null;
         }
 
-        transform.position = targetPos;
+        animator.SetFloat("MoveX", 0f);
+        animator.SetFloat("MoveY", -1f);
 
-        if (animator != null)
-        {
-            animator.SetFloat("MoveX", 0f);
-            animator.SetFloat("MoveY", -1f);
-        }
-
-        // 💀 Ghost spawn
-        if (enemySpawner != null)
-        {
-            if (spawnLoop != null)
-                StopCoroutine(spawnLoop);
-            spawnLoop = StartCoroutine(SpawnLoop(targetPos));
-        }
-
+        spawnerController?.StartSpawnLoop(target + spawnOffset);
         yield return new WaitForSeconds(waitTime);
-
-        if (spawnLoop != null)
-        {
-            StopCoroutine(spawnLoop);
-            spawnLoop = null;
-        }
+        spawnerController?.StopSpawnLoop();
 
         currentIndex++;
         if (currentIndex >= patrolPoints.Count)
         {
-            hasCompletedLoop = true;
             currentIndex = 0;
+            hasCompletedLoop = true;
         }
-
     }
 
     private IEnumerator ReturnToBasePoint()
     {
-        Debug.Log("🏰 Returning to base point...");
-
         Vector3 dir = (basePoint - transform.position).normalized;
-        if (animator != null)
-        {
-            animator.SetFloat("MoveX", dir.x);
-            animator.SetFloat("MoveY", dir.y);
-        }
+        animator.SetFloat("MoveX", dir.x);
+        animator.SetFloat("MoveY", dir.y);
 
         while (Vector3.Distance(transform.position, basePoint) > 0.05f)
         {
@@ -189,151 +179,23 @@ public class BossBehaviour : MonoBehaviour
             yield return null;
         }
 
-        transform.position = basePoint;
-
-        if (animator != null)
-        {
-            animator.SetFloat("MoveX", 0);
-            animator.SetFloat("MoveY", -1f);
-        }
-
-        Debug.Log($"😴 Resting at base for {baseWaitTime} seconds...");
+        animator.SetFloat("MoveX", 0);
+        animator.SetFloat("MoveY", -1f);
+        uiBoxManager?.SpawnBoxes(basePoint);
         yield return new WaitForSeconds(baseWaitTime);
     }
-    private bool AllGravesBroken()
+
+    // =========================================================
+    // External Setters (used by DragonEgg)
+    // =========================================================
+    public void SetGraveManager(GraveManager gm)
     {
-        foreach (GameObject g in graveList)
-        {
-            if (g != null && !g.CompareTag("BrokenGrave"))
-                return false;
-        }
-        return true;
-    }
-    // ============================================================
-    // Continuous ghost spawning
-    // ============================================================
-    private IEnumerator SpawnLoop(Vector3 pos)
-    {
-        while (true)
-        {
-            Vector3 basePos = pos + spawnOffset;
-            Vector3 spawnPos = basePos + new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 0.5f), 0f);
-            enemySpawner.SpawnAtPosition(spawnPos);
-            yield return new WaitForSeconds(continuousSpawnInterval);
-        }
-    }
-   
-
-    // ============================================================
-    // Replace only *captured* graves with broken versions
-    // ============================================================
-    public void ReplaceCapturedGraves(List<GameObject> captured)
-    {
-        foreach (var grave in captured)
-        {
-            if (grave == null) continue;
-            Vector3 pos = grave.transform.position;
-            graveList.Remove(grave);
-            Destroy(grave);
-            GameObject broken = Instantiate(brokenGravePrefab, pos, Quaternion.identity);
-            broken.tag = "BrokenGrave";
-        }
-
-        RecalculatePatrolPoints();
-        if (AllGravesBroken())
-        {
-            Debug.Log("⚰️ All graves broken — rebuilding triggered manually!");
-            StopAllCoroutines();
-            StartCoroutine(RebuildGravesRoutine());
-        }
-    }
-    private IEnumerator RebuildGravesRoutine()
-    {
-        yield return new WaitForSeconds(2f);
-
-        int newCount = lastGraveCount + 1;
-        lastGraveCount = newCount;
-        graveList.Clear();
-        patrolPoints.Clear();
-        RemoveAllBrokenGraves();
-        float minDistance = 2f;
-        for (int i = 0; i < newCount; i++)
-        {
-            Vector3 pos = GetValidSpawnPosition(minDistance);
-            GameObject grave = Instantiate(gravePrefab, pos, Quaternion.identity);
-            graveList.Add(grave);
-        }
-
-        Debug.Log($"🌱 Rebuilt {newCount} new graves!");
-
-        CacheGravePositions();
-        currentIndex = 0;
-
-        StartCoroutine(PatrolRoutine());
-
-    }
-    private void RemoveAllBrokenGraves()
-    {
-        GameObject[] brokenGraves = GameObject.FindGameObjectsWithTag("BrokenGrave");
-        foreach (GameObject broken in brokenGraves)
-        {
-            if (broken != null)
-                Destroy(broken);
-        }
-        Debug.Log($"Removed {brokenGraves.Length} broken graves before rebuilding.");
-    }
-    public void RecalculatePatrolPoints()
-    {
-        Debug.Log("🧭 Boss Recalculating Patrol Points...");
-
-        StopAllCoroutines();
-        CacheGravePositions(); 
-        currentIndex = 0;
-        hasCompletedLoop = false;
-
-        if (patrolPoints.Count > 0)
-            StartCoroutine(PatrolRoutine());
-    }
-    private Vector3 GetValidSpawnPosition(float minDistance)
-    {
-        Vector3 pos = Vector3.zero;
-        bool validPosition = false;
-        int safety = 0;
-        do
-        {
-            pos = new Vector3(
-                Random.Range(xBoundary.min, xBoundary.max),
-                Random.Range(yBoundary.min, yBoundary.max),
-                0f
-            );
-
-            validPosition = true;
-            foreach (var existing in graveList)
-            {
-                if (existing == null) continue;
-                if (Vector3.Distance(pos, existing.transform.position) < minDistance)
-                {
-                    validPosition = false;
-                    break;
-                }
-            }
-            safety++;
-            if (safety > 100)
-            {
-                Debug.LogWarning("⚠️ Could not find valid non-overlapping position!");
-                break;
-            }
-
-        } while (!validPosition);
-        return pos;
-    }
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        foreach (var p in patrolPoints)
-            Gizmos.DrawSphere(p, 0.15f);
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawSphere(basePoint, 0.2f);
+        graveManager = gm;
     }
 
+    public void SetEnemySpawner(EnemySpawner es)
+    {
+        if (spawnerController != null)
+            spawnerController.SetEnemySpawner(es);
+    }
 }

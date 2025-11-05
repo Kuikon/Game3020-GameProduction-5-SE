@@ -28,7 +28,7 @@ public class BoxManager : MonoBehaviour
     }
 
 
-    public void ProcessDrop(BallController ball, UIBox targetBox)
+    public void ProcessDrop(BallBase ball, UIBox targetBox)
     {
         GhostType type = ball.type;
         if (boxDict.TryGetValue(ball.type, out var correctBox) && targetBox == correctBox)

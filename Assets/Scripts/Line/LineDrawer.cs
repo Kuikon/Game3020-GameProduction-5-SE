@@ -211,7 +211,7 @@ public class LineDraw : MonoBehaviour
             if (!IsInsidePolygon(grave)) continue;
 
             IncrementCaptureCount(grave);
-
+            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, grave.transform);
             if (insideCount[grave] == 5)
                 HandleGraveCaptured(grave);
         }
@@ -251,7 +251,6 @@ public class LineDraw : MonoBehaviour
         Debug.Log($"🪦 {grave.name} Grave captured!");
         HighlightGrave(grave);
         UIManager.Instance.AddEnemyBlock();
-        BossBehaviour boss = FindFirstObjectByType<BossBehaviour>();
         List<GameObject> captured = new List<GameObject> { grave };
         GhostEvents.RaiseGravesCaptured(captured);
     }

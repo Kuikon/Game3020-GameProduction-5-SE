@@ -13,10 +13,15 @@ MonoBehaviour:
   m_Name: Quick
   m_EditorClassIdentifier: Assembly-CSharp::GhostData
   type: 1
-  walkSpeed: 2
+  walkSpeed: 1
   absorbTime: 60
-  captureHitsNeeded: 3
+  captureHitsNeeded: 2
   changeDirectionTime: 2
+  ghostColor: {r: 0.19607845, g: 0.5803922, b: 1, a: 1}
+  baseScale: 0.7
+  floatAmplitude: 0.2
+  floatSpeed: 2
+  blinkSpeed: 3
+  blinkIntensity: 0.4
   fireCirclePrefab: {fileID: 0}
   fireCircleLifetime: 3
-  luckyScore: 0

@@ -11,8 +11,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float bulletSpeed = 10f;
+    [SerializeField] private GhostType currentBulletType = GhostType.Normal;
     [SerializeField] private LineRenderer aimLine;
     [SerializeField] private Camera mainCam;
+    private int currentTypeIndex = 0;
     void Start()
     {
         MiniMapManager.Instance?.RegisterPlayer(gameObject);
@@ -24,15 +26,49 @@ public class PlayerController : MonoBehaviour
             mainCam = Camera.main;
 
         if (aimLine != null)
+        {
             aimLine.enabled = false;
             aimLine.startWidth = 0.02f;
             aimLine.endWidth = 0.02f;
+        }
+        if (UIManager.Instance != null)
+            UIManager.Instance.FocusBulletSlot(currentBulletType);
     }
 
     void Update()
     {
         HandleMovement();
         HandleAimLine();
+        HandleBulletSwitch();
+    }
+    private void HandleBulletSwitch()
+    {
+        // Qキーで左に、Eキーで右に切り替え
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            currentTypeIndex--;
+            if (currentTypeIndex < 0)
+                currentTypeIndex = allTypes.Length - 1;
+            SwitchBulletType();
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            currentTypeIndex++;
+            if (currentTypeIndex >= allTypes.Length)
+                currentTypeIndex = 0;
+            SwitchBulletType();
+        }
+    }
+
+    private void SwitchBulletType()
+    {
+        currentBulletType = allTypes[currentTypeIndex];
+
+        // 🎨 UIにフォーカスを反映
+        if (UIManager.Instance != null)
+            UIManager.Instance.FocusBulletSlot(currentBulletType);
+
+        Debug.Log($"🔁 弾タイプ切り替え: {currentBulletType}");
     }
     private void HandleMovement()
     {
@@ -88,15 +124,44 @@ public class PlayerController : MonoBehaviour
     {
         if (bulletPrefab == null) return;
 
+        // 🎯 Luckyは存在しない → Normalとして扱う
+        GhostType fireType = (currentBulletType == GhostType.Lucky) ? GhostType.Normal : currentBulletType;
+
+        // 🔹 弾ストックを消費
+        if (!UIManager.Instance.TryUseBullet(fireType))
+        {
+            Debug.Log($"⚠️ {fireType} 弾が足りません！");
+            return;
+        }
+
+        // 🔸 実際の発射処理
         Vector2 direction = (targetPos - transform.position).normalized;
         GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+
+        SpriteRenderer sr = bullet.GetComponent<SpriteRenderer>();
+        if (sr != null)
+            sr.color = GhostBase.GetColorByType(fireType);
+
         Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
         if (rbBullet != null)
-        {
             rbBullet.linearVelocity = direction * bulletSpeed;
-        }
-        bullet.transform.right = direction;
+
+        bullet.transform.up = direction;
     }
+
+
+    public void ShootCurrentBullet()
+    {
+        if (mainCam == null || bulletPrefab == null) return;
+
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = Mathf.Abs(mainCam.transform.position.z);
+        Vector3 worldPos = mainCam.ScreenToWorldPoint(mousePos);
+        worldPos.z = 0f;
+
+        ShootBullet(worldPos);
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.CompareTag("Dog"))
@@ -116,4 +181,11 @@ public class PlayerController : MonoBehaviour
             transform.localScale = scale;
         }
     }
+    private GhostType[] allTypes =
+    {
+        GhostType.Normal,
+        GhostType.Quick,
+        GhostType.Suicide,
+        GhostType.Tank,
+    };
 }

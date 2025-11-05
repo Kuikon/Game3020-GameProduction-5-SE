@@ -69,26 +69,24 @@ public class BallController : MonoBehaviour
         {
             isCollected = true;
 
-            // 🎯 GameManager と UIManager をシーンから探す（Persistent前提なし）
             GameManager gm = GameObject.FindFirstObjectByType<GameManager>();
             UIManager ui = GameObject.FindFirstObjectByType<UIManager>();
-
+            GhostType effectiveType = (type == GhostType.Lucky) ? GhostType.Normal : type;
             if (gm != null)
             {
                 // カウント更新
-                if (!gm.capturedGhosts.ContainsKey(type))
-                    gm.capturedGhosts[type] = 0;
-                gm.capturedGhosts[type]++;
-                Debug.Log($"📈 Count for {type}: {gm.capturedGhosts[type]}");
+                if (!gm.capturedGhosts.ContainsKey(effectiveType))
+                    gm.capturedGhosts[effectiveType] = 0;
+                gm.capturedGhosts[effectiveType]++;
+                Debug.Log($"📈 Count for {effectiveType}: {gm.capturedGhosts[effectiveType]}");
             }
 
             if (ui != null && gm != null)
             {
-                int count = gm.capturedGhosts[type];
-                Debug.Log($"🧮 Updating UI: type={type}, count={count}");
-                ui.UpdateSlot(type, count);
+                int count = gm.capturedGhosts[effectiveType];
+                Debug.Log($"🧮 Updating UI: type={effectiveType}, count={count}");
+                ui.UpdateSlot(effectiveType, count);
             }
-
             // 💥 回収エフェクト
             StartCoroutine(CollectEffect());
         }

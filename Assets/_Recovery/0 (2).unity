@@ -4990,6 +4990,7 @@ MonoBehaviour:
   _rend: {fileID: 66342300}
   _cam: {fileID: 519420031}
   maxLineLength: 5
+  effectManager: {fileID: 0}
   lineLifeTime: 2.5
 --- !u!120 &66342300
 LineRenderer:
@@ -5211,7 +5212,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9408,7 +9409,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14550,7 +14551,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14994,7 +14995,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -46912,7 +46913,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -47037,7 +47038,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -48668,6 +48669,7 @@ GameObject:
   - component: {fileID: 1238897529}
   - component: {fileID: 1238897528}
   - component: {fileID: 1238897530}
+  - component: {fileID: 1238897531}
   m_Layer: 0
   m_Name: BossController
   m_TagString: Untagged
@@ -48728,27 +48730,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c9c586c3887d334ba1a2ee1773f6bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBehaviour
-  gravePrefab: {fileID: 1380899697005801431, guid: 1e325ed0d23b4364b8e4e1c39280a952,
-    type: 3}
-  brokenGravePrefab: {fileID: 9166593192919925273, guid: cd38f25da4f09644785c4150c73d5921,
-    type: 3}
-  initialGraveCount: 2
-  lastGraveCount: 0
+  graveManager: {fileID: 0}
+  spawnerController: {fileID: 0}
+  animator: {fileID: 1286716260}
   moveSpeed: 3
   waitTime: 3
   baseWaitTime: 4
   patrolOffset: {x: 0, y: 1.5, z: 0}
   spawnOffset: {x: 0, y: -2, z: 0}
-  enemySpawner: {fileID: 7740075164244518574}
-  continuousSpawnInterval: 1
-  animator: {fileID: 1286716260}
-  xBoundary:
-    max: 14
-    min: -14
-  yBoundary:
-    max: 13
-    min: -13
-  basePoint: {x: 0, y: 0, z: 0}
+  uiBoxManager: {fileID: 0}
+--- !u!95 &1238897531
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238897527}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &1286716259 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2164514343612917396, guid: 4f74d9fc1eb7ae14ea9eabb9ee459ee9,
@@ -48913,7 +48925,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -49163,6 +49175,7 @@ MonoBehaviour:
   luckyPoint: {fileID: 2050793600}
   damageTaken: 0
   sortFails: 0
+  allGhostData: []
 --- !u!4 &1671586047
 Transform:
   m_ObjectHideFlags: 0
@@ -49208,10 +49221,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 309ae54cbe71d91468bc386f116d5fdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  overheadTextPrefab: {fileID: 5438311526852242408, guid: ba48133c97517c740b6c8063b1a3edce,
-    type: 3}
-  textOffset: {x: 0, y: 0, z: 0}
-  mainCanvas: {fileID: 2017898522}
   hpBlockPrefab: {fileID: 7895850113332173517, guid: 1f99c23c489778841899cc4d9c287695,
     type: 3}
   hpBlockContainer: {fileID: 1340080198}
@@ -49225,6 +49234,25 @@ MonoBehaviour:
   maxEnemy: 10
   enemyActiveColor: {r: 1, g: 0.64900297, b: 0, a: 1}
   enemyBlockSize: {x: 15, y: 40}
+  ghostSlots: []
+  inactiveSlotColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.6}
+  activeSlotColor: {r: 1, g: 1, b: 1, a: 1}
+  stackBlockPrefab: {fileID: 0}
+  blockSpacing: 20
+  focusColor: {r: 1, g: 1, b: 0.3, a: 1}
+  normalSlotColor: {r: 1, g: 1, b: 1, a: 0.4}
+  miniHpBlockPrefab: {fileID: 0}
+  miniHpBlockContainer: {fileID: 0}
+  hpAndEnemyGroup: {fileID: 0}
+  bulletSlotsGroup: {fileID: 0}
+  hpHiddenPos: {x: 0, y: 200, z: 0}
+  hpVisiblePos: {x: 0, y: 0, z: 0}
+  bulletHiddenPos: {x: 0, y: -300, z: 0}
+  bulletVisiblePos: {x: 0, y: 0, z: 0}
+  moveSpeed: 10
+  miniHpUI: {fileID: 0}
+  miniHpVisiblePos: {x: -50, y: 50, z: 0}
+  miniHpHiddenPos: {x: -50, y: -200, z: 0}
 --- !u!4 &1877347646
 Transform:
   m_ObjectHideFlags: 0
@@ -49562,7 +49590,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -54500,10 +54528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a81285091435a8e48b2c67e00ade7c4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostBallSpawner
-  ballPrefab: {fileID: 293219714733390138, guid: 8e74703c6e0d1c04ea2ed9e5eb8d9d9e,
-    type: 3}
-  launchForce: 1
-  maxAngle: 90
+  droppedBallPrefab: {fileID: 0}
 --- !u!4 &2136885364
 Transform:
   m_ObjectHideFlags: 0

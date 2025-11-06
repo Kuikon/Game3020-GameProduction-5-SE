@@ -88,7 +88,10 @@ public class DragonEgg : MonoBehaviour
         // ドラゴン生成
         if (bossPrefab != null)
         {
-            Instantiate(bossPrefab, initialPos, Quaternion.identity);
+            GameObject boss = Instantiate(bossPrefab, transform.position, Quaternion.identity);
+            BossBehaviour bossBehaviour = boss.GetComponent<BossBehaviour>();
+            GraveManager gm = FindFirstObjectByType<GraveManager>();
+            bossBehaviour.InitializeAfterHatch(gm);
             Debug.Log("🐉 Dragon has hatched!");
         }
     }

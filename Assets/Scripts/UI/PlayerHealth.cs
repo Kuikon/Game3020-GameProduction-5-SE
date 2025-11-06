@@ -6,30 +6,34 @@ public class PlayerHealth : MonoBehaviour
     public int maxHP = 10;
     public int currentHP = 10;
 
-    [Header("References")]
-    [SerializeField] private UIManager uiManager;       // メインUIマネージャー
-    [SerializeField] private string hpBarName = "HP";   // 通常HPバー
-    [SerializeField] private string miniHpBarName = "MiniHP"; // ミニHPバー名
+    [SerializeField] private UIManager uiManager;
+    [SerializeField] private string hpBarName = "HP";
+    [SerializeField] private string miniHpBarName = "MiniHP";
 
     private void Start()
     {
         if (uiManager == null)
             uiManager = UIManager.Instance;
 
-        // --- バー初期化 ---
-        uiManager.SetupBar(hpBarName, maxHP);
-        uiManager.SetupBar(miniHpBarName, maxHP);
+        // --- バー初期化（動的生成） ---
+        uiManager.CreateBar(hpBarName, maxHP);
+        uiManager.CreateBar(miniHpBarName, maxHP);
 
-        // --- 現在HPで反映 ---
+        // --- 現在HPを反映 ---
         UpdateAllBars();
+    }
+
+    private void UpdateAllBars()
+    {
+        uiManager.UpdateBar(hpBarName, currentHP);
+        uiManager.UpdateBar(miniHpBarName, currentHP);
     }
 
     public void TakeDamage(int damage)
     {
+
         currentHP = Mathf.Clamp(currentHP - damage, 0, maxHP);
         UpdateAllBars();
-
-        GameManager.Instance.RegisterDamage();
 
         if (currentHP <= 0)
         {
@@ -41,17 +45,5 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);
         UpdateAllBars();
-    }
-
-    private void UpdateAllBars()
-    {
-        if (uiManager == null) return;
-
-        // メインHPバー更新
-        uiManager.UpdateBar(hpBarName, currentHP);
-
-        // ミニHPバー（存在する場合のみ）更新
-        if (!string.IsNullOrEmpty(miniHpBarName))
-            uiManager.UpdateBar(miniHpBarName, currentHP);
     }
 }

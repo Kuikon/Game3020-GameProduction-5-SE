@@ -5,6 +5,7 @@ using System.Collections;
 [RequireComponent(typeof(LineRenderer))]
 public class LineDraw : MonoBehaviour
 {
+    [SerializeField] private EdgeCollider2D edgeCollider;
     [SerializeField] private LineRenderer _rend;
     [SerializeField] private Camera _cam;
     [SerializeField] private float maxLineLength = 5f;
@@ -13,12 +14,15 @@ public class LineDraw : MonoBehaviour
     private float currentLineLength = 0f;
     private Queue<Vector3> linePoints = new();
     private int posCount = 0;
+    private int currentEnemyCount = 0;
     private float interval = 0.1f;
     private PolygonCollider2D _poly;
-
-    public float lineLifeTime = 2.5f;
     public Dictionary<GameObject, int> insideCount { get; private set; }
-
+    public float MaxLineLength
+    {
+        get => maxLineLength;
+        set => maxLineLength = value;
+    }
     void Awake()
     {
         insideCount = new Dictionary<GameObject, int>();
@@ -34,6 +38,8 @@ public class LineDraw : MonoBehaviour
 
         if (_cam == null)
             _cam = Camera.main;
+        edgeCollider = gameObject.AddComponent<EdgeCollider2D>();
+        edgeCollider.isTrigger = true;
     }
 
     private void Update()
@@ -73,7 +79,20 @@ public class LineDraw : MonoBehaviour
         linePoints.Enqueue(pos);
 
         TrimLineToMaxLength();
+
+        // 🟣 コライダーの形を線に合わせて更新
+        if (posCount > 1)
+        {
+            Vector2[] colliderPoints = new Vector2[posCount];
+            for (int i = 0; i < posCount; i++)
+            {
+                Vector3 worldPoint = _rend.GetPosition(i);
+                colliderPoints[i] = transform.InverseTransformPoint(worldPoint);
+            }
+            edgeCollider.points = colliderPoints;
+        }
     }
+
     private void TrimLineToMaxLength()
     {
         while (linePoints.Count >= 2 && GetTotalLength(linePoints) > maxLineLength)
@@ -129,6 +148,9 @@ public class LineDraw : MonoBehaviour
                 if (LineVisualEffectManager.Instance != null)
                     LineVisualEffectManager.Instance.CreateLineAfterImage(_rend);
                 CreatePolygonFromLoop(i, intersection);
+                var flashLight = FindAnyObjectByType<Light2DRadiusController>();
+                if (flashLight != null)
+                    flashLight.FlashRadius();
                 return;
             }
         }
@@ -159,6 +181,7 @@ public class LineDraw : MonoBehaviour
 
         CheckGhosts(isMouseHeld);
         CheckGraves(isMouseHeld);
+        CheckDragon(isMouseHeld);
     }
 
     private void CheckGhosts(bool isMouseHeld)
@@ -216,6 +239,31 @@ public class LineDraw : MonoBehaviour
                 HandleGraveCaptured(grave);
         }
     }
+    private void CheckDragon(bool isMouseHeld)
+    {
+        GameObject[] dragons = GameObject.FindGameObjectsWithTag("Dragon");
+
+        foreach (GameObject dragon in dragons)
+        {
+            // 囲まれていないならスキップ
+            if (!IsInsidePolygon(dragon)) continue;
+
+            // ドラゴンのHP取得
+            var health = dragon.GetComponent<DragonHealth>();
+            if (health == null) continue;
+
+            // 🧱 1回囲むたびにHPを1減らす
+            health.TakeDamage(1);
+
+            // ヒットエフェクト（任意）
+            effectManager?.PlayHitEffect(dragon.transform.position);
+            LineVisualEffectManager.Instance?.PlayCaptureEffect(_rend, dragon.transform);
+
+            Debug.Log($"🔥 Hit {dragon.name}! HP: {health.currentHP}/{health.maxHP}");
+        }
+    }
+
+
 
     private bool IsInsidePolygon(GameObject obj)
     {
@@ -233,16 +281,22 @@ public class LineDraw : MonoBehaviour
     private void HandleGhostCaptured(GameObject ghost)
     {
         var gb = ghost.GetComponent<GhostBase>();
-        if (gb != null) gb.Kill();
+        if (gb == null) return;
         effectManager.PlayHitEffect(gb.transform.position);
+        LineVisualEffectManager.Instance.ReleaseAllGlowsUpward();
+        if (gb != null)
+            gb.Kill();
         GhostType capturedType = gb.data.type;
         if (capturedType == GhostType.Lucky)
-        {
             capturedType = GhostType.Normal;
-        }
 
+        // イベント通知
         GhostEvents.RaiseGhostCaptured(capturedType, ghost.transform.position);
-        UIManager.Instance.AddEnemyBlock();
+
+        // 🔹 Enemyバーを1つ増やす
+        currentEnemyCount++;
+        UIManager.Instance.UpdateBar("Enemy", currentEnemyCount);
+
         Debug.Log($"{ghost.name} Captured as {capturedType}");
     }
 
@@ -250,11 +304,15 @@ public class LineDraw : MonoBehaviour
     {
         Debug.Log($"🪦 {grave.name} Grave captured!");
         HighlightGrave(grave);
-        UIManager.Instance.AddEnemyBlock();
+
+        // 🔹 Enemyバーを1つ増やす
+        currentEnemyCount++;
+        UIManager.Instance.UpdateBar("Enemy", currentEnemyCount);
+
+        // イベント通知（墓のキャプチャ）
         List<GameObject> captured = new List<GameObject> { grave };
         GhostEvents.RaiseGravesCaptured(captured);
     }
-
 
     private void HighlightGrave(GameObject target)
     {
@@ -281,6 +339,20 @@ public class LineDraw : MonoBehaviour
             var gb = ghost.GetComponent<GhostBase>();
             if (gb != null)
                 gb.Restore();  // 👈 元のサイズに戻す
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Dog"))
+        {
+            Debug.Log($"🐶 {other.name} が線に触れた！");
+            
+            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, other.transform, reverse: true);
+            ResetLine();
+        }
+        else
+        {
+            Debug.Log($"🎯 {other.name} が線に接触しました。");
         }
     }
     private bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 intersection)

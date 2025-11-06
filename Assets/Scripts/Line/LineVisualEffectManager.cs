@@ -9,7 +9,6 @@ public class LineVisualEffectManager : MonoBehaviour
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private GameObject glowPrefab; 
     [SerializeField] private float defaultGlowScale = 0.3f;
-    [SerializeField] private float defaultLifetime = 0.5f;
     [SerializeField] private Color captureColor = Color.yellow;
     [SerializeField] private Material fadeMaterial;
     [SerializeField] private float afterImageLifetime = 1.5f;
@@ -71,35 +70,60 @@ public class LineVisualEffectManager : MonoBehaviour
     }
 
     // ✨ 囲み完了時（Loop完成時）
-    public void PlayCaptureEffect(LineRenderer line, Transform target)
+    public void PlayCaptureEffect(LineRenderer line, Transform target, bool reverse = false)
     {
         if (line == null) return;
 
         Vector3[] points = new Vector3[line.positionCount];
         line.GetPositions(points);
-
-        // 点が多いほど間引いて軽くする
         int step = Mathf.Max(2, line.positionCount / 200);
+
+        // 🔹 逆方向ならループ順を反転
+        if (reverse)
+        {
+            System.Array.Reverse(points);
+        }
 
         for (int i = 0; i < points.Length; i += step)
         {
-            GameObject glow = SpawnGlow(points[i], captureColor, defaultGlowScale, defaultLifetime);
+            GameObject glow = SpawnGlow(points[i], captureColor, defaultGlowScale);
+            activeEffects.Add(glow);
 
-            // GlowMover スクリプトを持っていたらターゲット設定
             GlowMover mover = glow.GetComponent<GlowMover>();
             if (mover != null)
-                mover.SetTarget(target);
+            {
+                if (reverse)
+                    mover.SetReverseTarget(target); // 逆モード
+                else
+                    mover.SetTarget(target);        // 通常モード
+            }
         }
     }
 
+    public void ReleaseAllGlowsUpward()
+    {
+        foreach (var glow in activeEffects)
+        {
+            if (glow == null) continue;
+
+            var mover = glow.GetComponent<GlowMover>();
+            if (mover != null)
+            {
+                mover.ReleaseUpward(); // ⬆️ 上向きモードへ
+            }
+        }
+
+        // リストを掃除
+        activeEffects.RemoveAll(g => g == null);
+    }
     // 🎯 ゴーストヒット時（当たり判定時）
     public void PlayHitEffect(Vector3 position)
     {
-        SpawnGlow(position, Color.white, defaultGlowScale * 1.2f, defaultLifetime);
+        SpawnGlow(position, Color.white, defaultGlowScale * 1.2f);
     }
 
     // 🌀 汎用エフェクト生成
-    private GameObject SpawnGlow(Vector3 position, Color color, float scale, float lifetime)
+    private GameObject SpawnGlow(Vector3 position, Color color, float scale)
     {
         GameObject glow = Instantiate(glowPrefab, position, Quaternion.identity);
         var ps = glow.GetComponent<ParticleSystem>();
@@ -110,7 +134,6 @@ public class LineVisualEffectManager : MonoBehaviour
             main.startSize = scale;
         }
 
-        Destroy(glow, lifetime);
         return glow;
     }
 

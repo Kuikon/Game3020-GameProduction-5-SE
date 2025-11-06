@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
-using System.Drawing;
-using Color = UnityEngine.Color;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -10,7 +8,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
 
     //=============================================
-    // 🟣 Ghost Slot UI
+    // 🟣 Ghost Slot UI（そのまま維持）
     //=============================================
     [System.Serializable]
     public class GhostUISlot
@@ -19,56 +17,28 @@ public class UIManager : MonoBehaviour
         public Image slotBackground;
         public Image icon;
         public TextMeshProUGUI countText;
-        public Transform stackParent;
+        public RectTransform stackParent; 
     }
 
     //=============================================
-    // 🔴 共通バークラス
+    // 🔴 共通バークラス（Prefab・maxBlocksなし）
     //=============================================
     [System.Serializable]
     public class BarUI
     {
-        public string barName;                  // "HP", "MiniHP", "Enemy"など
-        public GameObject blockPrefab;          // ブロックプレハブ
-        public Transform container;             // 配置先
-        public int maxBlocks = 10;              // 最大ブロック数
-        public Color activeColor = Color.red;   // 有効色
+        public string barName;                      // "HP", "MiniHP", "Enemy"など
+        public RectTransform container;             // 配置先 (Canvas内)
+        public Color activeColor = Color.red;       // 有効色
         public Color inactiveColor = new Color(0.3f, 0.3f, 0.3f);
         public Vector2 blockSize = new Vector2(15f, 40f);
         [HideInInspector] public List<Image> blocks = new();
-
-        public void CreateBlocks()
-        {
-            if (container == null || blockPrefab == null) return;
-
-            foreach (Transform child in container)
-                GameObject.Destroy(child.gameObject);
-
-            blocks.Clear();
-
-            for (int i = 0; i < maxBlocks; i++)
-            {
-                GameObject block = GameObject.Instantiate(blockPrefab, container);
-                Image img = block.GetComponent<Image>();
-                RectTransform rt = block.GetComponent<RectTransform>();
-                if (img != null) img.color = activeColor;
-                if (rt != null) rt.sizeDelta = blockSize;
-                blocks.Add(img);
-            }
-        }
-
-        public void UpdateBlocks(int current)
-        {
-            if (blocks == null || blocks.Count == 0) return;
-            for (int i = 0; i < blocks.Count; i++)
-                blocks[i].color = (i < current) ? activeColor : inactiveColor;
-        }
     }
 
     //=============================================
     // 🎨 Serialized Fields
     //=============================================
-    [Header("Bar Settings")]
+    [Header("Common Bar Settings")]
+    [SerializeField] private GameObject commonBlockPrefab; // すべてのバーで共通
     [SerializeField] private List<BarUI> bars = new();
 
     [Header("Bullet Slots")]
@@ -76,7 +46,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Color inactiveSlotColor = new Color(0.4f, 0.4f, 0.4f, 0.6f);
     [SerializeField] private Color activeSlotColor = Color.white;
     [SerializeField] private GameObject stackBlockPrefab;
-    [SerializeField] private float blockSpacing = 20f;
+    [SerializeField] private float blockSpacing = 2f;
     [SerializeField] private Color focusColor = new Color(1f, 1f, 0.3f, 1f);
     [SerializeField] private Color normalSlotColor = new Color(1f, 1f, 1f, 0.4f);
 
@@ -109,12 +79,9 @@ public class UIManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // すべてのバーを初期化
+        // 辞書登録（初期化のみ）
         foreach (var bar in bars)
-        {
-            bar.CreateBlocks();
             barDict[bar.barName] = bar;
-        }
     }
 
     private void OnEnable()
@@ -138,14 +105,12 @@ public class UIManager : MonoBehaviour
     }
 
     //=============================================
-    // 📦 Ghost UI 関連
+    // 📦 Ghost Slot 関連
     //=============================================
     private void OnGhostCaptured(GhostType type, Vector3 pos)
     {
         if (type == GhostType.Lucky)
             type = GhostType.Normal;
-        // GameManager側でカウント更新済み想定
-        // UpdateSlot(type, newCount);
     }
 
     private void InitializeSlots()
@@ -198,6 +163,7 @@ public class UIManager : MonoBehaviour
         {
             Color baseColor = GhostBase.GetColorByType(slot.type);
             slot.icon.color = (count > 0) ? baseColor : baseColor * 0.5f;
+            Debug.Log($"🎨 UpdateSlot({type}) → icon.color={slot.icon.color}");
         }
 
         if (count < MaxVisualBlocks)
@@ -241,55 +207,68 @@ public class UIManager : MonoBehaviour
     }
 
     //=============================================
-    // 🩸 共通バー制御 (HP, Enemy, MiniHPなど)
+    // 🩸 共通バー制御 (Prefab / maxBlocksなし)
     //=============================================
-    public void UpdateBar(string barName, int currentValue)
+    public void CreateBar(string barName, int blockCount)
     {
-        if (barDict.TryGetValue(barName, out var bar))
+        if (!barDict.ContainsKey(barName) || stackBlockPrefab == null)
         {
-            bar.UpdateBlocks(currentValue);
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ Bar '{barName}' not found!");
-        }
-    }
-
-    public void SetupBar(string barName, int newMax)
-    {
-        if (barDict.TryGetValue(barName, out var bar))
-        {
-            bar.maxBlocks = newMax;
-            bar.CreateBlocks();
-        }
-    }
-
-    //=============================================
-    // 🧱 Enemy 専用の追加メソッド（互換維持）
-    //=============================================
-    public void AddEnemyBlock()
-    {
-        if (!barDict.ContainsKey("Enemy")) return;
-        var enemyBar = barDict["Enemy"];
-
-        if (currentEnemyCount >= enemyBar.maxBlocks)
-        {
-            Debug.Log("🧱 Enemy block is already full!");
+            Debug.LogWarning($"⚠️ Bar '{barName}' not found or prefab missing");
             return;
         }
 
-        enemyBar.blocks[currentEnemyCount].color = enemyBar.activeColor;
-        currentEnemyCount++;
-        Debug.Log($"👹 Enemy captured! Total: {currentEnemyCount}/{enemyBar.maxBlocks}");
+        BarUI bar = barDict[barName];
+        if (bar.container == null) return;
+
+        // 既存削除
+        foreach (Transform child in bar.container)
+            Destroy(child.gameObject);
+
+        bar.blocks.Clear();
+
+        // 新規生成
+        for (int i = 0; i < blockCount; i++)
+        {
+            GameObject block = Instantiate(stackBlockPrefab, bar.container);
+            block.transform.SetAsLastSibling();
+
+            RectTransform rt = block.GetComponent<RectTransform>();
+            Image img = block.GetComponent<Image>();
+
+            if (rt != null)
+            {
+                rt.localScale = Vector3.one;
+                rt.sizeDelta = bar.blockSize;
+                rt.anchoredPosition = new Vector2(i * (bar.blockSize.x + 2f), 0);
+            }
+
+            if (img != null)
+                img.color = bar.inactiveColor;
+
+            bar.blocks.Add(img);
+        }
+
+        Debug.Log($"✅ {barName} Bar Created ({blockCount}個)");
     }
 
-    public void ResetEnemyBlocks()
+    public void UpdateBar(string barName, int currentValue)
     {
-        if (!barDict.ContainsKey("Enemy")) return;
-        var enemyBar = barDict["Enemy"];
-        foreach (var block in enemyBar.blocks)
-            block.color = enemyBar.inactiveColor;
-        currentEnemyCount = 0;
+        if (!barDict.ContainsKey(barName)) return;
+
+        var bar = barDict[barName];
+        for (int i = 0; i < bar.blocks.Count; i++)
+        {
+            Image block = bar.blocks[i];
+            if (block == null) continue;
+
+            // 🟢 明るさを常に最大に固定（activeColorを常に使用）
+            block.color = bar.activeColor;
+
+            // もし透明度でオンオフしたい場合は、アルファだけ変えることも可能：
+            var c = bar.activeColor;
+            c.a = (i < currentValue) ? 1f : 0.3f;
+            block.color = c;
+        }
     }
 
     //=============================================

@@ -1,6 +1,13 @@
 ﻿using UnityEngine;
 
-public enum GhostType { Normal, Quick, Tank, Suicide, Lucky }
+public enum GhostType
+{
+    Normal = 0,
+    Quick = 1,
+    Tank = 2,
+    Suicide = 3,
+    Lucky = 4
+}
 
 [CreateAssetMenu(fileName = "GhostData", menuName = "ScriptableObjects/GhostData")]
 public class GhostData : ScriptableObject

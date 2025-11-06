@@ -9,20 +9,19 @@ public class BossBehaviour : MonoBehaviour
     [SerializeField] private GraveManager graveManager;
     [SerializeField] private BossSpawnerController spawnerController;
     [SerializeField] private Animator animator;
-    [SerializeField] private UIBoxManager uiBoxManager;
 
-    [Header("Movement Settings")]
+    [Header("Settings")]
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float waitTime = 2f;
     [SerializeField] private float baseWaitTime = 4f;
     [SerializeField] private Vector3 patrolOffset = new(0, 1.5f, 0);
     [SerializeField] private Vector3 spawnOffset = new(0, -1.5f, 0);
-
+    private bool isSpawningAtPoint = false;
     private List<Vector3> patrolPoints = new();
     private int currentIndex = 0;
-    private bool hasCompletedLoop = false;
     private Vector3 basePoint;
-    private Coroutine patrolRoutine;
+    private BossState state = BossState.Idle;
+    private float stateTimer = 0f;
 
     // =========================================================
     // Setup
@@ -31,171 +30,203 @@ public class BossBehaviour : MonoBehaviour
     {
         basePoint = transform.position;
 
-        // 🔹 自動的に参照を見つける
+        // 🔹 自動でシーン上の参照を探す
         if (graveManager == null)
             graveManager = FindFirstObjectByType<GraveManager>();
         if (spawnerController == null)
             spawnerController = GetComponent<BossSpawnerController>();
-        if (uiBoxManager == null)
-            uiBoxManager = FindFirstObjectByType<UIBoxManager>();
     }
 
     private void Start()
     {
+        // 🪦 既存の墓を初期化してパトロール開始
         if (graveManager != null)
         {
-            graveManager.InitializeGraves();
-            patrolPoints = graveManager.GetPatrolPoints();
-            Debug.Log($"📍 Patrol points count: {patrolPoints.Count}");
-        }
-        else
-        {
-            Debug.LogError("❌ GraveManager reference is missing in BossBehaviour!");
+            graveManager.InitializeGraves();                   // シーン上の8つを登録
+            patrolPoints = graveManager.GetPatrolPoints();      // 位置を取得
+            Debug.Log($"👻 Patrol points loaded: {patrolPoints.Count}");
         }
 
         if (patrolPoints.Count > 0)
-            patrolRoutine = StartCoroutine(PatrolRoutine());
+            SetState(BossState.Patrol);
         else
-            Debug.LogWarning("⚠️ No patrol points available at Start!");
+            SetState(BossState.Idle);
     }
 
+    private void Update()
+    {
+        switch (state)
+        {
+            case BossState.Idle: UpdateIdle(); break;
+            case BossState.Patrol: UpdatePatrol(); break;
+            case BossState.Return: UpdateReturn(); break;
+            case BossState.Rebuild: UpdateRebuild(); break;
+        }
+    }
 
-    private void OnEnable() => GhostEvents.OnGravesCaptured += OnGravesCaptured;
-    private void OnDisable() => GhostEvents.OnGravesCaptured -= OnGravesCaptured;
+    // =========================================================
+    // State Machine
+    // =========================================================
+    private void SetState(BossState newState)
+    {
+        state = newState;
+        stateTimer = 0f;
+        Debug.Log($"🌀 Boss entered state: {state}");
+
+        switch (newState)
+        {
+            case BossState.Idle:
+                animator.SetFloat("MoveX", 0);
+                animator.SetFloat("MoveY", -1);
+                break;
+            case BossState.Patrol:
+                currentIndex = 0;
+                break;
+            case BossState.Return:
+                spawnerController?.StopSpawnLoop();
+                break;
+            case BossState.Rebuild:
+                StartCoroutine(RebuildRoutine());
+                break;
+        }
+    }
+
+    // =========================================================
+    // States
+    // =========================================================
+    private void UpdateIdle()
+    {
+        stateTimer += Time.deltaTime;
+        if (stateTimer >= baseWaitTime && patrolPoints.Count > 0)
+            SetState(BossState.Patrol);
+    }
+
+    private void UpdatePatrol()
+    {
+        if (patrolPoints == null || patrolPoints.Count == 0) return;
+
+        Vector3 target = patrolPoints[currentIndex] + patrolOffset;
+        MoveTowards(target);
+
+        // 墓に到着
+        if (Vector3.Distance(transform.position, target) < 0.05f)
+        {
+            // 🟢 まだスポーン開始していなければ一度だけ実行
+            if (!isSpawningAtPoint)
+            {
+                spawnerController?.StartSpawnLoop(target + spawnOffset);
+                isSpawningAtPoint = true;
+            }
+
+            // ⏱ 待機時間カウント
+            stateTimer += Time.deltaTime;
+
+            // 🕒 一定時間待ったら停止して次へ
+            if (stateTimer >= waitTime)
+            {
+                spawnerController?.StopSpawnLoop();
+                isSpawningAtPoint = false; // 次のポイントに備えてリセット
+                currentIndex++;
+
+                if (currentIndex >= patrolPoints.Count)
+                    SetState(BossState.Return);   // 全巡回完了
+                else
+                    stateTimer = 0f;              // 次の墓へ
+            }
+        }
+        else
+        {
+            // 🟢 まだ墓に着いていない間はフラグをリセット
+            isSpawningAtPoint = false;
+        }
+    }
+
+    private void UpdateReturn()
+    {
+        MoveTowards(basePoint);
+
+        if (Vector3.Distance(transform.position, basePoint) < 0.05f)
+        {
+            SetState(BossState.Idle);
+        }
+    }
+
+    private void UpdateRebuild()
+    {
+        // RebuildRoutine 実行中はここで待機
+    }
+
+    private IEnumerator RebuildRoutine()
+    {
+        yield return StartCoroutine(graveManager.RebuildGravesRoutine());
+        patrolPoints = graveManager.GetPatrolPoints();
+        SetState(BossState.Patrol);
+    }
+
+    private void MoveTowards(Vector3 target)
+    {
+        Vector3 dir = (target - transform.position).normalized;
+        animator.SetFloat("MoveX", dir.x);
+        animator.SetFloat("MoveY", dir.y);
+        transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+    }
 
     // =========================================================
     // Event Reaction
     // =========================================================
-    public void OnGravesCaptured(List<GameObject> captured)
+    private void OnEnable() => GhostEvents.OnGravesCaptured += OnGravesCaptured;
+    private void OnDisable() => GhostEvents.OnGravesCaptured -= OnGravesCaptured;
+
+    private void OnGravesCaptured(List<GameObject> captured)
     {
         if (graveManager == null) return;
 
         graveManager.ReplaceCapturedGraves(captured);
-
         if (graveManager.AllGravesBroken())
-        {
-            Debug.Log("⚰️ All graves broken — starting rebuild...");
-            StopAllCoroutines();
-            StartCoroutine(RebuildAndRestart());
-        }
-        else
-        {
-            patrolPoints = graveManager.GetPatrolPoints();
-            currentIndex = Mathf.Clamp(currentIndex, 0, Mathf.Max(0, patrolPoints.Count - 1)); // ✅ 安全リセット
-            RestartPatrol();
-        }
-    }
-
-    private IEnumerator RebuildAndRestart()
-    {
-        if (graveManager == null) yield break;
-
-        yield return StartCoroutine(graveManager.RebuildGravesRoutine());
-        patrolPoints = graveManager.GetPatrolPoints();
-        currentIndex = 0;
-        RestartPatrol();
-    }
-
-    private void RestartPatrol()
-    {
-        if (patrolRoutine != null)
-            StopCoroutine(patrolRoutine);
-
-        if (patrolPoints.Count == 0)
-        {
-            Debug.LogWarning("⚠️ No patrol points to restart.");
-            return;
-        }
-
-        patrolRoutine = StartCoroutine(PatrolRoutine());
+            SetState(BossState.Rebuild);
     }
 
     // =========================================================
-    // Patrol Logic
+    // External Call (from DragonEgg)
     // =========================================================
-    private IEnumerator PatrolRoutine()
-    {
-        uiBoxManager?.ClearBoxes();
-
-        while (true)
-        {
-            if (patrolPoints == null || patrolPoints.Count == 0)
-            {
-                Debug.LogWarning("⚠️ Patrol points empty, waiting...");
-                yield break;
-            }
-
-            yield return StartCoroutine(MoveToNextPoint());
-
-            if (hasCompletedLoop)
-            {
-                yield return StartCoroutine(ReturnToBasePoint());
-                hasCompletedLoop = false;
-            }
-        }
-    }
-
-    private IEnumerator MoveToNextPoint()
-    {
-        if (patrolPoints == null || patrolPoints.Count == 0) yield break;
-
-        currentIndex = Mathf.Clamp(currentIndex, 0, patrolPoints.Count - 1);
-        Vector3 target = patrolPoints[currentIndex] + patrolOffset;
-
-        Vector3 dir = (target - transform.position).normalized;
-        animator.SetFloat("MoveX", dir.x);
-        animator.SetFloat("MoveY", dir.y);
-
-        while (Vector3.Distance(transform.position, target) > 0.05f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        animator.SetFloat("MoveX", 0f);
-        animator.SetFloat("MoveY", -1f);
-
-        spawnerController?.StartSpawnLoop(target + spawnOffset);
-        yield return new WaitForSeconds(waitTime);
-        spawnerController?.StopSpawnLoop();
-
-        currentIndex++;
-        if (currentIndex >= patrolPoints.Count)
-        {
-            currentIndex = 0;
-            hasCompletedLoop = true;
-        }
-    }
-
-    private IEnumerator ReturnToBasePoint()
-    {
-        Vector3 dir = (basePoint - transform.position).normalized;
-        animator.SetFloat("MoveX", dir.x);
-        animator.SetFloat("MoveY", dir.y);
-
-        while (Vector3.Distance(transform.position, basePoint) > 0.05f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, basePoint, moveSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        animator.SetFloat("MoveX", 0);
-        animator.SetFloat("MoveY", -1f);
-        uiBoxManager?.SpawnBoxes(basePoint);
-        yield return new WaitForSeconds(baseWaitTime);
-    }
-
-    // =========================================================
-    // External Setters (used by DragonEgg)
-    // =========================================================
-    public void SetGraveManager(GraveManager gm)
+    public void InitializeAfterHatch(GraveManager gm)
     {
         graveManager = gm;
+        graveManager.InitializeGraves();
+        patrolPoints = graveManager.GetPatrolPoints();
+
+        Debug.Log($"🐲 Dragon hatched! Found {patrolPoints.Count} graves to patrol.");
+        StartCoroutine(HatchIdleRoutine());
+    }
+    private IEnumerator HatchIdleRoutine()
+    {
+        // 下を向く
+        animator.SetFloat("MoveX", 0);
+        animator.SetFloat("MoveY", -1);
+
+        // 拠点位置にリセット
+        transform.position = basePoint;
+
+        // 💫 状態をIdleにセット（他の更新を止める）
+        state = BossState.Idle;
+        stateTimer = 0f;
+
+        // 2秒間待機
+        yield return new WaitForSeconds(2f);
+
+        // 2秒後にパトロール開始
+        SetState(BossState.Patrol);
     }
 
-    public void SetEnemySpawner(EnemySpawner es)
-    {
-        if (spawnerController != null)
-            spawnerController.SetEnemySpawner(es);
-    }
+}
+
+// =========================================================
+// 🔹 Enum 定義
+// =========================================================
+public enum BossState
+{
+    Idle,       // 拠点待機
+    Patrol,     // 墓を巡回中
+    Return,     // 拠点に帰還中
+    Rebuild     // 墓の再構築を待機中
 }

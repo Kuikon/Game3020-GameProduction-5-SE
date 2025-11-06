@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float bulletSpeed = 10f;
     [SerializeField] private GhostType currentBulletType = GhostType.Normal;
-    [SerializeField] private LineRenderer aimLine;
+    [SerializeField] public LineRenderer aimLine;
     [SerializeField] private Camera mainCam;
     private int currentTypeIndex = 0;
     void Start()
@@ -124,29 +124,34 @@ public class PlayerController : MonoBehaviour
     {
         if (bulletPrefab == null) return;
 
-        // 🎯 Luckyは存在しない → Normalとして扱う
+        // LuckyタイプはNormalとして扱う
         GhostType fireType = (currentBulletType == GhostType.Lucky) ? GhostType.Normal : currentBulletType;
 
-        // 🔹 弾ストックを消費
+        // UIManagerの弾ストックチェック
         if (!UIManager.Instance.TryUseBullet(fireType))
         {
             Debug.Log($"⚠️ {fireType} 弾が足りません！");
             return;
         }
 
-        // 🔸 実際の発射処理
         Vector2 direction = (targetPos - transform.position).normalized;
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
 
-        SpriteRenderer sr = bullet.GetComponent<SpriteRenderer>();
+        // 🟢 PlayerBullet生成
+        GameObject bulletObj = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        PlayerBullet bullet = bulletObj.GetComponent<PlayerBullet>();
+        if (bullet != null)
+        {
+            bullet.Initialize(fireType);
+            bullet.speed = bulletSpeed;
+            bullet.Launch(direction);
+        }
+
+        // 見た目の色変更
+        SpriteRenderer sr = bulletObj.GetComponent<SpriteRenderer>();
         if (sr != null)
             sr.color = GhostBase.GetColorByType(fireType);
 
-        Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
-        if (rbBullet != null)
-            rbBullet.linearVelocity = direction * bulletSpeed;
-
-        bullet.transform.up = direction;
+        bulletObj.transform.up = direction;
     }
 
 

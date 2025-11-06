@@ -1,27 +1,54 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class GlowMover : MonoBehaviour
 {
+    [SerializeField] private float destroyedTime = 1f;
     private Transform target;
-    public float moveSpeed = 5f;
-    public float disappearDistance = 0.2f;
+    private bool moveUpward = false;
+    private bool reverse = false;
+    private bool isDestroyScheduled = false;
+    private float speed = 3f;
 
-    public void SetTarget(Transform target)
+    public void SetTarget(Transform t)
     {
-        this.target = target;
+        target = t;
+        reverse = false;
+    }
+
+    public void SetReverseTarget(Transform t)
+    {
+        target = t;
+        reverse = true;
+    }
+
+    public void ReleaseUpward()
+    {
+        moveUpward = true;
+        target = null;
     }
 
     void Update()
     {
-        if (target == null) return;
-
-        // ƒ^[ƒQƒbƒg•ûŒü‚ÉˆÚ“®
-        transform.position = Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime);
-
-        // ‚ ‚é’ö“x‹ß‚Ã‚¢‚½‚çÁ‚¦‚é
-        if (Vector3.Distance(transform.position, target.position) < disappearDistance)
+        if (moveUpward)
         {
-            Destroy(gameObject);
+            transform.position += Vector3.up * speed * Time.deltaTime;
+            if (!isDestroyScheduled)
+            {
+                isDestroyScheduled = true;
+                Destroy(gameObject, destroyedTime);
+            }
+            return;
+        }
+
+        if (target != null)
+        {
+            // ğŸ” é€šå¸¸ or é€†æ–¹å‘ã®åˆ¶å¾¡
+            Vector3 dir = (target.position - transform.position).normalized;
+            if (reverse)
+                dir *= -1f; // â† é€†å‘ãã«ã™ã‚‹ï¼
+
+            transform.position += dir * speed * Time.deltaTime;
+            Destroy(gameObject, destroyedTime);
         }
     }
 }

@@ -9,6 +9,7 @@ TagManager:
   - Dog
   - Grave
   - BrokenGrave
+  - Dragon
   layers:
   - Default
   - TransparentFX

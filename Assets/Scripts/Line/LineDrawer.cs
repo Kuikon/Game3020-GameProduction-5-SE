@@ -17,6 +17,7 @@ public class LineDraw : MonoBehaviour
     private int currentEnemyCount = 0;
     private float interval = 0.1f;
     private PolygonCollider2D _poly;
+    private HashSet<SpriteRenderer> flashingSet = new();
     public Dictionary<GameObject, int> insideCount { get; private set; }
     public float MaxLineLength
     {
@@ -182,6 +183,7 @@ public class LineDraw : MonoBehaviour
         CheckGhosts(isMouseHeld);
         CheckGraves(isMouseHeld);
         CheckDragon(isMouseHeld);
+        CheckChest(isMouseHeld);
     }
 
     private void CheckGhosts(bool isMouseHeld)
@@ -203,7 +205,9 @@ public class LineDraw : MonoBehaviour
 
             var ghostBase = ghost.GetComponent<GhostBase>();
             if (ghostBase == null) continue;
-
+            var sr = ghost.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                StartCoroutine(FlashOnce(sr, Color.softYellow));
             // 捕獲回数を増やす
             IncrementCaptureCount(ghost);
             LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, ghost.transform);
@@ -232,7 +236,9 @@ public class LineDraw : MonoBehaviour
         foreach (GameObject grave in graves)
         {
             if (!IsInsidePolygon(grave)) continue;
-
+            var sr = grave.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                StartCoroutine(FlashOnce(sr, Color.yellow));
             IncrementCaptureCount(grave);
             LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, grave.transform);
             if (insideCount[grave] == 5)
@@ -251,7 +257,9 @@ public class LineDraw : MonoBehaviour
             // ドラゴンのHP取得
             var health = dragon.GetComponent<DragonHealth>();
             if (health == null) continue;
-
+            var sr = dragon.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                StartCoroutine(FlashOnce(sr, Color.red));
             // 🧱 1回囲むたびにHPを1減らす
             health.TakeDamage(1);
 
@@ -262,8 +270,19 @@ public class LineDraw : MonoBehaviour
             Debug.Log($"🔥 Hit {dragon.name}! HP: {health.currentHP}/{health.maxHP}");
         }
     }
+    private void CheckChest(bool isMouseHeld)
+    {
+        GameObject[] chests = GameObject.FindGameObjectsWithTag("Chest");
 
+        foreach (GameObject chest in chests)
+        {
+            if (!IsInsidePolygon(chest)) continue;
 
+            Chest c = chest.GetComponent<Chest>();
+            if (c != null)
+                c.OpenChest();
+        }
+    }
 
     private bool IsInsidePolygon(GameObject obj)
     {
@@ -348,13 +367,38 @@ public class LineDraw : MonoBehaviour
             Debug.Log($"🐶 {other.name} が線に触れた！");
             
             LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, other.transform, reverse: true);
+            RestoreAllGhosts();
             ResetLine();
+            insideCount.Clear();
         }
         else
         {
             Debug.Log($"🎯 {other.name} が線に接触しました。");
         }
     }
+    private IEnumerator FlashOnce(SpriteRenderer sr, Color flashColor, float duration = 0.3f)
+    {
+        if (sr == null || flashingSet.Contains(sr)) yield break;
+        flashingSet.Add(sr);
+
+        Color original = sr.color;
+        sr.color = flashColor;
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            if (sr == null || sr.gameObject == null) { flashingSet.Remove(sr); yield break; }
+            sr.color = Color.Lerp(flashColor, original, t / duration);
+            yield return null;
+        }
+
+        if (sr != null && sr.gameObject != null && sr.gameObject.activeInHierarchy)
+            sr.color = original;
+
+        flashingSet.Remove(sr);
+    }
+
     private bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 intersection)
     {
         intersection = Vector2.zero;

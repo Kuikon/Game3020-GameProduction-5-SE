@@ -15,7 +15,7 @@ MonoBehaviour:
   type: 0
   walkSpeed: 1
   absorbTime: 60
-  captureHitsNeeded: 3
+  captureHitsNeeded: 1
   changeDirectionTime: 2
   ghostColor: {r: 1, g: 1, b: 1, a: 1}
   baseScale: 1

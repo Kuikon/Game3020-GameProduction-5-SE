@@ -13,7 +13,7 @@ public class LineVisualEffectManager : MonoBehaviour
     [SerializeField] private Material fadeMaterial;
     [SerializeField] private float afterImageLifetime = 1.5f;
     [SerializeField] private Color afterImageColor = new Color(0f, 1f, 1f, 0.6f);
-
+    [SerializeField] private Color reverseColor = Color.red;
     private List<GameObject> activeEffects = new();
     private const int maxActiveEffects = 50;
     public static LineVisualEffectManager Instance;
@@ -76,17 +76,17 @@ public class LineVisualEffectManager : MonoBehaviour
 
         Vector3[] points = new Vector3[line.positionCount];
         line.GetPositions(points);
-        int step = Mathf.Max(2, line.positionCount / 200);
+        int step = Mathf.Max(2, line.positionCount / 400);
 
         // 🔹 逆方向ならループ順を反転
         if (reverse)
         {
             System.Array.Reverse(points);
         }
-
+        Color effectColor = reverse ? reverseColor : captureColor;
         for (int i = 0; i < points.Length; i += step)
         {
-            GameObject glow = SpawnGlow(points[i], captureColor, defaultGlowScale);
+            GameObject glow = SpawnGlow(points[i], effectColor, defaultGlowScale);
             activeEffects.Add(glow);
 
             GlowMover mover = glow.GetComponent<GlowMover>();

@@ -5,6 +5,11 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
 public class GhostBase : MonoBehaviour
 {
+    public enum DeathCause
+    {
+        Default,    // 通常 or 捕獲など
+        Suicide     // 自爆による死亡
+    }
     [Header("Ghost Data")]
     public GhostData data;
 
@@ -38,13 +43,13 @@ public class GhostBase : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
-    private BallController targetBall = null;
+    private DroppedBall targetBall = null;
     // ============================================================
     // Initialization
     // ============================================================
     void Start()
     {
-        MiniMapManager.Instance?.RegisterGhost(gameObject, data.type);
+        MiniMapManager.Instance?.RegisterGhost(gameObject);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -275,6 +280,9 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     private void UpdateSuicide()
     {
+        // 🔹 死亡中は一切動かさない
+        if (isDead) return;
+
         if (!suicideTargetSet)
         {
             if (Input.GetMouseButtonDown(0))
@@ -285,8 +293,8 @@ public class GhostBase : MonoBehaviour
                 mousePos.z = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
                 Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
 
-                suicideTargetPos = worldPos;      
-                suicideTargetSet = true;          
+                suicideTargetPos = worldPos;
+                suicideTargetSet = true;
 
                 Vector2 dir = (worldPos - transform.position).normalized;
                 animator.SetFloat("MoveX", dir.x);
@@ -298,18 +306,21 @@ public class GhostBase : MonoBehaviour
             return;
         }
 
+        // 🔹 ターゲットに突進
         transform.position = Vector3.MoveTowards(
             transform.position,
             suicideTargetPos,
             data.walkSpeed * 2f * Time.deltaTime
         );
 
+        // 🔹 到達チェック
         if (Vector3.Distance(transform.position, suicideTargetPos) < 0.3f)
         {
             suicideTargetSet = false;
-            Kill();
+            Kill(DeathCause.Suicide);
         }
     }
+
 
 
     // ============================================================
@@ -322,18 +333,21 @@ public class GhostBase : MonoBehaviour
 
     private void UpdateTank()
     {
+        // 🔹 クールダウン処理
         absorbCooldown -= Time.deltaTime;
         if (absorbCooldown > 0f) return;
+
+        // 🔹 ターゲットが未設定なら探す
         if (targetBall == null)
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, absorbRadius);
             float nearestDist = float.MaxValue;
-            BallController nearestBall = null;
+            DroppedBall nearestBall = null;
 
             foreach (var hit in hits)
             {
-                BallController ball = hit.GetComponent<BallController>();
-                if (ball != null)
+                DroppedBall ball = hit.GetComponent<DroppedBall>();
+                if (ball != null && ball.isActiveAndEnabled)
                 {
                     float dist = Vector2.Distance(transform.position, ball.transform.position);
                     if (dist < nearestDist)
@@ -346,38 +360,33 @@ public class GhostBase : MonoBehaviour
 
             if (nearestBall != null)
             {
-                targetBall = nearestBall;
-                Debug.Log($"🎯 Tank {name} found target ball {targetBall.name}");
+                targetBall = nearestBall;  // 👈 DroppedBallをターゲットに
+                Debug.Log($"🧲 Tank {name} locked onto DroppedBall {targetBall.name}");
             }
         }
 
+        // 🔹 ターゲットが存在すれば吸収方向へ移動
         if (targetBall != null)
         {
             Vector3 targetPos = targetBall.transform.position;
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                targetPos,
-                data.walkSpeed * Time.deltaTime
-            );
+            float step = data.walkSpeed * Time.deltaTime;
 
-            Vector2 dir = (targetPos - transform.position).normalized;
-            animator.SetFloat("MoveX", dir.x);
-            animator.SetFloat("MoveY", dir.y);
-            animator.SetFloat("Speed", 1f);
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, step);
 
-            float distToBall = Vector2.Distance(transform.position, targetPos);
-            if (distToBall < 0.4f)
+            // 💫 近づいたら吸収処理
+            float dist = Vector2.Distance(transform.position, targetPos);
+            if (dist < 0.5f)
             {
-                Debug.Log($"💪 Tank {name} absorbed ball {targetBall.name}");
-                Destroy(targetBall.gameObject);
+                // 🔹 DroppedBallを吸収（消す）
+                targetBall.CollectTo(transform);
+                targetBall = null;
 
-               
-
-                absorbCooldown = 5f;
-                targetBall = null; 
+                absorbCooldown = 1.5f; // 🔹 次の吸収までの待機時間
+                Debug.Log($"🟢 Tank {name} absorbed a DroppedBall!");
             }
         }
     }
+
     public IEnumerator MoveToPointAndFreeze(Vector3 targetPos, float speed)
     {
         if (rb == null) yield break;
@@ -411,16 +420,25 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     // Common utilities: Kill / Absorb / Random Direction
     // ============================================================
-    public void Kill()
+    public void Kill(DeathCause cause = DeathCause.Default)
     {
         if (isDead) return;
         isDead = true;
         animator.SetBool("Dead", true);
-        if (data.type == GhostType.Suicide && data.fireCirclePrefab != null)
+
+        // 🔹 自爆時だけ爆発エフェクトを生成
+        if (cause == DeathCause.Suicide &&
+            data.type == GhostType.Suicide &&
+            data.fireCirclePrefab != null)
         {
-            var circle = Instantiate(data.fireCirclePrefab, transform.position, Quaternion.identity);
+            Vector3 pos = transform.position;
+            pos.z = 0;
+            var circle = Instantiate(data.fireCirclePrefab, pos, Quaternion.identity);
+            circle.transform.localScale = Vector3.one;
             Destroy(circle, data.fireCircleLifetime);
+            Debug.Log("💥 Suicide explosion created!");
         }
+
         if (data.type == GhostType.Lucky)
         {
             GameManager.Instance?.AddLuckyScore();

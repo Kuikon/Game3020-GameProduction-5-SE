@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
     public Transform quickPoint;
     public Transform tankPoint;
     public Transform suicidePoint;
-    public Transform luckyPoint;
     [Header("Game Stats")]
     public Dictionary<GhostType, int> capturedGhosts = new();
     public int damageTaken = 0;
@@ -29,6 +28,9 @@ public class GameManager : MonoBehaviour
     private bool isGameOver = false;
     [SerializeField] private List<GhostData> allGhostData;
     private Dictionary<GhostType, GhostData> ghostDataDict = new();
+
+    private bool isPaused = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -58,6 +60,13 @@ public class GameManager : MonoBehaviour
         {
             if (data != null && !ghostDataDict.ContainsKey(data.type))
                 ghostDataDict.Add(data.type, data);
+        }
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePause();
         }
     }
     public void RegisterGhostCapture(GhostType type)
@@ -180,7 +189,6 @@ public class GameManager : MonoBehaviour
             case GhostType.Quick: return quickPoint;
             case GhostType.Tank: return tankPoint;
             case GhostType.Suicide: return suicidePoint;
-            case GhostType.Lucky: return luckyPoint;
             default: return null;
         }
     }
@@ -200,5 +208,12 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         SceneManager.LoadScene("GameOverScene");
+    }
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+        Time.timeScale = isPaused ? 0f : 1f;
+
+        UIManager.Instance.ShowPlayerStatus(isPaused);
     }
 }

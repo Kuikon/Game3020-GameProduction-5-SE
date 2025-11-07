@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerBullet : BallBase
@@ -6,10 +7,17 @@ public class PlayerBullet : BallBase
     public GhostType Type { get; private set; }
 
     [Header("Bullet Settings")]
-    public float speed = 10f;
-    public float lifetime = 5f;
-    private Rigidbody2D rb;
+    [SerializeField] private float moveSpeed = 2f;           // ゆっくり移動速度
+    [SerializeField] private float floatAmplitude = 0.2f;    // 上下のふわふわ幅
+    [SerializeField] private float floatSpeed = 3f;          // ふわふわの速さ
+    [SerializeField] private float stopDistance = 0.2f;      // 到達判定距離
+    [SerializeField] private float lifetime = 8f;            // 自動消滅時間
 
+    private Rigidbody2D rb;
+    private Vector3 targetPos;
+    private Vector3 startPos;
+    private float spawnTime;
+    private bool reached = false;
     // 🔹 強化システム
     private static int quickLevel = 0;
     private static int suicideLevel = 0;
@@ -29,20 +37,56 @@ public class PlayerBullet : BallBase
 
     private void Start()
     {
-        Destroy(gameObject, lifetime);
+        rb.gravityScale = 0f;
+        spawnTime = Time.time;
+        startPos = transform.position;
+        Destroy(gameObject, lifetime); // 時間切れで削除
     }
 
-    public void Initialize(GhostType type)
+    private void Update()
+    {
+        if (reached) return;
+
+        // 💫 ゆっくりターゲットに向かう
+        Vector3 dir = (targetPos - transform.position).normalized;
+        float step = moveSpeed * Time.deltaTime;
+
+        transform.position += dir * step;
+
+        // 🌬️ ふわふわ上下移動（sin波）
+        float floatY = Mathf.Sin((Time.time - spawnTime) * floatSpeed) * floatAmplitude;
+        transform.position += new Vector3(0, floatY * Time.deltaTime, 0);
+
+        // 🎯 到達判定
+        if (Vector3.Distance(transform.position, targetPos) < stopDistance)
+        {
+            reached = true;
+            StartCoroutine(IdleFadeAndDestroy());
+        }
+    }
+    private IEnumerator IdleFadeAndDestroy()
+    {
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        float t = 0f;
+        Color c = sr.color;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime;
+            c.a = Mathf.Lerp(1f, 0f, t);
+            sr.color = c;
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+    public void Initialize(GhostType type, Vector3 mouseWorldPos)
     {
         Type = type;
+        targetPos = mouseWorldPos;
         ApplyTypeEffect();
     }
 
-    public void Launch(Vector2 direction)
-    {
-        if (rb != null)
-            rb.linearVelocity = direction * speed;
-    }
 
     // =========================================================
     // 💡 タイプごとの特殊効果 + 強化システム
@@ -125,6 +169,7 @@ public class PlayerBullet : BallBase
                     quickLevel++;
                     quickProgress = 0;
                     Debug.Log($"⚡ QUICKがLv{quickLevel}にアップ！");
+                    UIManager.Instance.UpdateBar("QuickBar", quickLevel);
                 }
                 ApplyTypeEffect();
                 break;
@@ -136,6 +181,7 @@ public class PlayerBullet : BallBase
                     suicideLevel++;
                     suicideProgress = 0;
                     Debug.Log($"💀 SUICIDEがLv{suicideLevel}にアップ！");
+                    UIManager.Instance.UpdateBar("SuicideBar", suicideLevel);
                 }
                 ApplyTypeEffect();
                 break;
@@ -147,6 +193,7 @@ public class PlayerBullet : BallBase
                     tankLevel++;
                     tankProgress = 0;
                     Debug.Log($"🛡️ TANKがLv{tankLevel}にアップ！");
+                    UIManager.Instance.UpdateBar("TankBar", tankLevel);
                 }
                 ApplyTypeEffect();
                 break;

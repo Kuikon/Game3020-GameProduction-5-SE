@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
 /// <summary>
 /// ミニマップ上にプレイヤーやゴーストの位置を表示するマネージャー
@@ -13,8 +14,11 @@ public class MiniMapManager : MonoBehaviour
     [SerializeField] private RectTransform mapArea;        // ミニマップの背景UI (RectTransform)
     [SerializeField] private GameObject ghostMarkerPrefab; // 👻 ゴーストマーカーPrefab
     [SerializeField] private GameObject playerMarkerPrefab; // 🧍 プレイヤーマーカーPrefab
+    [SerializeField] private GameObject dragonMarkerPrefab;
+    [SerializeField] private GameObject graveMarkerPrefab;
     [SerializeField] private Vector2 mapSizeWorld = new Vector2(20, 20); // ワールド座標範囲
-
+    private RectTransform dragonMarker;                   // 🐉 1体のみ
+    private List<RectTransform> graveMarkers = new();
     private Dictionary<GameObject, RectTransform> ghostMarkers = new();
     private GameObject playerMarker;       // プレイヤー用マーカー
     private GameObject player;             // プレイヤー本体
@@ -47,20 +51,21 @@ public class MiniMapManager : MonoBehaviour
     // ============================================================
     // 👻 ゴースト登録・削除
     // ============================================================
-    public void RegisterGhost(GameObject ghost, GhostType type)
+    public void RegisterGhost(GameObject ghost)
     {
         if (ghostMarkers.ContainsKey(ghost)) return;
 
         GameObject marker = Instantiate(ghostMarkerPrefab, mapArea);
         RectTransform rect = marker.GetComponent<RectTransform>();
 
-        // 🟢 ゴーストタイプごとにマーカーの色を変更
+        // 👻 ゴーストマーカー共通設定
         Image img = marker.GetComponent<Image>();
         if (img != null)
-            img.color = GetColorByType(type);
+            img.color = Color.white; // ← 全員同じ色
 
         ghostMarkers.Add(ghost, rect);
     }
+
 
     public void UnregisterGhost(GameObject ghost)
     {
@@ -114,7 +119,74 @@ public class MiniMapManager : MonoBehaviour
         foreach (var g in toRemove)
             ghostMarkers.Remove(g);
     }
+    public void RegisterDragon(GameObject dragon)
+    {
+        if (dragon == null || dragonMarkerPrefab == null) return;
 
+        // すでにある場合は再利用
+        if (dragonMarker != null)
+        {
+            dragonMarker.gameObject.SetActive(true);
+            return;
+        }
+
+        GameObject marker = Instantiate(dragonMarkerPrefab, mapArea);
+        dragonMarker = marker.GetComponent<RectTransform>();
+
+        // 🔴 特別な色設定
+        Image img = marker.GetComponent<Image>();
+        if (img != null)
+            img.color = new Color(1f, 0.3f, 0.3f);
+
+        // ✅ ミニマップ更新で追従できるように保存
+        StartCoroutine(UpdateDragonMarker(dragon));
+        Debug.Log("🐉 Dragon marker registered on minimap");
+    }
+
+    private IEnumerator UpdateDragonMarker(GameObject dragon)
+    {
+        while (dragon != null)
+        {
+            Vector2 miniMapPos = WorldToMiniMap(dragon.transform.position);
+            dragonMarker.anchoredPosition = miniMapPos;
+            yield return null;
+        }
+
+        // 🐉 ドラゴンが消えたらマーカーも削除
+        if (dragonMarker != null)
+        {
+            Destroy(dragonMarker.gameObject);
+            dragonMarker = null;
+        }
+    }
+    public void RegisterGrave(GameObject grave)
+    {
+        if (grave == null || graveMarkerPrefab == null) return;
+
+        GameObject marker = Instantiate(graveMarkerPrefab, mapArea);
+        RectTransform rect = marker.GetComponent<RectTransform>();
+
+        // ⚫ 灰色で表示
+        Image img = marker.GetComponent<Image>();
+        if (img != null)
+            img.color = new Color(0.4f, 0.4f, 0.4f);
+
+        graveMarkers.Add(rect);
+        StartCoroutine(UpdateGraveMarker(rect, grave));
+    }
+
+    private IEnumerator UpdateGraveMarker(RectTransform marker, GameObject grave)
+    {
+        while (grave != null)
+        {
+            Vector2 miniMapPos = WorldToMiniMap(grave.transform.position);
+            marker.anchoredPosition = miniMapPos;
+            yield return null;
+        }
+
+        if (marker != null)
+            Destroy(marker.gameObject);
+    }
     // ============================================================
     // 🧮 座標変換関数：ワールド → ミニマップ
     // ============================================================

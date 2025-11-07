@@ -84,15 +84,22 @@ public class DragonEgg : MonoBehaviour
         hatched = true;
         transform.position = initialPos;
         Destroy(gameObject);
-
+        GameObject boss = null;
         // ドラゴン生成
         if (bossPrefab != null)
         {
-            GameObject boss = Instantiate(bossPrefab, transform.position, Quaternion.identity);
+            boss = Instantiate(bossPrefab, transform.position, Quaternion.identity);
             BossBehaviour bossBehaviour = boss.GetComponent<BossBehaviour>();
             GraveManager gm = FindFirstObjectByType<GraveManager>();
             bossBehaviour.InitializeAfterHatch(gm);
             Debug.Log("🐉 Dragon has hatched!");
         }
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowDragonUI(true);
+            Debug.Log("🎯 Dragon UI Activated!");
+        }
+        if (MiniMapManager.Instance != null && boss != null)
+            MiniMapManager.Instance.RegisterDragon(boss);
     }
 }

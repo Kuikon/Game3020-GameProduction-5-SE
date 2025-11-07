@@ -2,11 +2,23 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+    [System.Serializable]
+    public class BarLabelPair
+    {
+        public string barName;                  // 例: "HP", "MiniHP"
+        public TextMeshProUGUI currentText;     // 現在値
+        public TextMeshProUGUI maxText;         // 最大値
+    }
 
+    [Header("Bar Label Pairs")]
+    [SerializeField] private List<BarLabelPair> barLabelPairs = new();
+
+    private Dictionary<string, BarLabelPair> barLabelDict = new();
     //=============================================
     // 🟣 Ghost Slot UI（そのまま維持）
     //=============================================
@@ -26,11 +38,16 @@ public class UIManager : MonoBehaviour
     [System.Serializable]
     public class BarUI
     {
-        public string barName;                      // "HP", "MiniHP", "Enemy"など
-        public RectTransform container;             // 配置先 (Canvas内)
-        public Color activeColor = Color.red;       // 有効色
+        public string barName;
+        public RectTransform container;
+        public GameObject blockPrefab;
+        public Color activeColor = Color.white;
         public Color inactiveColor = new Color(0.3f, 0.3f, 0.3f);
         public Vector2 blockSize = new Vector2(15f, 40f);
+
+        public enum LayoutDirection { Horizontal, Vertical }
+        public LayoutDirection layoutDirection = LayoutDirection.Horizontal; // 🔹 デフォルト
+
         [HideInInspector] public List<Image> blocks = new();
     }
 
@@ -38,7 +55,6 @@ public class UIManager : MonoBehaviour
     // 🎨 Serialized Fields
     //=============================================
     [Header("Common Bar Settings")]
-    [SerializeField] private GameObject commonBlockPrefab; // すべてのバーで共通
     [SerializeField] private List<BarUI> bars = new();
 
     [Header("Bullet Slots")]
@@ -62,7 +78,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RectTransform miniHpUI;
     [SerializeField] private Vector3 miniHpVisiblePos = new Vector3(-50f, 50f, 0);
     [SerializeField] private Vector3 miniHpHiddenPos = new Vector3(-50f, -200f, 0);
-
+    [SerializeField] private GameObject dragonHPUI;
+    [SerializeField] private RectTransform dragonUI;
+    [SerializeField] private Vector3 dragonVisiblePos = new Vector3(0, 0, 0);
+    [SerializeField] private Vector3 dragonHiddenPos = new Vector3(0, 200f, 0);
+    [SerializeField] private GameObject playerStatusPanel;  // PlayerStatusPanel
     //=============================================
     // 🧠 内部変数
     //=============================================
@@ -82,6 +102,12 @@ public class UIManager : MonoBehaviour
         // 辞書登録（初期化のみ）
         foreach (var bar in bars)
             barDict[bar.barName] = bar;
+
+        foreach (var pair in barLabelPairs)
+        {
+            if (pair != null && !string.IsNullOrEmpty(pair.barName))
+                barLabelDict[pair.barName] = pair;
+        }
     }
 
     private void OnEnable()
@@ -96,7 +122,16 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+
         InitializeSlots();
+        CreateBar("QuickBar", 5);
+        CreateBar("SuicideBar", 5);
+        CreateBar("TankBar", 5);
+
+        // 初期値は全て0
+        UpdateBar("QuickBar", 0);
+        UpdateBar("SuicideBar", 0);
+        UpdateBar("TankBar", 0);
     }
 
     private void Update()
@@ -149,7 +184,18 @@ public class UIManager : MonoBehaviour
 
         Debug.Log("🎨 Ghost slots initialized.");
     }
+    public void UpdateBarAndCounter(string barName, int current, int max)
+    {
+        UpdateBar(barName, current);                 // 既存のブロック点灯ロジックを使用
+        if (!barLabelDict.TryGetValue(barName, out var pair))
+            return;
 
+        if (pair.currentText != null)
+            pair.currentText.text = current.ToString();
+
+        if (pair.maxText != null)
+            pair.maxText.text = max.ToString();
+    }
     public void UpdateSlot(GhostType type, int count)
     {
         if (type == GhostType.Lucky)
@@ -211,27 +257,28 @@ public class UIManager : MonoBehaviour
     //=============================================
     public void CreateBar(string barName, int blockCount)
     {
-        if (!barDict.ContainsKey(barName) || stackBlockPrefab == null)
+        if (!barDict.ContainsKey(barName))
         {
-            Debug.LogWarning($"⚠️ Bar '{barName}' not found or prefab missing");
+            Debug.LogWarning($"⚠️ Bar '{barName}' not found");
             return;
         }
 
         BarUI bar = barDict[barName];
-        if (bar.container == null) return;
+        if (bar.container == null || bar.blockPrefab == null)
+        {
+            Debug.LogWarning($"⚠️ Missing container or prefab for {barName}");
+            return;
+        }
 
         // 既存削除
         foreach (Transform child in bar.container)
             Destroy(child.gameObject);
-
         bar.blocks.Clear();
 
-        // 新規生成
+        // 配置方向で分岐
         for (int i = 0; i < blockCount; i++)
         {
-            GameObject block = Instantiate(stackBlockPrefab, bar.container);
-            block.transform.SetAsLastSibling();
-
+            GameObject block = Instantiate(bar.blockPrefab, bar.container);
             RectTransform rt = block.GetComponent<RectTransform>();
             Image img = block.GetComponent<Image>();
 
@@ -239,36 +286,93 @@ public class UIManager : MonoBehaviour
             {
                 rt.localScale = Vector3.one;
                 rt.sizeDelta = bar.blockSize;
-                rt.anchoredPosition = new Vector2(i * (bar.blockSize.x + 2f), 0);
+
+                if (bar.layoutDirection == BarUI.LayoutDirection.Horizontal)
+                    rt.anchoredPosition = new Vector2(i * (bar.blockSize.x + 2f), 0);
+                else
+                    rt.anchoredPosition = new Vector2(0, i * (bar.blockSize.y + 2f));
             }
 
             if (img != null)
-                img.color = bar.inactiveColor;
-
+                img.color = bar.activeColor;
+            if (img != null)
+            {
+                img.color = bar.activeColor;
+                var c = img.color;
+                c.a = 1f; // 👈 透明度を戻す
+                img.color = c;
+            }
             bar.blocks.Add(img);
         }
 
-        Debug.Log($"✅ {barName} Bar Created ({blockCount}個)");
+        Debug.Log($"✅ {barName} Bar Created ({blockCount}個, {bar.layoutDirection})");
     }
+
 
     public void UpdateBar(string barName, int currentValue)
     {
         if (!barDict.ContainsKey(barName)) return;
-
         var bar = barDict[barName];
+
         for (int i = 0; i < bar.blocks.Count; i++)
         {
-            Image block = bar.blocks[i];
-            if (block == null) continue;
+            var img = bar.blocks[i];
+            if (img == null) continue;
 
-            // 🟢 明るさを常に最大に固定（activeColorを常に使用）
-            block.color = bar.activeColor;
+            bool shouldBeActive = (i < currentValue);
 
-            // もし透明度でオンオフしたい場合は、アルファだけ変えることも可能：
-            var c = bar.activeColor;
-            c.a = (i < currentValue) ? 1f : 0.3f;
-            block.color = c;
+            // 🔹 ここで単純に状態を強制適用する
+            if (shouldBeActive)
+            {
+                Color active = bar.activeColor;
+                active.a = 1f;
+                img.color = active;
+            }
+            else
+            {
+                Color inactive = bar.inactiveColor;
+                inactive.a = 1f;
+                img.color = inactive;
+            }
         }
+    }
+
+
+    private IEnumerator AnimateBlockLoss(Image img, Color startColor, Color endColor, float duration = 0.3f)
+    {
+        if (img == null) yield break;
+
+        RectTransform rt = img.rectTransform;
+
+        // ✅ 毎回スケールをリセットしてから開始（重要！）
+        rt.localScale = Vector3.one;
+
+        Vector3 baseScale = Vector3.one; // ここを固定スケール基準にする
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            // 💥 最初に大きく → 小さく → 元に戻る
+            float scale;
+            if (t < 0.3f)
+                scale = Mathf.Lerp(1f, 1.3f, t / 0.3f);             // ふくらむ
+            else if (t < 0.7f)
+                scale = Mathf.Lerp(1.3f, 0.8f, (t - 0.3f) / 0.4f);  // しぼむ
+            else
+                scale = Mathf.Lerp(0.8f, 1f, (t - 0.7f) / 0.3f);    // 元に戻る
+
+            rt.localScale = baseScale * scale;
+            img.color = Color.Lerp(startColor, endColor, t);
+
+            yield return null;
+        }
+
+        // ✅ 最後にスケールを完全に戻す（必須）
+        rt.localScale = Vector3.one;
+        img.color = endColor;
     }
 
     //=============================================
@@ -296,8 +400,29 @@ public class UIManager : MonoBehaviour
             (leftClick && !rightClick) ? miniHpVisiblePos : miniHpHiddenPos,
             Time.deltaTime * moveSpeed
         );
+        dragonUI.anchoredPosition = Vector3.Lerp(
+           dragonUI.anchoredPosition,
+           leftClick ? dragonHiddenPos : dragonVisiblePos,
+           Time.deltaTime * moveSpeed
+       );
     }
+    public void ShowPlayerStatus(bool show)
+    {
+        if (playerStatusPanel == null) return;
 
+      
+            playerStatusPanel.SetActive(show);
+    }
+    public void ShowDragonUI(bool show)
+    {
+        if (dragonHPUI == null)
+        {
+            Debug.LogWarning("⚠️ dragonUI is not assigned in UIManager!");
+            return;
+        }
+
+        dragonHPUI.SetActive(show);
+    }
     //=============================================
     // 🔍 ヘルパー
     //=============================================

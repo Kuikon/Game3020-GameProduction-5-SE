@@ -10,6 +10,8 @@ TagManager:
   - Grave
   - BrokenGrave
   - Dragon
+  - Chest
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - UnwalkableLayer
   - 
   - 
   - 

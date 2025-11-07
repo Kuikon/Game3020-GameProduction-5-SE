@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6461950358588702126}
   - component: {fileID: 9138418344665584237}
   m_Layer: 5
-  m_Name: 'PlayerMarker '
+  m_Name: DragonMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 30}
+  m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6461950358588702126
 CanvasRenderer:
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -7851985453260657375, guid: ec10b46feb584e647b5bebf8b2c7afb2,
+  m_Sprite: {fileID: -6091130229015280782, guid: 59572d8fc9ae0794aa656dd0fe5f8264,
     type: 3}
   m_Type: 0
   m_PreserveAspect: 0

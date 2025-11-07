@@ -17,7 +17,7 @@ public class GraveManager : MonoBehaviour
 
     private List<GameObject> graveList = new();
     private int lastGraveCount;
-
+   
     // =========================================================
     // Initialization
     // =========================================================
@@ -34,6 +34,8 @@ public class GraveManager : MonoBehaviour
                 {
                     g.SetActive(true);
                     graveList.Add(g);
+                    if (MiniMapManager.Instance != null)
+                        MiniMapManager.Instance.RegisterGrave(g);
                 }
             }
 
@@ -47,6 +49,7 @@ public class GraveManager : MonoBehaviour
             SpawnGraves(initialCount);
             Debug.Log($"⚙️ Spawned {initialCount} graves randomly.");
         }
+
     }
 
     // =========================================================

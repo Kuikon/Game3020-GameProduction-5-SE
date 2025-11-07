@@ -8,7 +8,7 @@ public class DroppedBall : BallBase
     public float floatAmplitude = 0.2f;
     private Vector3 startPos;
     private bool isCollected = false;
-
+    private Transform collectTarget;
     private void Start()
     {
         startPos = transform.position;
@@ -48,6 +48,13 @@ public class DroppedBall : BallBase
 
             StartCoroutine(CollectEffect());
         }
+    }
+    public void CollectTo(Transform target)
+    {
+        if (isCollected) return;
+        isCollected = true;
+        collectTarget = target;
+        StartCoroutine(CollectEffectToGhost());
     }
     private IEnumerator CollectEffect()
     {
@@ -99,6 +106,65 @@ public class DroppedBall : BallBase
 
         Destroy(gameObject);
     }
+    private IEnumerator CollectEffectToGhost()
+    {
+        // 🔹 パーティクル再生（任意）
+        ParticleSystem ps = GetComponentInChildren<ParticleSystem>();
+        if (ps != null)
+            ps.Play();
 
+        Vector3 start = transform.position;
+        Vector3 targetPos = collectTarget.position;
+        float duration = 0.5f;   // 飛ぶ時間
+        float elapsed = 0f;
+
+        Vector3 originalScale = transform.localScale;
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+        // 🔹 少しカーブしながら吸い込まれる感じ
+        Vector3 midPoint = (start + targetPos) / 2f + Vector3.up * 0.5f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            // 💫 曲線的な移動（ベジエ補間）
+            float t = elapsed / duration;
+            Vector3 p1 = Vector3.Lerp(start, midPoint, t);
+            Vector3 p2 = Vector3.Lerp(midPoint, targetPos, t);
+            transform.position = Vector3.Lerp(p1, p2, t);
+
+            // 📉 小さくなりながら吸い込まれる
+            float scaleFactor = Mathf.Lerp(1f, 0.1f, t);
+            transform.localScale = originalScale * scaleFactor;
+
+            // 🌟 フェードアウト
+            if (sr != null)
+            {
+                Color c = sr.color;
+                c.a = Mathf.Lerp(1f, 0.3f, t);
+                sr.color = c;
+            }
+
+            yield return null;
+        }
+
+        // 🔹 最後に完全に消す
+        if (sr != null)
+        {
+            float fadeTime = 0.15f;
+            float f = 0;
+            Color c = sr.color;
+            while (f < fadeTime)
+            {
+                f += Time.deltaTime;
+                c.a = Mathf.Lerp(0.3f, 0f, f / fadeTime);
+                sr.color = c;
+                yield return null;
+            }
+        }
+
+        Destroy(gameObject);
+    }
 
 }

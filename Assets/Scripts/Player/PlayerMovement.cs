@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Collider2D playerCollider;
     private int currentTypeIndex = 0;
+    void Awake() => DontDestroyOnLoad(gameObject);
     void Start()
     {
         MiniMapManager.Instance?.RegisterPlayer(gameObject);
@@ -39,8 +40,6 @@ public class PlayerController : MonoBehaviour
             aimLine.startWidth = 0.02f;
             aimLine.endWidth = 0.02f;
         }
-        if (UIManager.Instance != null)
-            UIManager.Instance.FocusBulletSlot(currentBulletType);
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerCollider = GetComponent<Collider2D>();
     }
@@ -49,37 +48,8 @@ public class PlayerController : MonoBehaviour
     {
         HandleMovement();
         HandleAimLine();
-        HandleBulletSwitch();
     }
-    private void HandleBulletSwitch()
-    {
-        // Qキーで左に、Eキーで右に切り替え
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            currentTypeIndex--;
-            if (currentTypeIndex < 0)
-                currentTypeIndex = allTypes.Length - 1;
-            SwitchBulletType();
-        }
-        else if (Input.GetKeyDown(KeyCode.E))
-        {
-            currentTypeIndex++;
-            if (currentTypeIndex >= allTypes.Length)
-                currentTypeIndex = 0;
-            SwitchBulletType();
-        }
-    }
-
-    private void SwitchBulletType()
-    {
-        currentBulletType = allTypes[currentTypeIndex];
-
-        // 🎨 UIにフォーカスを反映
-        if (UIManager.Instance != null)
-            UIManager.Instance.FocusBulletSlot(currentBulletType);
-
-        Debug.Log($"🔁 弾タイプ切り替え: {currentBulletType}");
-    }
+    
     private void HandleMovement()
     {
         moveInput.x = Input.GetAxisRaw("Horizontal");
@@ -140,12 +110,11 @@ public class PlayerController : MonoBehaviour
         if (bulletPrefab == null) return;
 
         // LuckyタイプはNormalとして扱う
-        GhostType fireType = (currentBulletType == GhostType.Lucky) ? GhostType.Normal : currentBulletType;
+    
 
         // UIManagerの弾ストックチェック
-        if (!UIManager.Instance.TryUseBullet(fireType))
+        if (!UIManager.Instance.TryUseBullet())
         {
-            Debug.Log($"⚠️ {fireType} 弾が足りません！");
             return;
         }
 
@@ -154,13 +123,9 @@ public class PlayerController : MonoBehaviour
         // 🟢 PlayerBullet生成
         GameObject bulletObj = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
         PlayerBullet bullet = bulletObj.GetComponent<PlayerBullet>();
-        if (bullet != null)
-            bullet.Initialize(fireType, targetPos);
 
         // 見た目の色変更
         SpriteRenderer sr = bulletObj.GetComponent<SpriteRenderer>();
-        if (sr != null)
-            sr.color = GhostBase.GetColorByType(fireType);
 
         bulletObj.transform.up = direction;
     }

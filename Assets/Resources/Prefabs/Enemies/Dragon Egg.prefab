@@ -111,7 +111,7 @@ MonoBehaviour:
   hatchEffectPrefab: {fileID: 5033180708955247871, guid: 152689d6752175f4fa353ae19681fb33,
     type: 3}
   animator: {fileID: 4757587701887869059}
-  requiredCaptureCount: 2
+  requiredCaptureCount: 5
   shakeAmplitude: 0.05
   shakeSpeed: 2
 --- !u!70 &8712236032815759599

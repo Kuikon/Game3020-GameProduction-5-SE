@@ -4,20 +4,20 @@ using System.Collections;
 [RequireComponent(typeof(Collider2D), typeof(SpriteRenderer))]
 public class BallController : MonoBehaviour
 {
-    [Header("Ball Type Settings")]
-    public GhostType type;
+    [Header("Visual Settings")]
+    public Color ballColor = Color.white;  // ボールの色（共通）
 
     [Header("Float Settings")]
-    public float floatAmplitude = 0.2f;  // 上下の揺れ幅
-    public float floatSpeed = 2f;        // 上下のスピード
+    public float floatAmplitude = 0.2f;
+    public float floatSpeed = 2f;
 
-    [Header("Glow (Blink) Settings")]
-    public float blinkSpeed = 3f;        // 点滅スピード（大きいほど速く点滅）
-    public float blinkIntensity = 0.4f;  // 明滅の強さ（0〜1）
+    [Header("Glow Settings")]
+    public float blinkSpeed = 3f;
+    public float blinkIntensity = 0.4f;
 
     [Header("Collect Effect Settings")]
-    public float fadeSpeed = 2f;         // フェードアウト速度
-    public float shrinkSpeed = 2f;       // 縮小速度
+    public float fadeSpeed = 2f;
+    public float shrinkSpeed = 2f;
 
     private Vector3 startPos;
     private float timeOffset;
@@ -31,7 +31,11 @@ public class BallController : MonoBehaviour
         startPos = transform.position;
         timeOffset = Random.Range(0f, Mathf.PI * 2f);
 
-        // Rigidbodyを無効化
+        // 色
+        sr.color = ballColor;
+        baseColor = sr.color;
+
+        // Rigidbody無効化
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -39,59 +43,38 @@ public class BallController : MonoBehaviour
             rb.gravityScale = 0f;
         }
 
-        // Triggerでプレイヤーが触れるように
+        // Triggerに設定
         Collider2D col = GetComponent<Collider2D>();
         col.isTrigger = true;
-
-        ApplyTypeStyle();
-        baseColor = sr.color; // 元の色を記録
     }
 
     private void Update()
     {
         if (isCollected) return;
 
-        // 🎈 上下ふわふわ（sin波）
+        // ふわふわ
         float newY = startPos.y + Mathf.Sin(Time.time * floatSpeed + timeOffset) * floatAmplitude;
         transform.position = new Vector3(startPos.x, newY, startPos.z);
 
-        // ✨ 点滅（sin波で透明度を変化）
+        // 点滅
         float blink = (Mathf.Sin(Time.time * blinkSpeed + timeOffset) * 0.5f + 0.5f) * blinkIntensity;
-        float alpha = Mathf.Lerp(0.5f, 1f, blink); // αを0.5〜1で変化
+        float alpha = Mathf.Lerp(0.5f, 1f, blink);
         sr.color = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isCollected) return;
+        if (!other.CompareTag("Player")) return;
 
-        if (other.CompareTag("Player"))
-        {
-            isCollected = true;
+        isCollected = true;
 
-            GameManager gm = GameObject.FindFirstObjectByType<GameManager>();
-            UIManager ui = GameObject.FindFirstObjectByType<UIManager>();
-            GhostType effectiveType = (type == GhostType.Lucky) ? GhostType.Normal : type;
-            if (gm != null)
-            {
-                // カウント更新
-                if (!gm.capturedGhosts.ContainsKey(effectiveType))
-                    gm.capturedGhosts[effectiveType] = 0;
-                gm.capturedGhosts[effectiveType]++;
-                Debug.Log($"📈 Count for {effectiveType}: {gm.capturedGhosts[effectiveType]}");
-            }
+        // 🎯 共通弾 +1
+        UIManager.Instance?.AddCommonBullet();
 
-            if (ui != null && gm != null)
-            {
-                int count = gm.capturedGhosts[effectiveType];
-                Debug.Log($"🧮 Updating UI: type={effectiveType}, count={count}");
-                ui.UpdateSlot(effectiveType, count);
-            }
-            // 💥 回収エフェクト
-            StartCoroutine(CollectEffect());
-        }
+        // 回収エフェクト
+        StartCoroutine(CollectEffect());
     }
-
 
     private IEnumerator CollectEffect()
     {
@@ -102,56 +85,12 @@ public class BallController : MonoBehaviour
         {
             t += Time.deltaTime * fadeSpeed;
 
-            if (sr != null)
-                sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 1f - t);
-
+            sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 1f - t);
             transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, t * shrinkSpeed);
+
             yield return null;
         }
 
         Destroy(gameObject);
-    }
-
-    private void ApplyTypeStyle()
-    {
-        if (sr == null) return;
-
-        switch (type)
-        {
-            case GhostType.Normal:
-                sr.color = Color.white;
-                floatAmplitude = 0.2f;
-                floatSpeed = 2f;
-                blinkSpeed = 3f;
-                break;
-
-            case GhostType.Quick:
-                sr.color = Color.cyan;
-                floatAmplitude = 0.15f;
-                floatSpeed = 3.5f;
-                blinkSpeed = 6f;
-                break;
-
-            case GhostType.Tank:
-                sr.color = new Color(0.4f, 0.6f, 1f);
-                floatAmplitude = 0.3f;
-                floatSpeed = 1.2f;
-                blinkSpeed = 2f;
-                break;
-
-            case GhostType.Suicide:
-                sr.color = new Color(1f, 0.5f, 0.5f);
-                floatAmplitude = 0.25f;
-                floatSpeed = 2.8f;
-                blinkSpeed = 4f;
-                break;
-
-            case GhostType.Lucky:
-                sr.color = new Color(1f, 1f, 0.6f);
-                floatAmplitude = 0.25f;
-                floatSpeed = 2.5f;
-                blinkSpeed = 8f;
-                break;
-        }
     }
 }

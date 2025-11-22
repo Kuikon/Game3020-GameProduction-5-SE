@@ -10,7 +10,8 @@ public class LineDraw : MonoBehaviour
     [SerializeField] private Camera _cam;
     [SerializeField] private float maxLineLength = 5f;
     [SerializeField] private LineVisualEffectManager effectManager;
-
+    private bool canDraw => AbilityManager.Instance != null &&
+                         AbilityManager.Instance.canDrawLine;
     private float currentLineLength = 0f;
     private Queue<Vector3> linePoints = new();
     private int posCount = 0;
@@ -27,6 +28,7 @@ public class LineDraw : MonoBehaviour
     void Awake()
     {
         insideCount = new Dictionary<GameObject, int>();
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -45,7 +47,11 @@ public class LineDraw : MonoBehaviour
 
     private void Update()
     {
-
+        if (!canDraw)
+        {
+            ResetLine();  
+            return;
+        }
         Vector3 mousePos = Input.mousePosition;
         if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mousePos))
             return;
@@ -71,6 +77,25 @@ public class LineDraw : MonoBehaviour
     {
         if (!PosCheck(pos)) return;
 
+        // ⭐⭐⭐ 追加：勢いで線の太さを変える処理 ⭐⭐⭐
+        float width = 0.1f;  // 最小幅
+
+        if (posCount > 0)
+        {
+            // 前の点と現在の点の距離＝速度
+            float speed = Vector3.Distance(_rend.GetPosition(posCount - 1), pos) / Time.deltaTime;
+
+            // 速度（0〜300くらい）を線の太さに変換
+            width = Mathf.Lerp(0.05f, 0.35f, speed * 0.015f);
+        }
+
+        // LineRenderer に適用
+        _rend.startWidth = width * 0.3f;
+        _rend.endWidth = width * 0.7f; // 先細り
+                                       // ⭐⭐⭐ ここまで追加 ⭐⭐⭐
+
+
+        // 元の処理
         if (posCount > 0)
             currentLineLength += Vector3.Distance(_rend.GetPosition(posCount - 1), pos);
 
@@ -81,7 +106,6 @@ public class LineDraw : MonoBehaviour
 
         TrimLineToMaxLength();
 
-        // 🟣 コライダーの形を線に合わせて更新
         if (posCount > 1)
         {
             Vector2[] colliderPoints = new Vector2[posCount];
@@ -93,6 +117,7 @@ public class LineDraw : MonoBehaviour
             edgeCollider.points = colliderPoints;
         }
     }
+
 
     private void TrimLineToMaxLength()
     {

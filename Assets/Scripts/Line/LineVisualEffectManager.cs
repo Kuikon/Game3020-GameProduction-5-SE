@@ -41,6 +41,7 @@ public class LineVisualEffectManager : MonoBehaviour
         afterLine.endWidth = sourceLine.endWidth;
         afterLine.startColor = afterImageColor;
         afterLine.endColor = afterImageColor;
+        afterLine.sortingLayerName = sourceLine.sortingLayerName;
         afterLine.sortingOrder = sourceLine.sortingOrder + 1;
         // フェードアウト処理開始
         StartCoroutine(FadeAndDestroy(afterLine));

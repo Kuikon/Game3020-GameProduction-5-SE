@@ -43,7 +43,7 @@ public class DroppedBall : BallBase
             if (UIManager.Instance != null)
             {
                 int count = gm != null ? gm.capturedGhosts[addType] : 1;
-                UIManager.Instance.UpdateSlot(addType, count);
+                UIManager.Instance.AddCommonBullet();
             }
 
             StartCoroutine(CollectEffect());

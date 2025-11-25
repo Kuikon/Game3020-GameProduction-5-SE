@@ -127,7 +127,7 @@ public class PlayerBullet : BallBase
                     // 📈 緩やかに始まり、Lvが上がるほど勢いよく伸びる
                     float bonus = Mathf.Pow(tankLevel, 2f) * 0.35f;
                     float newLength = Mathf.Min(30f, baseLength + bonus * 2f);
-                    lineDraw.MaxLineLength = Mathf.Min(30f, baseLength + bonus * 2f);
+                    //lineDraw.MaxLineLength = Mathf.Min(30f, baseLength + bonus * 2f);
 
                     Debug.Log($"🛡️ TANK Lv.{tankLevel} → maxLineLength={newLength:F1}");
                 }

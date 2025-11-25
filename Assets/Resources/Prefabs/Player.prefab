@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 3566215521682568042}
   - component: {fileID: 3944102033119552954}
   - component: {fileID: 5634224603740216296}
-  - component: {fileID: 5651623170353357649}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -85,7 +84,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1582153699
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -7851985453260657375, guid: ec10b46feb584e647b5bebf8b2c7afb2,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -133,7 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 2
-  playerHealth: {fileID: 5651623170353357649}
+  playerHealth: {fileID: 0}
   bulletPrefab: {fileID: 9082802471164182716, guid: c42a37ab7e064c94e8eb6aa833cacdf0,
     type: 3}
   bulletSpeed: 10
@@ -144,6 +143,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   checkRadius: 0.2
+  invincibleDuration: 2
+  flashInterval: 0.1
 --- !u!50 &3566215521682568042
 Rigidbody2D:
   serializedVersion: 5
@@ -318,23 +319,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &5651623170353357649
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1535593908151115680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f13082e3330ee524bb9a5151af6bb83d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHP: 10
-  currentHP: 10
-  uiManager: {fileID: 0}
-  hpBarName: PlayerHP
-  miniHpBarName: MiniPlayerHP
 --- !u!1 &4021995843848332875
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,659 @@
+fileFormatVersion: 2
+guid: 61714b4474846bb49b9c37f19590c749
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7222012957465065105
+    second: SmokeEffect_0
+  - first:
+      213: -8067020385350786788
+    second: SmokeEffect_1
+  - first:
+      213: 2947351775102274233
+    second: SmokeEffect_2
+  - first:
+      213: -2176309229508818455
+    second: SmokeEffect_3
+  - first:
+      213: -671460391220116460
+    second: SmokeEffect_4
+  - first:
+      213: -850303411907395644
+    second: SmokeEffect_5
+  - first:
+      213: 4459503437775288621
+    second: SmokeEffect_6
+  - first:
+      213: 7562496342550075567
+    second: SmokeEffect_7
+  - first:
+      213: 6577957868747994638
+    second: SmokeEffect_8
+  - first:
+      213: -479582782900023262
+    second: SmokeEffect_9
+  - first:
+      213: -3061780611704323948
+    second: SmokeEffect_10
+  - first:
+      213: -4746812226425440464
+    second: SmokeEffect_11
+  - first:
+      213: 1219714041312072986
+    second: SmokeEffect_12
+  - first:
+      213: 5667526030655360366
+    second: SmokeEffect_13
+  - first:
+      213: 8685417590956664194
+    second: SmokeEffect_14
+  - first:
+      213: -4557866029203244073
+    second: SmokeEffect_15
+  - first:
+      213: 6623978759251663970
+    second: SmokeEffect_16
+  - first:
+      213: 4608015998145841970
+    second: SmokeEffect_17
+  - first:
+      213: 5069345674342804408
+    second: SmokeEffect_18
+  - first:
+      213: -2633760202501376406
+    second: SmokeEffect_19
+  - first:
+      213: -5224919524929658349
+    second: SmokeEffect_20
+  - first:
+      213: 6851499286889147621
+    second: SmokeEffect_21
+  - first:
+      213: -7284504970936658512
+    second: SmokeEffect_22
+  - first:
+      213: -290259190739771441
+    second: SmokeEffect_23
+  - first:
+      213: 3685881342800526842
+    second: SmokeEffect_24
+  - first:
+      213: 953898362836802170
+    second: SmokeEffect_25
+  - first:
+      213: 1415589685687891684
+    second: SmokeEffect_26
+  - first:
+      213: -3269673281357891396
+    second: SmokeEffect_27
+  - first:
+      213: 8686569300512050661
+    second: SmokeEffect_28
+  - first:
+      213: -2882236925368307760
+    second: SmokeEffect_29
+  - first:
+      213: -5085101856964328524
+    second: SmokeEffect_30
+  - first:
+      213: -6868488355032309632
+    second: SmokeEffect_31
+  - first:
+      213: -3939943922736183725
+    second: SmokeEffect_32
+  - first:
+      213: -6738256459622566325
+    second: SmokeEffect_33
+  - first:
+      213: 7249599443838571975
+    second: SmokeEffect_34
+  - first:
+      213: 9000475750107293201
+    second: SmokeEffect_35
+  - first:
+      213: -5879144682772902015
+    second: SmokeEffect_36
+  - first:
+      213: 1999795575805411236
+    second: SmokeEffect_37
+  - first:
+      213: 8470844116969799053
+    second: SmokeEffect_38
+  - first:
+      213: 3718381859344944923
+    second: SmokeEffect_39
+  - first:
+      213: 7395960304323702382
+    second: SmokeEffect_40
+  - first:
+      213: 6101685022450831622
+    second: SmokeEffect_41
+  - first:
+      213: -4219774341972058115
+    second: SmokeEffect_42
+  - first:
+      213: -7507559995608762646
+    second: SmokeEffect_43
+  - first:
+      213: -5917634025357264084
+    second: SmokeEffect_44
+  - first:
+      213: 5339926029931431883
+    second: SmokeEffect_45
+  - first:
+      213: -1396565747800467743
+    second: SmokeEffect_46
+  - first:
+      213: -5718513334524372777
+    second: SmokeEffect_47
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SmokeEffect_0
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 716
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19639fc558eb93460800000000000000
+      internalID: 7222012957465065105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_1
+      rect:
+        serializedVersion: 2
+        x: 230
+        y: 711
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c11e45f43bf2c0090800000000000000
+      internalID: -8067020385350786788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_2
+      rect:
+        serializedVersion: 2
+        x: 477
+        y: 720
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ba861fd2d817e820800000000000000
+      internalID: 2947351775102274233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_3
+      rect:
+        serializedVersion: 2
+        x: 733
+        y: 728
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e909bd49423cc1e0800000000000000
+      internalID: -2176309229508818455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_4
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 493
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 414849ce45e7ea6f0800000000000000
+      internalID: -671460391220116460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_5
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 453
+        width: 232
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cff4fd4d8d1334f0800000000000000
+      internalID: -850303411907395644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_6
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 462
+        width: 251
+        height: 244
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d29ba3bcfb653ed30800000000000000
+      internalID: 4459503437775288621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_7
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 465
+        width: 256
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa853e01b5263f860800000000000000
+      internalID: 7562496342550075567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 231
+        width: 256
+        height: 224
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff4488e18c0f4864389373d41cf00f4d
+      internalID: 1982723725
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_9
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 207
+        width: 225
+        height: 223
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 70879baaffa2c8e46867d3b72cb9f7e6
+      internalID: -378515480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_10
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 200
+        width: 238
+        height: 246
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eafb8f9f44dccb345b1bfd1393461cda
+      internalID: -41209878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_11
+      rect:
+        serializedVersion: 2
+        x: 751
+        y: 194
+        width: 273
+        height: 229
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fc9fe940caf38a544a28290142a4d7d5
+      internalID: -1921607489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 256
+        height: 177
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: efef893c3c5bc1d44afd8cfd4af3e9fb
+      internalID: -932083163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_13
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 0
+        width: 256
+        height: 198
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e5e9b26c071dbc4aa1f52c6c24b5242
+      internalID: 1804866753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_14
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 256
+        height: 182
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c1bfbef05bfadf4a9dacdebb5422efa
+      internalID: 1277421761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SmokeEffect_15
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 0
+        width: 256
+        height: 171
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c93d5cea7f4edf04ba629e847084b10d
+      internalID: 1542009571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: e48336774b0fe9a47aade0323189acb5
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":256.0,"y":256.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+      - key: SpriteEditor.SliceOnImport
+        value: False
+    nameFileIdTable:
+      SmokeEffect_0: 7222012957465065105
+      SmokeEffect_1: -8067020385350786788
+      SmokeEffect_10: -41209878
+      SmokeEffect_11: -1921607489
+      SmokeEffect_12: -932083163
+      SmokeEffect_13: 1804866753
+      SmokeEffect_14: 1277421761
+      SmokeEffect_15: 1542009571
+      SmokeEffect_2: 2947351775102274233
+      SmokeEffect_3: -2176309229508818455
+      SmokeEffect_4: -671460391220116460
+      SmokeEffect_5: -850303411907395644
+      SmokeEffect_6: 4459503437775288621
+      SmokeEffect_7: 7562496342550075567
+      SmokeEffect_8: 1982723725
+      SmokeEffect_9: -378515480
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

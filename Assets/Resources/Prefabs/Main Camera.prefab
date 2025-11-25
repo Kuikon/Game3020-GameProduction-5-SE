@@ -150,6 +150,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09e6976e12dfd9146b790b0335554ad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow2D
-  target: {fileID: 1812344831920050446, guid: a56fd1d598b0db3429672e2b3cb7394c, type: 3}
+  target: {fileID: 0}
   smoothSpeed: 5
   offset: {x: 0, y: 0, z: 0}
+  ghostPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  patrolMoveSpeed: 3
+  lookTime: 1.5
+  playerController: {fileID: 0}

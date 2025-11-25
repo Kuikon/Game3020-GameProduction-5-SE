@@ -1,25 +1,23 @@
 ﻿using UnityEngine;
-using UnityEngine.Tilemaps;
 using System.Collections;
-using System.Collections.Generic;
 
-/// <summary>
-/// Automatically detects "grave tiles" on a Tilemap
-/// and spawns ghosts randomly on top of them.
-/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
     [Header(" Spawn Settings")]
-    [SerializeField] GameObject[] ghostPrefabs;      // Array of ghost prefabs to spawn
-    [SerializeField] GameObject spawnEffectPrefab;   // Optional spawn effect (smoke, glow, etc.)
-    [SerializeField] float delayBeforeSpawn = 0.5f;  // Delay between effect and actual spawn
+    [SerializeField] GameObject[] ghostPrefabs;
+    [SerializeField] GameObject spawnEffectPrefab;
+    [SerializeField] float delayBeforeSpawn = 0.5f;
     [SerializeField] private int initialSpawnCount = 10;
     [SerializeField] private GhostType targetType = GhostType.Normal;
-    private Coroutine spawnLoop;
+
     private void Start()
     {
         SpawnInitialGhosts();
     }
+
+    //---------------------------------------------------
+    // 初期スポーン
+    //---------------------------------------------------
     public void SpawnInitialGhosts()
     {
         int count = 0;
@@ -36,7 +34,9 @@ public class EnemySpawner : MonoBehaviour
         Debug.Log($"👻 Spawned {count} {targetType} ghosts at start!");
     }
 
-    // 🔹 ゴーストタイプ指定でPrefab取得
+    //---------------------------------------------------
+    // 指定タイプのPrefab取得
+    //---------------------------------------------------
     private GameObject GetPrefabByType(GhostType type)
     {
         foreach (var p in ghostPrefabs)
@@ -48,13 +48,11 @@ public class EnemySpawner : MonoBehaviour
         return null;
     }
 
-
-    /// <summary>
-    /// Handles the spawn effect → delay → ghost spawn sequence.
-    /// </summary>
+    //---------------------------------------------------
+    // 通常スポーン（エフェクトあり）
+    //---------------------------------------------------
     private IEnumerator SpawnSequence(Vector3 pos, GameObject prefab)
     {
-        // ① Spawn effect
         if (spawnEffectPrefab != null)
         {
             Vector3 effectPos = pos + new Vector3(0f, -.5f, 0f);
@@ -62,12 +60,23 @@ public class EnemySpawner : MonoBehaviour
             Destroy(effect, 2f);
         }
 
-        // ② Wait before spawning
         yield return new WaitForSeconds(delayBeforeSpawn);
 
-        // ③ Spawn the ghost
         Instantiate(prefab, pos, Quaternion.identity);
-        //Debug.Log($"👻 Spawned {prefab.name} on a grave at {pos}.");
+    }
+
+    //---------------------------------------------------
+    // 🔥 カメラがポイントに到達した時に呼ぶ
+    // ランダム位置に徐々にスポーン（フェードイン付き）
+    //---------------------------------------------------
+    public void SpawnAroundPointsGradually(
+        Transform point,
+        int count = 3,
+        float radius = 1.5f,
+        float interval = 0.3f,
+        float fadeDuration = 1f)
+    {
+        StartCoroutine(SpawnGraduallyRoutine(point, count, radius, interval, fadeDuration));
     }
     public void SpawnAtPosition(Vector3 pos)
     {
@@ -76,12 +85,62 @@ public class EnemySpawner : MonoBehaviour
         GameObject ghostPrefab = ghostPrefabs[Random.Range(0, ghostPrefabs.Length)];
         StartCoroutine(SpawnSequence(pos, ghostPrefab));
     }
+    IEnumerator SpawnGraduallyRoutine(
+        Transform point,
+        int count,
+        float radius,
+        float interval,
+        float fadeDuration)
+    {
+        GameObject normalPrefab = GetPrefabByType(GhostType.Normal);
+        if (normalPrefab == null) yield break;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 offset = Random.insideUnitCircle * radius;
+            Vector3 pos = point.position + new Vector3(offset.x, offset.y, 0);
+
+            GameObject ghost = Instantiate(normalPrefab, pos, Quaternion.identity);
+
+            // 🔵 透明度0で開始
+            SpriteRenderer sr = ghost.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null)
+            {
+                Color c = sr.color;
+                c.a = 0;
+                sr.color = c;
+
+                StartCoroutine(FadeIn(sr, fadeDuration));
+            }
+
+            yield return new WaitForSeconds(interval);
+        }
+    }
+
+    //---------------------------------------------------
+    // Sprite を透明 → 不透明にフェードイン
+    //---------------------------------------------------
+    IEnumerator FadeIn(SpriteRenderer sr, float duration)
+    {
+        float t = 0;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float a = Mathf.Lerp(0f, 1f, t / duration);
+            Color c = sr.color;
+            c.a = a;
+            sr.color = c;
+            yield return null;
+        }
+    }
+
+    //---------------------------------------------------
+    // 画面の適当なランダム位置
+    //---------------------------------------------------
     private Vector3 GetRandomPosition()
     {
-        // 画面上のランダム位置に出す（例）
         float x = Random.Range(-5f, 5f);
         float y = Random.Range(-3f, 3f);
         return new Vector3(x, y, 0f);
     }
-
 }

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5558477681175231571}
   - component: {fileID: 7138441254776050512}
   - component: {fileID: 6370464697719820505}
-  m_Layer: 4
+  m_Layer: 0
   m_Name: DrawArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}

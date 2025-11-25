@@ -71,35 +71,48 @@ public class LineVisualEffectManager : MonoBehaviour
     }
 
     // ✨ 囲み完了時（Loop完成時）
-    public void PlayCaptureEffect(LineRenderer line, Transform target, bool reverse = false)
+    public void PlayCaptureEffect(LineRenderer line, Transform target)
     {
         if (line == null) return;
 
         Vector3[] points = new Vector3[line.positionCount];
         line.GetPositions(points);
+
         int step = Mathf.Max(2, line.positionCount / 400);
 
-        // 🔹 逆方向ならループ順を反転
-        if (reverse)
-        {
-            System.Array.Reverse(points);
-        }
-        Color effectColor = reverse ? reverseColor : captureColor;
         for (int i = 0; i < points.Length; i += step)
         {
-            GameObject glow = SpawnGlow(points[i], effectColor, defaultGlowScale);
+            GameObject glow = SpawnGlow(points[i], captureColor, defaultGlowScale);
             activeEffects.Add(glow);
 
             GlowMover mover = glow.GetComponent<GlowMover>();
             if (mover != null)
-            {
-                if (reverse)
-                    mover.SetReverseTarget(target); // 逆モード
-                else
-                    mover.SetTarget(target);        // 通常モード
-            }
+                mover.SetTarget(target);  // 通常方向
         }
     }
+    public void PlayReverseCaptureEffect(LineRenderer line, Transform target)
+    {
+        if (line == null) return;
+
+        Vector3[] points = new Vector3[line.positionCount];
+        line.GetPositions(points);
+
+        // 逆方向に流すため配列を反転
+        System.Array.Reverse(points);
+
+        int step = Mathf.Max(2, line.positionCount / 400);
+
+        for (int i = 0; i < points.Length; i += step)
+        {
+            GameObject glow = SpawnGlow(points[i], reverseColor, defaultGlowScale);
+            activeEffects.Add(glow);
+
+            GlowMover mover = glow.GetComponent<GlowMover>();
+            if (mover != null)
+                mover.SetReverseTarget(target); // 逆方向
+        }
+    }
+
 
     public void ReleaseAllGlowsUpward()
     {
@@ -133,7 +146,9 @@ public class LineVisualEffectManager : MonoBehaviour
             var main = ps.main;
             main.startColor = color;
             main.startSize = scale;
+
         }
+        Destroy(glow, 1.2f);
 
         return glow;
     }

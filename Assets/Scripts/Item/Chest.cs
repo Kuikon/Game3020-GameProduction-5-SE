@@ -9,8 +9,8 @@ public class Chest : MonoBehaviour
     [Header("Chest Settings")]
     [SerializeField] private GameObject heartPrefab;
     [SerializeField] private float heartPopForce = 3f;
-    [SerializeField] private float heartDelay = 1.5f; // 💖 ハートが出るまでの待ち時間
-    [SerializeField] private float destroyDelay = 2.5f; // 🕓 ハート出した後に削除までの時間
+    [SerializeField] private float heartDelay = 1.5f; 
+    [SerializeField] private float destroyDelay = 2.5f;
 
     private Animator animator;
     private Rigidbody2D rb;

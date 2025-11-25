@@ -5,97 +5,106 @@ using System.Collections;
 [RequireComponent(typeof(LineRenderer))]
 public class LineDraw : MonoBehaviour
 {
-    [SerializeField] private EdgeCollider2D edgeCollider;
-    [SerializeField] private LineRenderer _rend;
-    [SerializeField] private Camera _cam;
+    [Header("Line Settings")]
     [SerializeField] private float maxLineLength = 5f;
+    [SerializeField] private float interval = 0.1f;
+
+    [Header("References")]
+    [SerializeField] private Camera _cam;
     [SerializeField] private LineVisualEffectManager effectManager;
-    private bool canDraw => AbilityManager.Instance != null &&
-                         AbilityManager.Instance.canDrawLine;
-    private float currentLineLength = 0f;
+
+    private LineRenderer _rend;
+    private EdgeCollider2D edgeCol;
+    private PolygonCollider2D poly;
+
     private Queue<Vector3> linePoints = new();
+    private Dictionary<GameObject, int> insideCount = new();
+
     private int posCount = 0;
-    private int currentEnemyCount = 0;
-    private float interval = 0.1f;
-    private PolygonCollider2D _poly;
+    private float currentLineLength = 0f;
+
     private HashSet<SpriteRenderer> flashingSet = new();
-    public Dictionary<GameObject, int> insideCount { get; private set; }
-    public float MaxLineLength
-    {
-        get => maxLineLength;
-        set => maxLineLength = value;
-    }
+    [SerializeField] private GameObject startIconPrefab;
+    [SerializeField] private GameObject endIconPrefab;
+    private GameObject startIcon;
+    private GameObject endIcon;
     void Awake()
     {
         insideCount = new Dictionary<GameObject, int>();
         DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()
+    void Start()
     {
+        _rend = GetComponent<LineRenderer>();
         _rend.positionCount = 0;
         _rend.startWidth = 0.1f;
         _rend.endWidth = 0.1f;
-        _rend.useWorldSpace = true;
         _rend.material = new Material(Shader.Find("Sprites/Default"));
+        _rend.useWorldSpace = true;
 
-        if (_cam == null)
-            _cam = Camera.main;
-        edgeCollider = gameObject.AddComponent<EdgeCollider2D>();
-        edgeCollider.isTrigger = true;
+        if (_cam == null) _cam = Camera.main;
+
+        edgeCol = gameObject.AddComponent<EdgeCollider2D>();
+        edgeCol.isTrigger = true;
     }
 
-    private void Update()
+    void Update()
     {
-        if (!canDraw)
+        Vector3 mouse = Input.mousePosition;
+        if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mouse))
+            return;
+
+        mouse.z = Mathf.Abs(_cam.transform.position.z);
+        mouse = _cam.ScreenToWorldPoint(mouse);
+        if (Input.GetMouseButtonDown(0))
         {
-            ResetLine();  
-            return;
+            RemoveIcons(); // 前のを消す
+            CreateIcons(mouse); // 今回の線のスタートとエンド用アイコンを生成
         }
-        Vector3 mousePos = Input.mousePosition;
-        if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mousePos))
-            return;
-
-        mousePos.z = Mathf.Abs(_cam.transform.position.z);
-        mousePos = _cam.ScreenToWorldPoint(mousePos);
-        mousePos.z = 0f;
-
         if (Input.GetMouseButton(0))
         {
-            SetPosition(mousePos);
-            if (posCount > 2)
-                CheckIntersection();
+            SetPosition(mouse);
+            if (posCount > 2) CheckIntersection();
         }
         else if (Input.GetMouseButtonUp(0))
         {
             RestoreAllGhosts();
             ResetLine();
             insideCount.Clear();
+            CleanPolygon();
         }
     }
-    private void SetPosition(Vector3 pos)
+    void CreateIcons(Vector3 pos)
+    {
+        if (startIconPrefab != null)
+            startIcon = Instantiate(startIconPrefab, pos, Quaternion.identity);
+
+        if (endIconPrefab != null)
+            endIcon = Instantiate(endIconPrefab, pos, Quaternion.identity);
+    }
+    void RemoveIcons()
+    {
+        if (startIcon != null) Destroy(startIcon);
+        if (endIcon != null) Destroy(endIcon);
+    }
+    // =========================================================
+    // LINE DRAWING
+    // =========================================================
+    void SetPosition(Vector3 pos)
     {
         if (!PosCheck(pos)) return;
 
-        // ⭐⭐⭐ 追加：勢いで線の太さを変える処理 ⭐⭐⭐
-        float width = 0.1f;  // 最小幅
-
+        // speed-based width
+        float width = 0.1f;
         if (posCount > 0)
         {
-            // 前の点と現在の点の距離＝速度
             float speed = Vector3.Distance(_rend.GetPosition(posCount - 1), pos) / Time.deltaTime;
-
-            // 速度（0〜300くらい）を線の太さに変換
             width = Mathf.Lerp(0.05f, 0.35f, speed * 0.015f);
         }
-
-        // LineRenderer に適用
         _rend.startWidth = width * 0.3f;
-        _rend.endWidth = width * 0.7f; // 先細り
-                                       // ⭐⭐⭐ ここまで追加 ⭐⭐⭐
+        _rend.endWidth = width * 0.7f;
 
-
-        // 元の処理
         if (posCount > 0)
             currentLineLength += Vector3.Distance(_rend.GetPosition(posCount - 1), pos);
 
@@ -104,63 +113,59 @@ public class LineDraw : MonoBehaviour
         _rend.SetPosition(posCount - 1, pos);
         linePoints.Enqueue(pos);
 
-        TrimLineToMaxLength();
+        TrimLine();
 
-        if (posCount > 1)
+        // Update edge collider
+        Vector2[] points2D = new Vector2[posCount];
+        for (int i = 0; i < posCount; i++)
+            points2D[i] = _rend.GetPosition(i);
+        edgeCol.points = points2D;
+        if (startIcon != null && posCount > 0)
         {
-            Vector2[] colliderPoints = new Vector2[posCount];
-            for (int i = 0; i < posCount; i++)
-            {
-                Vector3 worldPoint = _rend.GetPosition(i);
-                colliderPoints[i] = transform.InverseTransformPoint(worldPoint);
-            }
-            edgeCollider.points = colliderPoints;
+            startIcon.transform.position = _rend.GetPosition(0); // 最初の点
+        }
+
+        if (endIcon != null && posCount > 0)
+        {
+            endIcon.transform.position = _rend.GetPosition(posCount - 1); // 最新の点
         }
     }
 
-
-    private void TrimLineToMaxLength()
-    {
-        while (linePoints.Count >= 2 && GetTotalLength(linePoints) > maxLineLength)
-        {
-            linePoints.Dequeue();
-
-            Vector3[] updated = linePoints.ToArray();
-            _rend.positionCount = updated.Length;
-            _rend.SetPositions(updated);
-        }
-
-        posCount = linePoints.Count;
-    }
-    private float GetTotalLength(IEnumerable<Vector3> points)
-    {
-        float length = 0f;
-        Vector3? prev = null;
-        foreach (var p in points)
-        {
-            if (prev.HasValue)
-                length += Vector3.Distance(prev.Value, p);
-            prev = p;
-        }
-        return length;
-    }
-    private bool PosCheck(Vector3 pos)
+    bool PosCheck(Vector3 pos)
     {
         if (posCount == 0) return true;
-        float distance = Vector3.Distance(_rend.GetPosition(posCount - 1), pos);
-        return distance > interval;
+        return Vector3.Distance(_rend.GetPosition(posCount - 1), pos) > interval;
     }
 
-    private void ResetLine()
+    void TrimLine()
     {
-        posCount = 0;
-        _rend.positionCount = 0;
-        currentLineLength = 0f;
-        linePoints.Clear();
+        while (linePoints.Count >= 2 && GetTotalLength(linePoints) > maxLineLength)
+            linePoints.Dequeue();
+
+        Vector3[] arr = linePoints.ToArray();
+        _rend.positionCount = arr.Length;
+        _rend.SetPositions(arr);
+        posCount = arr.Length;
     }
 
-    private void CheckIntersection()
+    float GetTotalLength(IEnumerable<Vector3> pts)
     {
+        float len = 0;
+        Vector3? prev = null;
+        foreach (var p in pts)
+        {
+            if (prev.HasValue) len += Vector3.Distance(prev.Value, p);
+            prev = p;
+        }
+        return len;
+    }
+
+    // =========================================================
+    // INTERSECTION DETECTION
+    // =========================================================
+    void CheckIntersection()
+    {
+        //edgeCol.enabled = false;
         Vector3 p1 = _rend.GetPosition(posCount - 2);
         Vector3 p2 = _rend.GetPosition(posCount - 1);
 
@@ -169,264 +174,120 @@ public class LineDraw : MonoBehaviour
             Vector3 p3 = _rend.GetPosition(i);
             Vector3 p4 = _rend.GetPosition(i + 1);
 
-            if (LineSegmentsIntersect(p1, p2, p3, p4, out Vector2 intersection))
+            if (LineSegmentsIntersect(p1, p2, p3, p4, out Vector2 cross))
             {
-                if (LineVisualEffectManager.Instance != null)
-                    LineVisualEffectManager.Instance.CreateLineAfterImage(_rend);
-                CreatePolygonFromLoop(i, intersection);
-                var flashLight = FindAnyObjectByType<Light2DRadiusController>();
-                if (flashLight != null)
-                    flashLight.FlashRadius();
+                effectManager?.CreateLineAfterImage(_rend);
+                
+                CreatePolygon(i, cross);
+                AddLoopHit();
+                TrimLoop(i, cross);
                 return;
             }
         }
     }
-
-    private void CreatePolygonFromLoop(int startIndex, Vector2 intersection)
+    void TrimLoop(int startIndex, Vector3 crossPoint)
     {
-        List<Vector2> loopPoints = new List<Vector2>();
-        for (int j = startIndex + 1; j < posCount; j++)
+
+        List<Vector3> pts = new List<Vector3>(linePoints);
+
+        int lastIndex = pts.Count - 1;
+
+        // 内側削除
+        int removeStart = startIndex + 1;
+        int removeCount = lastIndex - removeStart;
+
+        if (removeCount > 0)
+            pts.RemoveRange(removeStart, removeCount);
+
+        // 交差点に閉じる
+        pts[pts.Count - 1] = crossPoint;
+
+        linePoints = new Queue<Vector3>(pts);
+
+        // LineRenderer 更新
+        _rend.positionCount = pts.Count;
+        _rend.SetPositions(pts.ToArray());
+
+        posCount = pts.Count;
+
+        // ★ここが重要：EdgeCollider2D の当たり判定更新！
+        Vector2[] newPoints = new Vector2[pts.Count];
+        for (int i = 0; i < pts.Count; i++)
+            newPoints[i] = pts[i];
+        edgeCol.points = newPoints;
+        //edgeCol.enabled = true; 
+    }
+
+    void AddLoopHit()
+    {
+        //-------------------------
+        // 🐶 Ghost（Dog）
+        //-------------------------
+        foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Dog"))
         {
-            Vector3 wp = _rend.GetPosition(j);
-            loopPoints.Add(transform.InverseTransformPoint(wp));
-        }
-        loopPoints.Add(intersection);
+            if (!IsInside(ghost)) continue;
 
-        if (_poly != null) Destroy(_poly);
-        _poly = gameObject.AddComponent<PolygonCollider2D>();
-        _poly.isTrigger = true;
-        _poly.points = loopPoints.ToArray();
+            if (!insideCount.ContainsKey(ghost))
+                insideCount[ghost] = 0;
 
-        CheckObjectsInside();
-        _poly.enabled = false;
-        ResetLine();
-    }
-    private void CheckObjectsInside()
-    {
-        bool isMouseHeld = Input.GetMouseButton(0);
+            insideCount[ghost]++;
 
-        CheckGhosts(isMouseHeld);
-        CheckGraves(isMouseHeld);
-        CheckDragon(isMouseHeld);
-        CheckChest(isMouseHeld);
-    }
-
-    private void CheckGhosts(bool isMouseHeld)
-    {
-        GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Dog");
-
-        foreach (GameObject ghost in ghosts)
-        {
-            if (!IsInsidePolygon(ghost))
-            {
-                if (!isMouseHeld)
-                {
-                    var gb = ghost.GetComponent<GhostBase>();
-                    if (gb != null)
-                        gb.Restore();
-                }
-                continue;
-            }
-
-            var ghostBase = ghost.GetComponent<GhostBase>();
-            if (ghostBase == null) continue;
-            var sr = ghost.GetComponent<SpriteRenderer>();
-            if (sr != null)
-                StartCoroutine(FlashOnce(sr, Color.softYellow));
-            // 捕獲回数を増やす
-            IncrementCaptureCount(ghost);
-            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, ghost.transform);
-
-            int count = insideCount[ghost];
-
-            // 🎯 ゴーストの必要捕獲数を取得
-            int needed = ghostBase.data.captureHitsNeeded;
-
-            // 📉 捕獲進捗に応じてだんだん小さくなる
-            float progress = Mathf.Clamp01((float)count / needed);
-            float targetScale = Mathf.Lerp(1f, 0.6f, progress);
-            ghostBase.Shrink(targetScale);
-
-            // 🏁 規定回数で捕獲完了
-            if (count >= needed)
-                HandleGhostCaptured(ghost);
-        }
-    }
-
-
-    private void CheckGraves(bool isMouseHeld)
-    {
-        GameObject[] graves = GameObject.FindGameObjectsWithTag("Grave");
-
-        foreach (GameObject grave in graves)
-        {
-            if (!IsInsidePolygon(grave)) continue;
-            var sr = grave.GetComponent<SpriteRenderer>();
-            if (sr != null)
-                StartCoroutine(FlashOnce(sr, Color.yellow));
-            IncrementCaptureCount(grave);
-            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, grave.transform);
-            if (insideCount[grave] == 5)
-                HandleGraveCaptured(grave);
-        }
-    }
-    private void CheckDragon(bool isMouseHeld)
-    {
-        GameObject[] dragons = GameObject.FindGameObjectsWithTag("Dragon");
-
-        foreach (GameObject dragon in dragons)
-        {
-            // 囲まれていないならスキップ
-            if (!IsInsidePolygon(dragon)) continue;
-
-            // ドラゴンのHP取得
-            var health = dragon.GetComponent<DragonHealth>();
-            if (health == null) continue;
-            var sr = dragon.GetComponent<SpriteRenderer>();
-            if (sr != null)
-                StartCoroutine(FlashOnce(sr, Color.red));
-            // 🧱 1回囲むたびにHPを1減らす
-            health.TakeDamage(1);
-
-            // ヒットエフェクト（任意）
-            effectManager?.PlayHitEffect(dragon.transform.position);
-            LineVisualEffectManager.Instance?.PlayCaptureEffect(_rend, dragon.transform);
-
-            Debug.Log($"🔥 Hit {dragon.name}! HP: {health.currentHP}/{health.maxHP}");
-        }
-    }
-    private void CheckChest(bool isMouseHeld)
-    {
-        GameObject[] chests = GameObject.FindGameObjectsWithTag("Chest");
-
-        foreach (GameObject chest in chests)
-        {
-            if (!IsInsidePolygon(chest)) continue;
-
-            Chest c = chest.GetComponent<Chest>();
-            if (c != null)
-                c.OpenChest();
-        }
-    }
-
-    private bool IsInsidePolygon(GameObject obj)
-    {
-        Vector2 localPos = transform.InverseTransformPoint(obj.transform.position);
-        return _poly != null && _poly.OverlapPoint(localPos);
-    }
-
-    private void IncrementCaptureCount(GameObject obj)
-    {
-        if (!insideCount.ContainsKey(obj))
-            insideCount[obj] = 0;
-        insideCount[obj]++;
-    }
-
-    private void HandleGhostCaptured(GameObject ghost)
-    {
-        var gb = ghost.GetComponent<GhostBase>();
-        if (gb == null) return;
-        effectManager.PlayHitEffect(gb.transform.position);
-        LineVisualEffectManager.Instance.ReleaseAllGlowsUpward();
-        if (gb != null)
-            gb.Kill();
-        GhostType capturedType = gb.data.type;
-        if (capturedType == GhostType.Lucky)
-            capturedType = GhostType.Normal;
-
-        // イベント通知
-        GhostEvents.RaiseGhostCaptured(capturedType, ghost.transform.position);
-
-        // 🔹 Enemyバーを1つ増やす
-        currentEnemyCount++;
-        UIManager.Instance.UpdateBar("Enemy", currentEnemyCount);
-
-        Debug.Log($"{ghost.name} Captured as {capturedType}");
-    }
-
-    private void HandleGraveCaptured(GameObject grave)
-    {
-        Debug.Log($"🪦 {grave.name} Grave captured!");
-        HighlightGrave(grave);
-
-        // 🔹 Enemyバーを1つ増やす
-        currentEnemyCount++;
-        UIManager.Instance.UpdateBar("Enemy", currentEnemyCount);
-
-        // イベント通知（墓のキャプチャ）
-        List<GameObject> captured = new List<GameObject> { grave };
-        GhostEvents.RaiseGravesCaptured(captured);
-    }
-
-    private void HighlightGrave(GameObject target)
-    {
-        SpriteRenderer sr = target.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            sr.color = Color.yellow;
-            StartCoroutine(ResetColor(sr, 1.5f));
-        }
-    }
-
-    private IEnumerator ResetColor(SpriteRenderer sr, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (sr != null)
-            sr.color = Color.white;
-    }
-    private void RestoreAllGhosts()
-    {
-        GameObject[] ghosts = GameObject.FindGameObjectsWithTag("Dog");
-
-        foreach (GameObject ghost in ghosts)
-        {
             var gb = ghost.GetComponent<GhostBase>();
             if (gb != null)
-                gb.Restore();  // 👈 元のサイズに戻す
+            {
+                float progress = Mathf.Clamp01((float)insideCount[ghost] / gb.data.captureHitsNeeded);
+                float scale = Mathf.Lerp(1f, 0.6f, progress);
+                gb.Shrink(scale);
+
+                if (insideCount[ghost] >= gb.data.captureHitsNeeded)
+                    CaptureGhost(ghost);
+            }
+        }
+
+        //-------------------------
+        // 🪦 Grave（墓）
+        //-------------------------
+        foreach (GameObject grave in GameObject.FindGameObjectsWithTag("Grave"))
+        {
+            if (!IsInside(grave)) continue;
+
+            if (!insideCount.ContainsKey(grave))
+                insideCount[grave] = 0;
+
+            insideCount[grave]++;
+
+            var sr = grave.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.color = Color.yellow;
+
+            if (insideCount[grave] >= 5)
+            {
+                //HandleGraveCaptured(grave);
+            }
+        }
+
+        //-------------------------
+        // 🐉 Dragon（ドラゴン）
+        //-------------------------
+        foreach (GameObject dragon in GameObject.FindGameObjectsWithTag("Dragon"))
+        {
+            if (!IsInside(dragon)) continue;
+
+            var health = dragon.GetComponent<DragonHealth>();
+            if (health != null)
+            {
+                health.TakeDamage(1);
+                effectManager?.PlayHitEffect(dragon.transform.position);
+
+                Debug.Log($"🔥 Dragon hit! HP = {health.currentHP}/{health.maxHP}");
+            }
         }
     }
-    private void OnTriggerEnter2D(Collider2D other)
+
+
+    bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 cross)
     {
-        if (other.CompareTag("Dog"))
-        {
-            Debug.Log($"🐶 {other.name} が線に触れた！");
-            
-            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, other.transform, reverse: true);
-            RestoreAllGhosts();
-            ResetLine();
-            insideCount.Clear();
-        }
-        else
-        {
-            Debug.Log($"🎯 {other.name} が線に接触しました。");
-        }
-    }
-    private IEnumerator FlashOnce(SpriteRenderer sr, Color flashColor, float duration = 0.3f)
-    {
-        if (sr == null || flashingSet.Contains(sr)) yield break;
-        flashingSet.Add(sr);
-
-        Color original = sr.color;
-        sr.color = flashColor;
-
-        float t = 0f;
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            if (sr == null || sr.gameObject == null) { flashingSet.Remove(sr); yield break; }
-            sr.color = Color.Lerp(flashColor, original, t / duration);
-            yield return null;
-        }
-
-        if (sr != null && sr.gameObject != null && sr.gameObject.activeInHierarchy)
-            sr.color = original;
-
-        flashingSet.Remove(sr);
-    }
-
-    private bool LineSegmentsIntersect(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4, out Vector2 intersection)
-    {
-        intersection = Vector2.zero;
+        cross = Vector2.zero;
         float d = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
         if (Mathf.Approximately(d, 0f)) return false;
 
@@ -435,9 +296,250 @@ public class LineDraw : MonoBehaviour
 
         if (u >= 0 && u <= 1 && v >= 0 && v <= 1)
         {
-            intersection = p1 + v * (p2 - p1);
+            cross = p1 + v * (p2 - p1);
             return true;
         }
         return false;
     }
+
+    // =========================================================
+    // POLYGON CREATION
+    // =========================================================
+    void CreatePolygon(int start, Vector2 cross)
+    {
+        CleanPolygon();
+
+        List<Vector2> pts = new();
+        for (int j = start + 1; j < posCount; j++)
+            pts.Add(_rend.GetPosition(j));
+        pts.Add(cross);
+
+        poly = gameObject.AddComponent<PolygonCollider2D>();
+        poly.isTrigger = true;
+
+        Vector2[] local = new Vector2[pts.Count];
+        for (int i = 0; i < pts.Count; i++)
+            local[i] = pts[i];
+
+        poly.points = local;
+
+        CheckInsideObjects();
+    }
+
+    void CleanPolygon()
+    {
+        if (poly != null)
+        {
+            Destroy(poly);
+            poly = null;
+        }
+    }
+
+    // =========================================================
+    // CHECK OBJECTS INSIDE LOOP
+    // =========================================================
+    void CheckInsideObjects()
+    {
+        CheckGhosts();
+        CheckGraves();
+        CheckDragons();
+        CheckChests();
+    }
+
+    void CheckGhosts()
+    {
+        foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Dog"))
+        {
+            // ★デバッグ：Inside判定
+            Debug.Log($"[CheckGhosts] Ghost:{ghost.name}  Inside? = {IsInside(ghost)}");
+
+            if (!IsInside(ghost)) continue;
+
+            var gb = ghost.GetComponent<GhostBase>();
+            if (gb == null)
+            {
+                Debug.Log($"[CheckGhosts] Ghost {ghost.name} has no GhostBase!");
+                continue;
+            }
+
+            // ★デバッグ：insideCount の初期化
+            if (!insideCount.ContainsKey(ghost))
+            {
+                insideCount[ghost] = 0;
+                Debug.Log($"[CheckGhosts] Ghost:{ghost.name} -> Initialize insideCount to 0");
+            }
+
+            // ★ insideCount 増加
+           
+            Debug.Log($"[CheckGhosts] Ghost:{ghost.name} -> insideCount = {insideCount[ghost]}/{gb.data.captureHitsNeeded}");
+
+            // 閉じたループ時エフェクト
+            LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, ghost.transform);
+
+            var sr = ghost.GetComponent<SpriteRenderer>();
+            if (sr != null)
+                StartCoroutine(FlashOnce(sr, Color.softYellow));
+
+            // ★ Shrink の計算状態
+            float progress = Mathf.Clamp01((float)insideCount[ghost] / gb.data.captureHitsNeeded);
+            float scale = Mathf.Lerp(1f, 0.6f, progress);
+
+            Debug.Log($"[CheckGhosts] Ghost:{ghost.name} -> shrink progress={progress}, scale={scale}");
+
+            gb.Shrink(scale);
+
+            // ★ キャプチャされたか？
+            if (insideCount[ghost] >= gb.data.captureHitsNeeded)
+            {
+                Debug.Log($"[CheckGhosts] Ghost:{ghost.name} CAPTURED!");
+                CaptureGhost(ghost);
+            }
+        }
+    }
+
+
+    void CaptureGhost(GameObject ghost)
+    {
+        var gb = ghost.GetComponent<GhostBase>();
+        effectManager?.PlayHitEffect(ghost.transform.position);
+        LineVisualEffectManager.Instance.ReleaseAllGlowsUpward();
+        gb.Kill();
+
+        GhostEvents.RaiseGhostCaptured(gb.data.type, ghost.transform.position);
+    }
+
+    void CheckGraves()
+    {
+        foreach (var grave in GameObject.FindGameObjectsWithTag("Grave"))
+        {
+            if (!IsInside(grave)) continue;
+
+            if (!insideCount.ContainsKey(grave))
+                insideCount[grave] = 0;
+
+            insideCount[grave]++;
+
+            if (insideCount[grave] == 5)
+                HighlightGrave(grave);
+        }
+    }
+
+    void HighlightGrave(GameObject g)
+    {
+        var sr = g.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            sr.color = Color.yellow;
+            StartCoroutine(ResetColor(sr));
+        }
+    }
+
+    IEnumerator ResetColor(SpriteRenderer sr)
+    {
+        yield return new WaitForSeconds(1.5f);
+        if (sr != null) sr.color = Color.white;
+    }
+
+    void CheckDragons()
+    {
+        foreach (var dragon in GameObject.FindGameObjectsWithTag("Dragon"))
+        {
+            if (!IsInside(dragon)) continue;
+
+            var health = dragon.GetComponent<DragonHealth>();
+            if (health != null)
+                health.TakeDamage(1);
+        }
+    }
+
+    void CheckChests()
+    {
+        foreach (var chest in GameObject.FindGameObjectsWithTag("Chest"))
+        {
+            if (!IsInside(chest)) continue;
+
+            chest.GetComponent<Chest>()?.OpenChest();
+        }
+    }
+
+    bool IsInside(GameObject obj)
+    {
+        if (poly == null) return false;
+        return poly.OverlapPoint(obj.transform.position);
+    }
+    private IEnumerator FlashOnce(SpriteRenderer sr, Color flashColor, float duration = 0.3f)
+    {
+        // すでに点滅中なら同時実行しない
+        if (sr == null || flashingSet.Contains(sr)) yield break;
+
+        flashingSet.Add(sr);
+
+        Color original = sr.color;
+        sr.color = flashColor;
+
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+
+            // 途中でオブジェクトが消える場合の安全処理
+            if (sr == null || sr.gameObject == null)
+            {
+                flashingSet.Remove(sr);
+                yield break;
+            }
+
+            // flashColor → original に戻っていく
+            sr.color = Color.Lerp(flashColor, original, t / duration);
+            yield return null;
+        }
+
+        // 最後に元の色へ
+        if (sr != null && sr.gameObject != null && sr.gameObject.activeInHierarchy)
+            sr.color = original;
+
+        flashingSet.Remove(sr);
+    }
+    // =========================================================
+    // RESET
+    // =========================================================
+    void ResetLine()
+    {
+        currentLineLength = 0f;
+        posCount = 0;
+        linePoints.Clear();
+        _rend.positionCount = 0;
+    }
+
+    void RestoreAllGhosts()
+    {
+        foreach (var g in GameObject.FindGameObjectsWithTag("Dog"))
+        {
+            var gb = g.GetComponent<GhostBase>();
+            if (gb != null) gb.Restore();
+        }
+    }
+    //-----------------------------------------------
+    // Line hit detection (Reverse Capture Effect)
+    //-----------------------------------------------
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!edgeCol.enabled) return;
+        // Only trigger if line touches a ghost (Dog)
+        if (other.CompareTag("Dog"))
+        {
+            // Get the target ghost transform
+            Transform target = other.transform;
+
+            // Play reverse effect (glow travels backwards along the line)
+            LineVisualEffectManager.Instance.PlayReverseCaptureEffect(_rend, target.transform);
+
+            RestoreAllGhosts();
+            ResetLine();
+            CleanPolygon();
+
+        }
+    }
+
 }

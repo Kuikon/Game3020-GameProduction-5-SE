@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Animator))]
 public class PlayerController : MonoBehaviour
@@ -18,12 +19,33 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask unwalkableLayer; // 🚫 歩けないタイルのレイヤー
     [SerializeField] private float checkRadius = 0.2f;   // 当たり判定の大きさ
     private bool isInvincible = false;
+    private bool isMoving;
+    public bool CanMove { get; set; } = true;
     [SerializeField] private float invincibleDuration = 2f;
     [SerializeField] private float flashInterval = 0.1f;
     private SpriteRenderer spriteRenderer;
     private Collider2D playerCollider;
     private int currentTypeIndex = 0;
-    void Awake() => DontDestroyOnLoad(gameObject);
+
+    void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // シーン内から PlayerHealth を探す
+        playerHealth = FindAnyObjectByType<PlayerHealth>();
+
+        if (playerHealth != null)
+        {
+            Debug.Log($"PlayerHealth をシーン '{scene.name}' から取得しました");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ シーン '{scene.name}' に PlayerHealth が見つからない");
+        }
+    }
     void Start()
     {
         MiniMapManager.Instance?.RegisterPlayer(gameObject);
@@ -46,6 +68,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!CanMove) return;
         HandleMovement();
         HandleAimLine();
     }
@@ -201,7 +224,26 @@ public class PlayerController : MonoBehaviour
         isInvincible = false;
     }
 
+    public void StopImmediately()
+    {
+        // 動き関連のコルーチンを全部止める
+        StopAllCoroutines();
 
+        // 速度ゼロ
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+
+        // フラグリセット
+        isMoving = false;
+
+        // アニメーションも止める（パラメータはプロジェクトに合わせて）
+        if (animator != null)
+        {
+            animator.SetFloat("moveX", 0);
+            animator.SetFloat("moveY", 0);
+            animator.SetBool("isMoving", false);
+        }
+    }
 
     private bool IsWalkableTile(Vector2 checkPos)
     {

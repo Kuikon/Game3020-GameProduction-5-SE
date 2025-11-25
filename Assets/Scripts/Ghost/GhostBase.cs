@@ -122,55 +122,60 @@ public class GhostBase : MonoBehaviour
     {
         if (data.type == GhostType.Suicide && suicideTargetSet)
             return;
+
         dirTimer -= Time.fixedDeltaTime;
         bounceCooldown -= Time.fixedDeltaTime;
 
-        if (dirTimer <= 0f)
-            PickRandomDirection();
-        data.walkSpeed = 1f;
-        // Move naturally
-        rb.linearVelocity = moveDir * data.walkSpeed;
+        // 🔹 Normal / Quick は UpdateNormal で方向を決めるので、
+        //     ランダム方向は「それ以外のタイプ」だけ
+        if (data.type != GhostType.Normal && data.type != GhostType.Quick)
+        {
+            if (dirTimer <= 0f)
+                PickRandomDirection();
+        }
 
+        // 🔹 GhostData で決めた歩く速さを使う
+        float speed = data.walkSpeed;
+        rb.linearVelocity = moveDir * speed;
+
+        // ここから下はそのまま（境界処理＆Animator）
         Vector2 pos = rb.position;
-        float epsilon = 0.05f; // small safety margin
+        float epsilon = 0.05f;
 
-        // ---- X boundary ----
         if (bounceCooldown <= 0f)
         {
             if (pos.x < xBoundary.min + epsilon)
             {
                 pos.x = xBoundary.min + epsilon;
-                moveDir.x = Mathf.Abs(moveDir.x); // push right
+                moveDir.x = Mathf.Abs(moveDir.x);
                 bounceCooldown = 0.2f;
             }
             else if (pos.x > xBoundary.max - epsilon)
             {
                 pos.x = xBoundary.max - epsilon;
-                moveDir.x = -Mathf.Abs(moveDir.x); // push left
+                moveDir.x = -Mathf.Abs(moveDir.x);
                 bounceCooldown = 0.2f;
             }
 
-            // ---- Y boundary ----
             if (pos.y < yBoundary.min + epsilon)
             {
                 pos.y = yBoundary.min + epsilon;
-                moveDir.y = Mathf.Abs(moveDir.y); // push up
+                moveDir.y = Mathf.Abs(moveDir.y);
                 bounceCooldown = 0.2f;
             }
             else if (pos.y > yBoundary.max - epsilon)
             {
                 pos.y = yBoundary.max - epsilon;
-                moveDir.y = -Mathf.Abs(moveDir.y); // push down
+                moveDir.y = -Mathf.Abs(moveDir.y);
                 bounceCooldown = 0.2f;
             }
         }
 
-
-        // Update animation
         animator.SetFloat("MoveX", moveDir.x);
         animator.SetFloat("MoveY", moveDir.y);
         animator.SetFloat("Speed", rb.linearVelocity.magnitude);
     }
+
 
     // ============================================================
     // Life timer behavior
@@ -256,12 +261,16 @@ public class GhostBase : MonoBehaviour
     {
         switch (data.type)
         {
+            case GhostType.Normal:
+                UpdateNormal();   
+                break;
             case GhostType.Quick:
                 if (!quickSpeedBoosted)
                 {
                     data.walkSpeed *= 2f;
                     quickSpeedBoosted = true;
                 }
+                UpdateNormal();
                 break;
             case GhostType.Tank:
                 UpdateTank();
@@ -274,7 +283,16 @@ public class GhostBase : MonoBehaviour
                 break;
         }
     }
+    private void UpdateNormal()
+    {
+        if (capturePoint == null) return; // Player がいなければ何もしない
 
+        Vector2 dir = (capturePoint.position - transform.position);
+        if (dir.sqrMagnitude < 0.001f) return; // ほぼ同じ位置なら無視
+
+        // 👉 プレイヤー方向を向く
+        moveDir = dir.normalized;
+    }
     // ============================================================
     // Suicide-type ghost behavior
     // ============================================================

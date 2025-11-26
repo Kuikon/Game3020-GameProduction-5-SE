@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7ca12eb80dcc1d4d87d8efbe4ab898c, type: 3}
+  m_Name: Line Length Reward
+  m_EditorClassIdentifier: Assembly-CSharp::LineLengthReward
+  rewardName: Line Length
+  icon: {fileID: -3180762507664444075, guid: 90617ec1588e07f41bdf65f87e0b2628, type: 3}
+  description: ccccccc
+  extraLength: 2

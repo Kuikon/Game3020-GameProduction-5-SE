@@ -162,24 +162,24 @@ public class GameManager : MonoBehaviour
 
     //    Debug.Log("✅ All balls reached their target zones!");
     //}
-    private IEnumerator MoveBallToTarget(BallController ball, Vector3 targetPos, float speed)
-    {
-        Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
-        Collider2D col = ball.GetComponent<Collider2D>();
+    //private IEnumerator MoveBallToTarget(BallController ball, Vector3 targetPos, float speed)
+    //{
+    //    Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
+    //    Collider2D col = ball.GetComponent<Collider2D>();
 
-        if (rb == null) yield break;
+    //    if (rb == null) yield break;
 
-        rb.simulated = false;
-        while (Vector3.Distance(ball.transform.position, targetPos) > 0.05f)
-        {
-            ball.transform.position = Vector3.MoveTowards(ball.transform.position, targetPos, speed * Time.deltaTime);
-            yield return null;
-        }
+    //    rb.simulated = false;
+    //    while (Vector3.Distance(ball.transform.position, targetPos) > 0.05f)
+    //    {
+    //        ball.transform.position = Vector3.MoveTowards(ball.transform.position, targetPos, speed * Time.deltaTime);
+    //        yield return null;
+    //    }
 
-        rb.simulated = true;
-        if (col != null)
-            col.enabled = true; 
-    }
+    //    rb.simulated = true;
+    //    if (col != null)
+    //        col.enabled = true; 
+    //}
 
     private Transform GetTargetByType(GhostType type)
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class DroppedBall : BallBase
+public class DroppedBall : MonoBehaviour
 {
     [Header("Float Settings")]
     public float floatSpeed = 1.5f;
@@ -16,7 +16,6 @@ public class DroppedBall : BallBase
 
     private void Update()
     {
-        if (!isActive) return;
         // 🌀 上下に浮く
         transform.position = startPos + Vector3.up * Mathf.Sin(Time.time * floatSpeed) * floatAmplitude;
     }
@@ -29,22 +28,10 @@ public class DroppedBall : BallBase
         {
             isCollected = true;
 
-            // 🎯 Lucky弾はNormal弾として扱う
-            GhostType addType = (type == GhostType.Lucky) ? GhostType.Normal : type;
+           
 
-            GameManager gm = GameObject.FindFirstObjectByType<GameManager>();
-            if (gm != null)
-            {
-                if (!gm.capturedGhosts.ContainsKey(addType))
-                    gm.capturedGhosts[addType] = 0;
-                gm.capturedGhosts[addType]++;
-            }
-
-            if (UIManager.Instance != null)
-            {
-                int count = gm != null ? gm.capturedGhosts[addType] : 1;
-                UIManager.Instance.AddCommonBullet();
-            }
+          
+          
 
             StartCoroutine(CollectEffect());
         }

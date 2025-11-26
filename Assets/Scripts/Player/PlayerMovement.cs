@@ -11,9 +11,6 @@ public class PlayerController : MonoBehaviour
     private Vector2 lastMoveDir = Vector2.down;
     public float moveSpeed = 3f;
     [SerializeField] private PlayerHealth playerHealth;
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float bulletSpeed = 10f;
-    [SerializeField] private GhostType currentBulletType = GhostType.Normal;
     [SerializeField] public LineRenderer aimLine;
     [SerializeField] private Camera mainCam;
     [SerializeField] private LayerMask unwalkableLayer; // 🚫 歩けないタイルのレイヤー
@@ -70,7 +67,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!CanMove) return;
         HandleMovement();
-        HandleAimLine();
     }
     
     private void HandleMovement()
@@ -102,69 +98,7 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("moveX", animDir.x);
         animator.SetFloat("moveY", animDir.y);
     }
-    private void HandleAimLine()
-    {
-        if (aimLine == null) return;
-
-        if (Input.GetMouseButton(1)) // 右クリック押している間
-        {
-            aimLine.enabled = true;
-
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = Mathf.Abs(mainCam.transform.position.z);
-            Vector3 worldPos = mainCam.ScreenToWorldPoint(mousePos);
-            worldPos.z = 0f;
-
-            aimLine.positionCount = 2;
-            aimLine.SetPosition(0, transform.position);
-            aimLine.SetPosition(1, worldPos);
-            if (Input.GetMouseButtonDown(0))
-            {
-                ShootBullet(worldPos);
-            }
-        }
-        else
-        {
-            aimLine.enabled = false;
-        }
-    }
-    private void ShootBullet(Vector3 targetPos)
-    {
-        if (bulletPrefab == null) return;
-
-        // LuckyタイプはNormalとして扱う
-    
-
-        // UIManagerの弾ストックチェック
-        if (!UIManager.Instance.TryUseBullet())
-        {
-            return;
-        }
-
-        Vector2 direction = (targetPos - transform.position).normalized;
-
-        // 🟢 PlayerBullet生成
-        GameObject bulletObj = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        PlayerBullet bullet = bulletObj.GetComponent<PlayerBullet>();
-
-        // 見た目の色変更
-        SpriteRenderer sr = bulletObj.GetComponent<SpriteRenderer>();
-
-        bulletObj.transform.up = direction;
-    }
-
-
-    public void ShootCurrentBullet()
-    {
-        if (mainCam == null || bulletPrefab == null) return;
-
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = Mathf.Abs(mainCam.transform.position.z);
-        Vector3 worldPos = mainCam.ScreenToWorldPoint(mousePos);
-        worldPos.z = 0f;
-
-        ShootBullet(worldPos);
-    }
+  
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

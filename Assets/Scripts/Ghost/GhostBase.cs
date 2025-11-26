@@ -108,10 +108,10 @@ public class GhostBase : MonoBehaviour
     private IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (GhostBallSpawner.Instance != null)
-        {
-            GhostBallSpawner.Instance.SpawnBulletByType(data.type, transform.position);
-        }
+        //if (GhostBallSpawner.Instance != null)
+        //{
+        //    GhostBallSpawner.Instance.SpawnBulletByType(data.type, transform.position);
+        //}
         Destroy(gameObject);
     }
     // ============================================================

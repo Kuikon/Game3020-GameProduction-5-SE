@@ -13,7 +13,7 @@ public class GateTrigger : MonoBehaviour
     {
         if (cam == null)
         {
-            CameraFollow2D[] cams = FindObjectsOfType<CameraFollow2D>(true);
+            CameraFollow2D[] cams = Object.FindObjectsByType<CameraFollow2D>(FindObjectsSortMode.None);
 
             foreach (var c in cams)
             {

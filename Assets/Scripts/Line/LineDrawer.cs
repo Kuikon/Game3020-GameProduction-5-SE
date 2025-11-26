@@ -6,7 +6,7 @@ using System.Collections;
 public class LineDraw : MonoBehaviour
 {
     [Header("Line Settings")]
-    [SerializeField] private float maxLineLength = 5f;
+    public float maxLineLength = 5f;
     [SerializeField] private float interval = 0.1f;
 
     [Header("References")]

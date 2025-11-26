@@ -12,7 +12,7 @@ public class Light2DRadiusController : MonoBehaviour
     [Header("Brightness Settings")]
     [SerializeField] private float maxIntensity = 1.2f; // 明るくなったときの最大
     [SerializeField] private float minIntensity = 0.2f; // 暗くなったときの最小
-    [SerializeField] private float fadeSpeed = 0.25f;   // 自動で暗く戻る速度
+    public  float fadeSpeed = 0.25f;   // 自動で暗く戻る速度
     [SerializeField] private float expandAmount = 5f;   // 光の広がる量
     [SerializeField] public float flashDuration = 0.3f;// 明るい状態の維持時間
 

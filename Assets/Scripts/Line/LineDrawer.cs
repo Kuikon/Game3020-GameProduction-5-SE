@@ -26,12 +26,17 @@ public class LineDraw : MonoBehaviour
     private HashSet<SpriteRenderer> flashingSet = new();
     [SerializeField] private GameObject startIconPrefab;
     [SerializeField] private GameObject endIconPrefab;
+    [SerializeField] private GameObject droppedBallPrefab;
     private GameObject startIcon;
     private GameObject endIcon;
     void Awake()
     {
         insideCount = new Dictionary<GameObject, int>();
         DontDestroyOnLoad(gameObject);
+        if (droppedBallPrefab == null)
+        {
+            droppedBallPrefab = Resources.Load<GameObject>("EXPOrb");
+        }
     }
 
     void Start()
@@ -59,8 +64,8 @@ public class LineDraw : MonoBehaviour
         mouse = _cam.ScreenToWorldPoint(mouse);
         if (Input.GetMouseButtonDown(0))
         {
-            RemoveIcons(); // 前のを消す
-            CreateIcons(mouse); // 今回の線のスタートとエンド用アイコンを生成
+            RemoveIcons(); 
+            CreateIcons(mouse); 
         }
         if (Input.GetMouseButton(0))
         {
@@ -122,12 +127,12 @@ public class LineDraw : MonoBehaviour
         edgeCol.points = points2D;
         if (startIcon != null && posCount > 0)
         {
-            startIcon.transform.position = _rend.GetPosition(0); // 最初の点
+            startIcon.transform.position = _rend.GetPosition(0); 
         }
 
         if (endIcon != null && posCount > 0)
         {
-            endIcon.transform.position = _rend.GetPosition(posCount - 1); // 最新の点
+            endIcon.transform.position = _rend.GetPosition(posCount - 1);
         }
     }
 
@@ -177,7 +182,7 @@ public class LineDraw : MonoBehaviour
             if (LineSegmentsIntersect(p1, p2, p3, p4, out Vector2 cross))
             {
                 effectManager?.CreateLineAfterImage(_rend);
-                
+                Light2DRadiusController.Instance?.FlashRadius();
                 CreatePolygon(i, cross);
                 AddLoopHit();
                 TrimLoop(i, cross);
@@ -187,42 +192,26 @@ public class LineDraw : MonoBehaviour
     }
     void TrimLoop(int startIndex, Vector3 crossPoint)
     {
-
         List<Vector3> pts = new List<Vector3>(linePoints);
-
-        int lastIndex = pts.Count - 1;
-
-        // 内側削除
-        int removeStart = startIndex + 1;
-        int removeCount = lastIndex - removeStart;
-
-        if (removeCount > 0)
-            pts.RemoveRange(removeStart, removeCount);
-
-        // 交差点に閉じる
+        pts.RemoveRange(startIndex + 1, pts.Count - (startIndex + 1));
         pts[pts.Count - 1] = crossPoint;
-
         linePoints = new Queue<Vector3>(pts);
-
-        // LineRenderer 更新
         _rend.positionCount = pts.Count;
         _rend.SetPositions(pts.ToArray());
-
         posCount = pts.Count;
-
-        // ★ここが重要：EdgeCollider2D の当たり判定更新！
-        Vector2[] newPoints = new Vector2[pts.Count];
+        Vector2[] colPoints = new Vector2[pts.Count];
         for (int i = 0; i < pts.Count; i++)
-            newPoints[i] = pts[i];
-        edgeCol.points = newPoints;
-        //edgeCol.enabled = true; 
+        {
+            colPoints[i] = pts[i];
+        }
+        edgeCol.points = colPoints;
+
+        Debug.Log($"[TrimLoop] Loop trimmed. New vertex count = {pts.Count}");
     }
+
 
     void AddLoopHit()
     {
-        //-------------------------
-        // 🐶 Ghost（Dog）
-        //-------------------------
         foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Dog"))
         {
             if (!IsInside(ghost)) continue;
@@ -243,10 +232,6 @@ public class LineDraw : MonoBehaviour
                     CaptureGhost(ghost);
             }
         }
-
-        //-------------------------
-        // 🪦 Grave（墓）
-        //-------------------------
         foreach (GameObject grave in GameObject.FindGameObjectsWithTag("Grave"))
         {
             if (!IsInside(grave)) continue;
@@ -265,10 +250,6 @@ public class LineDraw : MonoBehaviour
                 //HandleGraveCaptured(grave);
             }
         }
-
-        //-------------------------
-        // 🐉 Dragon（ドラゴン）
-        //-------------------------
         foreach (GameObject dragon in GameObject.FindGameObjectsWithTag("Dragon"))
         {
             if (!IsInside(dragon)) continue;
@@ -305,26 +286,21 @@ public class LineDraw : MonoBehaviour
     // =========================================================
     // POLYGON CREATION
     // =========================================================
-    void CreatePolygon(int start, Vector2 cross)
+    void CreatePolygon(int startIndex, Vector2 crossPoint)
     {
         CleanPolygon();
-
-        List<Vector2> pts = new();
-        for (int j = start + 1; j < posCount; j++)
-            pts.Add(_rend.GetPosition(j));
-        pts.Add(cross);
-
+        List<Vector2> pts = new List<Vector2>();
+        for (int i = startIndex; i < posCount; i++)
+        {
+            pts.Add(_rend.GetPosition(i));
+        }
+        pts[pts.Count - 1] = crossPoint;
         poly = gameObject.AddComponent<PolygonCollider2D>();
         poly.isTrigger = true;
-
-        Vector2[] local = new Vector2[pts.Count];
-        for (int i = 0; i < pts.Count; i++)
-            local[i] = pts[i];
-
-        poly.points = local;
-
+        poly.points = pts.ToArray();
         CheckInsideObjects();
     }
+
 
     void CleanPolygon()
     {
@@ -350,9 +326,6 @@ public class LineDraw : MonoBehaviour
     {
         foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Dog"))
         {
-            // ★デバッグ：Inside判定
-            Debug.Log($"[CheckGhosts] Ghost:{ghost.name}  Inside? = {IsInside(ghost)}");
-
             if (!IsInside(ghost)) continue;
 
             var gb = ghost.GetComponent<GhostBase>();
@@ -361,34 +334,20 @@ public class LineDraw : MonoBehaviour
                 Debug.Log($"[CheckGhosts] Ghost {ghost.name} has no GhostBase!");
                 continue;
             }
-
-            // ★デバッグ：insideCount の初期化
             if (!insideCount.ContainsKey(ghost))
             {
                 insideCount[ghost] = 0;
                 Debug.Log($"[CheckGhosts] Ghost:{ghost.name} -> Initialize insideCount to 0");
             }
-
-            // ★ insideCount 増加
-           
-            Debug.Log($"[CheckGhosts] Ghost:{ghost.name} -> insideCount = {insideCount[ghost]}/{gb.data.captureHitsNeeded}");
-
-            // 閉じたループ時エフェクト
             LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, ghost.transform);
 
             var sr = ghost.GetComponent<SpriteRenderer>();
             if (sr != null)
                 StartCoroutine(FlashOnce(sr, Color.softYellow));
 
-            // ★ Shrink の計算状態
             float progress = Mathf.Clamp01((float)insideCount[ghost] / gb.data.captureHitsNeeded);
             float scale = Mathf.Lerp(1f, 0.6f, progress);
-
-            Debug.Log($"[CheckGhosts] Ghost:{ghost.name} -> shrink progress={progress}, scale={scale}");
-
             gb.Shrink(scale);
-
-            // ★ キャプチャされたか？
             if (insideCount[ghost] >= gb.data.captureHitsNeeded)
             {
                 Debug.Log($"[CheckGhosts] Ghost:{ghost.name} CAPTURED!");
@@ -400,13 +359,27 @@ public class LineDraw : MonoBehaviour
 
     void CaptureGhost(GameObject ghost)
     {
+        Debug.Log("CaptureGhost called on: " + ghost.name);
+
         var gb = ghost.GetComponent<GhostBase>();
         effectManager?.PlayHitEffect(ghost.transform.position);
         LineVisualEffectManager.Instance.ReleaseAllGlowsUpward();
-        gb.Kill();
 
+        int dropCount = gb.data.dropAmount;
+        int expPerDrop = gb.data.expPerDrop;
+        Transform player = GameObject.FindWithTag("Player").transform;
+        ExpDropManager.Instance.SpawnExpOrbs(
+            ghost.transform.position,
+            dropCount,
+            expPerDrop,
+            player
+        );
+
+        // Ghost kill
+        gb.Kill();
         GhostEvents.RaiseGhostCaptured(gb.data.type, ghost.transform.position);
     }
+
 
     void CheckGraves()
     {
@@ -469,33 +442,22 @@ public class LineDraw : MonoBehaviour
     }
     private IEnumerator FlashOnce(SpriteRenderer sr, Color flashColor, float duration = 0.3f)
     {
-        // すでに点滅中なら同時実行しない
         if (sr == null || flashingSet.Contains(sr)) yield break;
-
         flashingSet.Add(sr);
-
         Color original = sr.color;
         sr.color = flashColor;
-
         float t = 0f;
-
         while (t < duration)
         {
             t += Time.deltaTime;
-
-            // 途中でオブジェクトが消える場合の安全処理
             if (sr == null || sr.gameObject == null)
             {
                 flashingSet.Remove(sr);
                 yield break;
             }
-
-            // flashColor → original に戻っていく
             sr.color = Color.Lerp(flashColor, original, t / duration);
             yield return null;
         }
-
-        // 最後に元の色へ
         if (sr != null && sr.gameObject != null && sr.gameObject.activeInHierarchy)
             sr.color = original;
 

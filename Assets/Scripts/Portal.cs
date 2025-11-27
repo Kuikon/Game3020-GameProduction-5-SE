@@ -13,13 +13,13 @@ public class Portal : MonoBehaviour
             var player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                // ★ まず即停止
+                // Stop player coroutine and animation
                 player.StopImmediately();
 
-                // ★ 入力も止めたいなら
+                // ★ Stop player input
                 player.CanMove = false;
 
-                // Updateの処理ごと止めたいなら
+                // stop the entire update process
                 player.enabled = false;
             }
 

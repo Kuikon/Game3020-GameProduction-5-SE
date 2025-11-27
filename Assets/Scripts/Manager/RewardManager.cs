@@ -60,7 +60,7 @@ public class RewardManager : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player");
             if (player == null)
             {
-                Debug.LogError("Player ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+                Debug.LogError("Player is not found");
                 return;
             }
         }

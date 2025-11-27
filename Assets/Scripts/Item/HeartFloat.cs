@@ -6,12 +6,12 @@ using UnityEngine;
 public class Heart : MonoBehaviour
 {
     [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 0.2f; // 浮く上下幅
-    [SerializeField] private float floatSpeed = 2f;       // 上下スピード
-    [SerializeField] private float gravityStopTime = 1f;  // 浮遊に切り替わるまでの時間
+    [SerializeField] private float floatAmplitude = 0.2f;
+    [SerializeField] private float floatSpeed = 2f;       
+    [SerializeField] private float gravityStopTime = 1f; 
 
     [Header("Recovery Settings")]
-    [SerializeField] private int healAmount = 2;          // 回復量
+    [SerializeField] private int healAmount = 2;          
     [SerializeField] private float fadeOutTime = 0.5f;
 
     private Rigidbody2D rb;
@@ -49,7 +49,6 @@ public class Heart : MonoBehaviour
     {
         if (canFloat && !collected)
         {
-            // 💫 ふわふわ浮遊
             float newY = startPos.y + Mathf.Sin((Time.time - spawnTime) * floatSpeed) * floatAmplitude;
             transform.position = new Vector3(transform.position.x, newY, transform.position.z);
         }
@@ -69,13 +68,11 @@ public class Heart : MonoBehaviour
                 Debug.Log($"🧠 Player HP before: {playerHealth.currentHP}/{playerHealth.maxHP}");
                 if (playerHealth.currentHP < playerHealth.maxHP)
                 {
-                    // 💖 HPを回復
                     playerHealth.Heal(healAmount);
                     Debug.Log($"❤️ Healed by {healAmount}! → HP: {playerHealth.currentHP}/{playerHealth.maxHP}");
                 }
                 else
                 {
-                    // 💎 HPが最大なら上限を増やす
                     playerHealth.IncreaseMaxHP(1);
                     Debug.Log($"💪 Max HP increased! → HP: {playerHealth.currentHP}/{playerHealth.maxHP}");
                 }

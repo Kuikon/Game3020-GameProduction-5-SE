@@ -5,8 +5,7 @@ using System.Collections.Generic;
 public class GraveManager : MonoBehaviour
 {
     [Header("Grave References")]
-    [Tooltip("シーン上に最初から配置されている墓（8個）をここに登録")]
-    [SerializeField] private List<GameObject> gravesInScene = new();  // ← ここがメイン
+    [SerializeField] private List<GameObject> gravesInScene = new(); 
     [SerializeField] private GameObject brokenGravePrefab;
 
     [Header("Spawn Settings (optional, fallback)")]
@@ -25,7 +24,6 @@ public class GraveManager : MonoBehaviour
     {
         graveList.Clear();
 
-        // 🟢 シーン上に手動配置された墓がある場合
         if (gravesInScene != null && gravesInScene.Count > 0)
         {
             foreach (var g in gravesInScene)
@@ -44,7 +42,6 @@ public class GraveManager : MonoBehaviour
         }
         else
         {
-            // ⚙️ フォールバック：Prefabをランダム生成
             lastGraveCount = initialCount;
             SpawnGraves(initialCount);
             Debug.Log($"⚙️ Spawned {initialCount} graves randomly.");
@@ -79,9 +76,7 @@ public class GraveManager : MonoBehaviour
 
             Vector3 pos = g.transform.position;
             graveList.Remove(g);
-            g.SetActive(false);  // 🟢 破壊された墓は非アクティブにする
-
-            // 壊れた墓の見た目だけ差し替え
+            g.SetActive(false);  
             if (brokenGravePrefab != null)
             {
                 GameObject broken = Instantiate(brokenGravePrefab, pos, Quaternion.identity);
@@ -95,15 +90,11 @@ public class GraveManager : MonoBehaviour
         yield return new WaitForSeconds(2f);
 
         RemoveAllBroken();
-
-        // 🟢 既存の墓を再アクティブ化
         foreach (var g in gravesInScene)
         {
             if (g != null)
                 g.SetActive(true);
         }
-
-        // 🟢 管理リストを更新
         graveList.Clear();
         graveList.AddRange(gravesInScene);
 
@@ -126,9 +117,6 @@ public class GraveManager : MonoBehaviour
             Destroy(g);
     }
 
-    // =========================================================
-    // Optional random placement fallback
-    // =========================================================
     private void SpawnGraves(int count)
     {
         for (int i = 0; i < count; i++)

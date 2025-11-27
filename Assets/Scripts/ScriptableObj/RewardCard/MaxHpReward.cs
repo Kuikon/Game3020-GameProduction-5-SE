@@ -11,7 +11,7 @@ public class MaxHpReward : RewardData
         if (hp != null)
         {
             hp.maxHP += hpIncrease;
-            hp.currentHP += hpIncrease; // ‘‚¦‚½•ª‰ñ•œ‚³‚¹‚é
+            hp.currentHP += hpIncrease; 
             Debug.Log($"Å‘åHP +{hpIncrease}");
         }
     }

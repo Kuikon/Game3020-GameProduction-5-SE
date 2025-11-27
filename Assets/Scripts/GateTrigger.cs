@@ -4,8 +4,8 @@ using UnityEngine;
 public class GateTrigger : MonoBehaviour
 {
     public CameraFollow2D cam;
-    public GameObject fence;      // ← 閉めるフェンスのスプライト
-    public float fenceDelay = 0.1f; // 少し遅らせたい場合用（任意）
+    public GameObject fence;      // Sprite fore closing fence
+    public float fenceDelay = 0.1f;
     public EnemySpawner spawner;
 
     private bool triggered = false;
@@ -17,7 +17,7 @@ public class GateTrigger : MonoBehaviour
 
             foreach (var c in cams)
             {
-                // ★ DontDestroyOnLoad のカメラだけ選ぶ！
+                // pick the camera on DontDestroyOnLoad 
                 if (c.gameObject.scene.name == "DontDestroyOnLoad")
                 {
                     cam = c;
@@ -34,18 +34,18 @@ public class GateTrigger : MonoBehaviour
 
         triggered = true;
 
-        // GhostPointsオブジェクトを取得
+        // Get GhostPoint objects
         GameObject root = GameObject.Find("GhostPoints");
         if (root != null)
         {
-            // 子オブジェクトだけ取得
+            // Get only child objects
             Transform[] children = new Transform[root.transform.childCount];
             for (int i = 0; i < root.transform.childCount; i++)
             {
                 children[i] = root.transform.GetChild(i);
             }
 
-            // カメラにパトロールポイントを渡す
+            // pass the patrol points to the camera
             cam.SetGhostPoints(children);
         }
         else
@@ -53,7 +53,7 @@ public class GateTrigger : MonoBehaviour
             Debug.LogError("GhostPoints object not found in this scene!");
         }
 
-        // イベント登録
+        
         cam.OnReachedPoint += (Transform p) =>
         {
             spawner.SpawnAroundPointsGradually(
@@ -64,20 +64,13 @@ public class GateTrigger : MonoBehaviour
                 fadeDuration: 1f
             );
         };
-
-        // フェンス
         if (fence != null)
             StartCoroutine(CloseFence());
-
-        // パトロール開始
         cam.StartPatrol();
     }
-
-
-
     IEnumerator CloseFence()
     {
         yield return new WaitForSeconds(fenceDelay);
-        fence.SetActive(true);  // ← 扉を閉める
+        fence.SetActive(true);
     }
 }

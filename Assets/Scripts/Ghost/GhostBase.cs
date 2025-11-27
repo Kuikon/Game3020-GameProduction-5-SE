@@ -7,8 +7,8 @@ public class GhostBase : MonoBehaviour
 {
     public enum DeathCause
     {
-        Default,    // 通常 or 捕獲など
-        Suicide     // 自爆による死亡
+        Default,   
+        Suicide   
     }
     [Header("Ghost Data")]
     public GhostData data;
@@ -18,13 +18,10 @@ public class GhostBase : MonoBehaviour
     [SerializeField] Boundry yBoundary;
 
     private Transform capturePoint;
-    private Transform releasePoint;
-    [SerializeField] private float captureSpeed = 2f;
  
     public  bool isDead;
     private bool isStartIdle = true;
     private bool quickSpeedBoosted = false;
-    private bool absorbedByDragon = false;
     private bool suicideTargetSet = false;
 
     private Vector3 suicideTargetPos;
@@ -56,9 +53,6 @@ public class GhostBase : MonoBehaviour
         var obj = GameObject.Find("Player");
         if (obj != null)
             capturePoint = obj.transform;
-        var obj1 = GameObject.Find("GhostBallSpawner");
-        if (obj1 != null)
-            releasePoint = obj1.transform;
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
     }
@@ -125,20 +119,14 @@ public class GhostBase : MonoBehaviour
 
         dirTimer -= Time.fixedDeltaTime;
         bounceCooldown -= Time.fixedDeltaTime;
-
-        // 🔹 Normal / Quick は UpdateNormal で方向を決めるので、
-        //     ランダム方向は「それ以外のタイプ」だけ
         if (data.type != GhostType.Normal && data.type != GhostType.Quick)
         {
             if (dirTimer <= 0f)
                 PickRandomDirection();
         }
 
-        // 🔹 GhostData で決めた歩く速さを使う
         float speed = data.walkSpeed;
         rb.linearVelocity = moveDir * speed;
-
-        // ここから下はそのまま（境界処理＆Animator）
         Vector2 pos = rb.position;
         float epsilon = 0.05f;
 
@@ -204,28 +192,20 @@ public class GhostBase : MonoBehaviour
         return;
     }
 
-    // 🧩 基本見た目（色とスケール）
     spriteRenderer.color = data.ghostColor;
     transform.localScale = Vector3.one * data.baseScale;
 
-    // タイマー初期化（アニメ用）
     floatTimer = Random.Range(0f, Mathf.PI * 2f);
     blinkTimer = Random.Range(0f, Mathf.PI * 2f);
 }
     private void HandleVisualEffects()
     {
         if (spriteRenderer == null || data == null) return;
-
-        // 🎈 上下ふわふわアニメーション
         floatTimer += Time.deltaTime * data.floatSpeed;
         float offsetY = Mathf.Sin(floatTimer) * data.floatAmplitude;
-
-        // ゴーストの位置をふわっと上下させる
         Vector3 pos = transform.position;
-        pos.y += offsetY * Time.deltaTime; // 徐々に反映してなめらかに
+        pos.y += offsetY * Time.deltaTime;
         transform.position = pos;
-
-        // 💡 点滅アニメーション（blinkSpeed > 0 の場合のみ）
         if (data.blinkSpeed > 0f && data.blinkIntensity > 0f)
         {
             blinkTimer += Time.deltaTime * data.blinkSpeed;
@@ -233,7 +213,7 @@ public class GhostBase : MonoBehaviour
             float brightness = Mathf.Lerp(1f - data.blinkIntensity, 1f, blink);
 
             Color c = data.ghostColor * brightness;
-            c.a = data.ghostColor.a; // 透明度は維持
+            c.a = data.ghostColor.a; 
             spriteRenderer.color = c;
         }
     }
@@ -285,12 +265,10 @@ public class GhostBase : MonoBehaviour
     }
     private void UpdateNormal()
     {
-        if (capturePoint == null) return; // Player がいなければ何もしない
+        if (capturePoint == null) return; 
 
         Vector2 dir = (capturePoint.position - transform.position);
-        if (dir.sqrMagnitude < 0.001f) return; // ほぼ同じ位置なら無視
-
-        // 👉 プレイヤー方向を向く
+        if (dir.sqrMagnitude < 0.001f) return; 
         moveDir = dir.normalized;
     }
     // ============================================================
@@ -351,11 +329,8 @@ public class GhostBase : MonoBehaviour
 
     private void UpdateTank()
     {
-        // 🔹 クールダウン処理
         absorbCooldown -= Time.deltaTime;
         if (absorbCooldown > 0f) return;
-
-        // 🔹 ターゲットが未設定なら探す
         if (targetBall == null)
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, absorbRadius);
@@ -378,28 +353,24 @@ public class GhostBase : MonoBehaviour
 
             if (nearestBall != null)
             {
-                targetBall = nearestBall;  // 👈 DroppedBallをターゲットに
+                targetBall = nearestBall;  
                 Debug.Log($"🧲 Tank {name} locked onto DroppedBall {targetBall.name}");
             }
         }
 
-        // 🔹 ターゲットが存在すれば吸収方向へ移動
         if (targetBall != null)
         {
             Vector3 targetPos = targetBall.transform.position;
             float step = data.walkSpeed * Time.deltaTime;
 
             transform.position = Vector3.MoveTowards(transform.position, targetPos, step);
-
-            // 💫 近づいたら吸収処理
             float dist = Vector2.Distance(transform.position, targetPos);
             if (dist < 0.5f)
             {
-                // 🔹 DroppedBallを吸収（消す）
                 targetBall.CollectTo(transform);
                 targetBall = null;
 
-                absorbCooldown = 1.5f; // 🔹 次の吸収までの待機時間
+                absorbCooldown = 1.5f; 
                 Debug.Log($"🟢 Tank {name} absorbed a DroppedBall!");
             }
         }
@@ -443,8 +414,6 @@ public class GhostBase : MonoBehaviour
         if (isDead) return;
         isDead = true;
         animator.SetBool("Dead", true);
-
-        // 🔹 自爆時だけ爆発エフェクトを生成
         if (cause == DeathCause.Suicide &&
             data.type == GhostType.Suicide &&
             data.fireCirclePrefab != null)
@@ -473,7 +442,6 @@ public class GhostBase : MonoBehaviour
         animator.SetBool("Dead", true);
 
         capturePoint = absorbPoint;
-        absorbedByDragon = isFromDragon;
     }
 
     private void PickRandomDirection()
@@ -492,8 +460,8 @@ public class GhostBase : MonoBehaviour
     public void Shrink(float scaleMultiplier = 0.8f, float duration = 0.3f)
     {
         if (scaleRoutine != null) StopCoroutine(scaleRoutine);
-        float currentScale = transform.localScale.x;  // 現在のサイズを取得
-        float targetScale = currentScale * scaleMultiplier; // さらに0.8倍に
+        float currentScale = transform.localScale.x;  
+        float targetScale = currentScale * scaleMultiplier; 
 
         scaleRoutine = StartCoroutine(ScaleTo(targetScale, duration));
     }
@@ -519,7 +487,7 @@ public class GhostBase : MonoBehaviour
             yield return null;
         }
 
-        transform.localScale = endScale; // ← 最後に正確に固定
+        transform.localScale = endScale; 
     }
 
 }

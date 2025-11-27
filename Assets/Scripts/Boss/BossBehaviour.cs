@@ -29,8 +29,6 @@ public class BossBehaviour : MonoBehaviour
     private void Awake()
     {
         basePoint = transform.position;
-
-        // 🔹 自動でシーン上の参照を探す
         if (graveManager == null)
             graveManager = FindFirstObjectByType<GraveManager>();
         if (spawnerController == null)
@@ -39,11 +37,10 @@ public class BossBehaviour : MonoBehaviour
 
     private void Start()
     {
-        // 🪦 既存の墓を初期化してパトロール開始
         if (graveManager != null)
         {
-            graveManager.InitializeGraves();                   // シーン上の8つを登録
-            patrolPoints = graveManager.GetPatrolPoints();      // 位置を取得
+            graveManager.InitializeGraves();               
+            patrolPoints = graveManager.GetPatrolPoints();      
             Debug.Log($"👻 Patrol points loaded: {patrolPoints.Count}");
         }
 
@@ -107,36 +104,30 @@ public class BossBehaviour : MonoBehaviour
 
         Vector3 target = patrolPoints[currentIndex] + patrolOffset;
         MoveTowards(target);
-
-        // 墓に到着
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
-            // 🟢 まだスポーン開始していなければ一度だけ実行
             if (!isSpawningAtPoint)
             {
                 spawnerController?.StartSpawnLoop(target + spawnOffset);
                 isSpawningAtPoint = true;
             }
 
-            // ⏱ 待機時間カウント
             stateTimer += Time.deltaTime;
 
-            // 🕒 一定時間待ったら停止して次へ
             if (stateTimer >= waitTime)
             {
                 spawnerController?.StopSpawnLoop();
-                isSpawningAtPoint = false; // 次のポイントに備えてリセット
+                isSpawningAtPoint = false; 
                 currentIndex++;
 
                 if (currentIndex >= patrolPoints.Count)
-                    SetState(BossState.Return);   // 全巡回完了
+                    SetState(BossState.Return);  
                 else
-                    stateTimer = 0f;              // 次の墓へ
+                    stateTimer = 0f;           
             }
         }
         else
         {
-            // 🟢 まだ墓に着いていない間はフラグをリセット
             isSpawningAtPoint = false;
         }
     }
@@ -153,7 +144,7 @@ public class BossBehaviour : MonoBehaviour
 
     private void UpdateRebuild()
     {
-        // RebuildRoutine 実行中はここで待機
+
     }
 
     private IEnumerator RebuildRoutine()
@@ -200,33 +191,21 @@ public class BossBehaviour : MonoBehaviour
     }
     private IEnumerator HatchIdleRoutine()
     {
-        // 下を向く
         animator.SetFloat("MoveX", 0);
         animator.SetFloat("MoveY", -1);
-
-        // 拠点位置にリセット
         transform.position = basePoint;
-
-        // 💫 状態をIdleにセット（他の更新を止める）
         state = BossState.Idle;
         stateTimer = 0f;
-
-        // 2秒間待機
         yield return new WaitForSeconds(2f);
-
-        // 2秒後にパトロール開始
         SetState(BossState.Patrol);
     }
 
 }
 
-// =========================================================
-// 🔹 Enum 定義
-// =========================================================
 public enum BossState
 {
-    Idle,       // 拠点待機
-    Patrol,     // 墓を巡回中
-    Return,     // 拠点に帰還中
-    Rebuild     // 墓の再構築を待機中
+    Idle,      
+    Patrol,    
+    Return,    
+    Rebuild    
 }

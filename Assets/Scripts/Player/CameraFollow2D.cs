@@ -12,24 +12,20 @@ public class CameraFollow2D : MonoBehaviour
     [SerializeField] Vector3 offset;
 
     [Header("Patrol Settings")]
-    public Transform[] ghostPoints;      // ゴーストポイント配列（巡回順に並べる）
-    public float patrolMoveSpeed = 3f;   // カメラ巡回スピード
-    public float lookTime = 1.5f;        // 各ポイントで停止する時間
+    public Transform[] ghostPoints;      
+    public float patrolMoveSpeed = 3f;  
+    public float lookTime = 1.5f;       
 
     [Header("Player control")]
-    [SerializeField] PlayerController playerController; // プレイヤー操作スクリプト
-
-    // 🔵 イベント
-    public Action OnPatrolStarted;                  // パトロール開始時
-    public Action<Transform> OnReachedPoint;        // 各ポイント到達時（スポーン用）
+    [SerializeField] PlayerController playerController;
+    public Action OnPatrolStarted;                 
+    public Action<Transform> OnReachedPoint;      
 
     private bool isPatrolling = false;
 
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
-
-        // 安全対策：未設定なら target 側から探す
         if (playerController == null && target != null)
         {
             playerController = target.GetComponentInParent<PlayerController>();
@@ -37,7 +33,6 @@ public class CameraFollow2D : MonoBehaviour
     }
     private void Start()
     {
-        // ghostPoints が空なら、シーンから自動で読み込む
         if (ghostPoints == null || ghostPoints.Length == 0)
         {
             GameObject pointsRoot = GameObject.Find("GhostPoints");
@@ -68,10 +63,6 @@ public class CameraFollow2D : MonoBehaviour
             smoothSpeed * Time.deltaTime
         );
     }
-
-    //---------------------------------------------------------------
-    // 🔴 外部から呼ぶ「パトロール開始」
-    //---------------------------------------------------------------
     public void StartPatrol()
     {
         if (!gameObject.activeInHierarchy)
@@ -81,37 +72,25 @@ public class CameraFollow2D : MonoBehaviour
         }
         if (!isPatrolling)
         {
-            OnPatrolStarted?.Invoke();  // ← パトロール開始イベント発火
+            OnPatrolStarted?.Invoke(); 
             StartCoroutine(PatrolRoutine());
         }
     }
-
-    //---------------------------------------------------------------
-    // 🔵 パトロール処理（順番にポイント巡回）
-    //---------------------------------------------------------------
     IEnumerator PatrolRoutine()
     {
         isPatrolling = true;
-
-        // 🔴 プレイヤー移動停止
         if (playerController != null)
         {
             playerController.enabled = false;
-
-            // Rigidbody2D で動くプレイヤーなら止める
             var rb = playerController.GetComponent<Rigidbody2D>();
             if (rb != null)
                 rb.linearVelocity = Vector2.zero;
         }
-
-        // 🔵 ゴーストポイントを順番に巡回
         foreach (Transform point in ghostPoints)
         {
-            yield return StartCoroutine(MoveToPoint(point)); // 到達するとイベント発火
-            yield return new WaitForSeconds(lookTime);       // その場で停止
+            yield return StartCoroutine(MoveToPoint(point)); 
+            yield return new WaitForSeconds(lookTime);     
         }
-
-        // 🟢 プレイヤー操作復活
         if (playerController != null)
         {
             playerController.enabled = true;
@@ -123,15 +102,10 @@ public class CameraFollow2D : MonoBehaviour
     {
         ghostPoints = points;
     }
-    //---------------------------------------------------------------
-    // 🔵 カメラ移動（完了時に OnReachedPoint 発火）
-    //---------------------------------------------------------------
     IEnumerator MoveToPoint(Transform point)
     {
         Vector3 targetPos = point.position;
         targetPos.z = transform.position.z;
-
-        // カメラをポイント位置へ滑らかに移動
         while (Vector3.Distance(transform.position, targetPos) > 0.1f)
         {
             transform.position = Vector3.Lerp(
@@ -141,8 +115,6 @@ public class CameraFollow2D : MonoBehaviour
             );
             yield return null;
         }
-
-        // 🔥 ポイントに到着した瞬間イベント発火
         OnReachedPoint?.Invoke(point);
     }
 }

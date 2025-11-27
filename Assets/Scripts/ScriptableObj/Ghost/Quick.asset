@@ -17,6 +17,8 @@ MonoBehaviour:
   absorbTime: 60
   captureHitsNeeded: 2
   changeDirectionTime: 2
+  dropAmount: 2
+  expPerDrop: 1
   ghostColor: {r: 0.19607845, g: 0.5803922, b: 1, a: 1}
   baseScale: 0.7
   floatAmplitude: 0.2

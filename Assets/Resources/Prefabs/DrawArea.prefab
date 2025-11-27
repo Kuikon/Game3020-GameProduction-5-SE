@@ -156,11 +156,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29ca91311f765a342903792ee3a5b879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LineDrawer
-  edgeCollider: {fileID: 6370464697719820505}
-  _rend: {fileID: 3880382568968390926}
-  _cam: {fileID: 0}
   maxLineLength: 15
+  interval: 0.1
+  _cam: {fileID: 0}
   effectManager: {fileID: 5558477681175231571}
+  startIconPrefab: {fileID: 0}
+  endIconPrefab: {fileID: 0}
+  droppedBallPrefab: {fileID: 6333566123753073161, guid: d49c2e61a4918534bb3823b4ed1e9c83,
+    type: 3}
 --- !u!114 &5558477681175231571
 MonoBehaviour:
   m_ObjectHideFlags: 0

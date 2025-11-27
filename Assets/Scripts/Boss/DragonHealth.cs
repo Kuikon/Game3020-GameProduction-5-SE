@@ -11,8 +11,6 @@ public class DragonHealth : MonoBehaviour
     private void Start()
     {
         ui = UIManager.Instance;
-
-        // 🐉 ドラゴンHPバーを生成
         ui.CreateBar("DragonHP", maxHP);
         ui.UpdateBar("DragonHP", currentHP);
     }
@@ -30,7 +28,6 @@ public class DragonHealth : MonoBehaviour
     {
         Debug.Log("💀 Dragon Defeated!");
         Destroy(gameObject);
-        // ここでエフェクトやリワード処理を呼ぶ
     }
 
     public void Heal(int amount)

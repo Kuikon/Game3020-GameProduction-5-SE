@@ -21,31 +21,21 @@ public class Chest : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
-
-    // 🔹 囲まれた時に呼び出される
     public void OpenChest()
     {
         if (isOpened) return;
         isOpened = true;
-
-        // 🎞 アニメーション再生
         animator.SetTrigger("Open");
-
-        // ⏳ 数秒待ってからハートを出す
         StartCoroutine(DelayedHeartSpawn());
     }
 
-    // 💫 一定時間待ってからハートを生成
     private IEnumerator DelayedHeartSpawn()
     {
         yield return new WaitForSeconds(heartDelay);
         SpawnHeart();
-
-        // 🕓 ハートを出したあと宝箱を削除
         StartCoroutine(DestroyAfterDelay());
     }
 
-    // ❤️ ハート生成＆ポンッと飛ばす
     private void SpawnHeart()
     {
         if (heartPrefab == null) return;
@@ -59,12 +49,10 @@ public class Chest : MonoBehaviour
         }
     }
 
-    // 💀 削除処理（ふわっと消えるようにしてもOK）
     private IEnumerator DestroyAfterDelay()
     {
         yield return new WaitForSeconds(destroyDelay);
 
-        // 🔸 削除前にアニメーションやエフェクトを入れたい場合はここに追加
         Destroy(gameObject);
     }
 }

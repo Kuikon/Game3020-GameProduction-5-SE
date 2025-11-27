@@ -22,16 +22,11 @@ public class LineVisualEffectManager : MonoBehaviour
     {
         Instance = this;
     }
-    // 💥 ライン交差時（例：CrossPoint検出時）
     public void CreateLineAfterImage(LineRenderer sourceLine)
     {
         if (sourceLine == null) return;
-
-        // 残像用の空オブジェクトを作成
         GameObject afterImageObj = new GameObject("LineAfterImage");
         LineRenderer afterLine = afterImageObj.AddComponent<LineRenderer>();
-
-        // Lineの見た目をコピー
         afterLine.positionCount = sourceLine.positionCount;
         Vector3[] positions = new Vector3[sourceLine.positionCount];
         sourceLine.GetPositions(positions);
@@ -43,7 +38,6 @@ public class LineVisualEffectManager : MonoBehaviour
         afterLine.endColor = afterImageColor;
         afterLine.sortingLayerName = sourceLine.sortingLayerName;
         afterLine.sortingOrder = sourceLine.sortingOrder + 1;
-        // フェードアウト処理開始
         StartCoroutine(FadeAndDestroy(afterLine));
     }
     private IEnumerator FadeAndDestroy(LineRenderer line)
@@ -69,8 +63,6 @@ public class LineVisualEffectManager : MonoBehaviour
         if (line != null)
             Destroy(line.gameObject);
     }
-
-    // ✨ 囲み完了時（Loop完成時）
     public void PlayCaptureEffect(LineRenderer line, Transform target)
     {
         if (line == null) return;
@@ -87,7 +79,7 @@ public class LineVisualEffectManager : MonoBehaviour
 
             GlowMover mover = glow.GetComponent<GlowMover>();
             if (mover != null)
-                mover.SetTarget(target);  // 通常方向
+                mover.SetTarget(target);
         }
     }
     public void PlayReverseCaptureEffect(LineRenderer line, Transform target)
@@ -96,8 +88,6 @@ public class LineVisualEffectManager : MonoBehaviour
 
         Vector3[] points = new Vector3[line.positionCount];
         line.GetPositions(points);
-
-        // 逆方向に流すため配列を反転
         System.Array.Reverse(points);
 
         int step = Mathf.Max(2, line.positionCount / 400);
@@ -109,11 +99,9 @@ public class LineVisualEffectManager : MonoBehaviour
 
             GlowMover mover = glow.GetComponent<GlowMover>();
             if (mover != null)
-                mover.SetReverseTarget(target); // 逆方向
+                mover.SetReverseTarget(target); 
         }
     }
-
-
     public void ReleaseAllGlowsUpward()
     {
         foreach (var glow in activeEffects)
@@ -123,20 +111,16 @@ public class LineVisualEffectManager : MonoBehaviour
             var mover = glow.GetComponent<GlowMover>();
             if (mover != null)
             {
-                mover.ReleaseUpward(); // ⬆️ 上向きモードへ
+                mover.ReleaseUpward(); 
             }
         }
-
-        // リストを掃除
         activeEffects.RemoveAll(g => g == null);
     }
-    // 🎯 ゴーストヒット時（当たり判定時）
     public void PlayHitEffect(Vector3 position)
     {
         SpawnGlow(position, Color.white, defaultGlowScale * 1.2f);
     }
 
-    // 🌀 汎用エフェクト生成
     private GameObject SpawnGlow(Vector3 position, Color color, float scale)
     {
         GameObject glow = Instantiate(glowPrefab, position, Quaternion.identity);
@@ -152,8 +136,6 @@ public class LineVisualEffectManager : MonoBehaviour
 
         return glow;
     }
-
-    // 🔄 エフェクト寿命管理（Destroyと同時にリスト除外）
     private System.Collections.IEnumerator DestroyAfter(GameObject obj, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -161,8 +143,6 @@ public class LineVisualEffectManager : MonoBehaviour
             Destroy(obj);
         activeEffects.Remove(obj);
     }
-
-    // 🧹 念のため毎数秒にリスト掃除（安全対策）
     private float cleanupTimer = 0f;
     private void LateUpdate()
     {

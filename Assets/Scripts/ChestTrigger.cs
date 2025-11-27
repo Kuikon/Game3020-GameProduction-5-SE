@@ -2,16 +2,15 @@ using UnityEngine;
 
 public class ChestTrigger : MonoBehaviour
 {
-    [SerializeField] private GameObject panel;   // Inspector でセット
+    [SerializeField] private GameObject panel; 
 
     private void Start()
     {
         if (panel != null)
         {
-            panel.SetActive(false);  // 最初は非表示
+            panel.SetActive(false); 
         }
     }
-
     private void OnTriggerEnter2D(UnityEngine.Collider2D collision)
     {
         if (collision.CompareTag("Player"))
@@ -21,12 +20,10 @@ public class ChestTrigger : MonoBehaviour
                 panel.SetActive(true);
         }
     }
-
     private void OnTriggerExit2D(UnityEngine.Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            // プレイヤーがゴリラ圏内から出たとき → パネル非表示
             if (panel != null)
                 panel.SetActive(false);
         }

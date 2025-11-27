@@ -14,10 +14,6 @@ public class EnemySpawner : MonoBehaviour
     {
         SpawnInitialGhosts();
     }
-
-    //---------------------------------------------------
-    // 初期スポーン
-    //---------------------------------------------------
     public void SpawnInitialGhosts()
     {
         int count = 0;
@@ -33,10 +29,6 @@ public class EnemySpawner : MonoBehaviour
         }
         Debug.Log($"👻 Spawned {count} {targetType} ghosts at start!");
     }
-
-    //---------------------------------------------------
-    // 指定タイプのPrefab取得
-    //---------------------------------------------------
     private GameObject GetPrefabByType(GhostType type)
     {
         foreach (var p in ghostPrefabs)
@@ -47,10 +39,6 @@ public class EnemySpawner : MonoBehaviour
         }
         return null;
     }
-
-    //---------------------------------------------------
-    // 通常スポーン（エフェクトあり）
-    //---------------------------------------------------
     private IEnumerator SpawnSequence(Vector3 pos, GameObject prefab)
     {
         if (spawnEffectPrefab != null)
@@ -64,11 +52,6 @@ public class EnemySpawner : MonoBehaviour
 
         Instantiate(prefab, pos, Quaternion.identity);
     }
-
-    //---------------------------------------------------
-    // 🔥 カメラがポイントに到達した時に呼ぶ
-    // ランダム位置に徐々にスポーン（フェードイン付き）
-    //---------------------------------------------------
     public void SpawnAroundPointsGradually(
         Transform point,
         int count = 3,
@@ -101,8 +84,6 @@ public class EnemySpawner : MonoBehaviour
             Vector3 pos = point.position + new Vector3(offset.x, offset.y, 0);
 
             GameObject ghost = Instantiate(normalPrefab, pos, Quaternion.identity);
-
-            // 🔵 透明度0で開始
             SpriteRenderer sr = ghost.GetComponentInChildren<SpriteRenderer>();
             if (sr != null)
             {
@@ -116,10 +97,6 @@ public class EnemySpawner : MonoBehaviour
             yield return new WaitForSeconds(interval);
         }
     }
-
-    //---------------------------------------------------
-    // Sprite を透明 → 不透明にフェードイン
-    //---------------------------------------------------
     IEnumerator FadeIn(SpriteRenderer sr, float duration)
     {
         float t = 0;
@@ -133,10 +110,6 @@ public class EnemySpawner : MonoBehaviour
             yield return null;
         }
     }
-
-    //---------------------------------------------------
-    // 画面の適当なランダム位置
-    //---------------------------------------------------
     private Vector3 GetRandomPosition()
     {
         float x = Random.Range(-5f, 5f);

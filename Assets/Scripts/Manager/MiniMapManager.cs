@@ -3,25 +3,22 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 
-/// <summary>
-/// ミニマップ上にプレイヤーやゴーストの位置を表示するマネージャー
-/// </summary>
 public class MiniMapManager : MonoBehaviour
 {
     public static MiniMapManager Instance { get; private set; }
 
     [Header("MiniMap Settings")]
-    [SerializeField] private RectTransform mapArea;        // ミニマップの背景UI (RectTransform)
-    [SerializeField] private GameObject ghostMarkerPrefab; // 👻 ゴーストマーカーPrefab
-    [SerializeField] private GameObject playerMarkerPrefab; // 🧍 プレイヤーマーカーPrefab
+    [SerializeField] private RectTransform mapArea;      
+    [SerializeField] private GameObject ghostMarkerPrefab; 
+    [SerializeField] private GameObject playerMarkerPrefab; 
     [SerializeField] private GameObject dragonMarkerPrefab;
     [SerializeField] private GameObject graveMarkerPrefab;
-    [SerializeField] private Vector2 mapSizeWorld = new Vector2(20, 20); // ワールド座標範囲
-    private RectTransform dragonMarker;                   // 🐉 1体のみ
+    [SerializeField] private Vector2 mapSizeWorld = new Vector2(20, 20); 
+    private RectTransform dragonMarker;                 
     private List<RectTransform> graveMarkers = new();
     private Dictionary<GameObject, RectTransform> ghostMarkers = new();
-    private GameObject playerMarker;       // プレイヤー用マーカー
-    private GameObject player;             // プレイヤー本体
+    private GameObject playerMarker;      
+    private GameObject player;          
 
     private void Awake()
     {
@@ -35,9 +32,6 @@ public class MiniMapManager : MonoBehaviour
         UpdateGhostMarkers();
     }
 
-    // ============================================================
-    // 🧍 プレイヤー登録
-    // ============================================================
     public void RegisterPlayer(GameObject playerObj)
     {
         player = playerObj;
@@ -48,20 +42,15 @@ public class MiniMapManager : MonoBehaviour
         }
     }
 
-    // ============================================================
-    // 👻 ゴースト登録・削除
-    // ============================================================
     public void RegisterGhost(GameObject ghost)
     {
         if (ghostMarkers.ContainsKey(ghost)) return;
 
         GameObject marker = Instantiate(ghostMarkerPrefab, mapArea);
         RectTransform rect = marker.GetComponent<RectTransform>();
-
-        // 👻 ゴーストマーカー共通設定
         Image img = marker.GetComponent<Image>();
         if (img != null)
-            img.color = Color.white; // ← 全員同じ色
+            img.color = Color.white; 
 
         ghostMarkers.Add(ghost, rect);
     }
@@ -74,10 +63,6 @@ public class MiniMapManager : MonoBehaviour
         Destroy(ghostMarkers[ghost].gameObject);
         ghostMarkers.Remove(ghost);
     }
-
-    // ============================================================
-    // 📍 プレイヤー更新処理
-    // ============================================================
     private void UpdatePlayerMarker()
     {
         if (player == null || playerMarker == null) return;
@@ -86,10 +71,6 @@ public class MiniMapManager : MonoBehaviour
         Vector2 miniMapPos = WorldToMiniMap(pos);
         playerMarker.GetComponent<RectTransform>().anchoredPosition = miniMapPos;
     }
-
-    // ============================================================
-    // 👻 ゴーストマーカー更新
-    // ============================================================
     private void UpdateGhostMarkers()
     {
         List<GameObject> toRemove = new List<GameObject>();
@@ -98,8 +79,6 @@ public class MiniMapManager : MonoBehaviour
         {
             GameObject ghost = kvp.Key;
             RectTransform marker = kvp.Value;
-
-            // 👻 ゴーストが消えていたら削除予約
             if (ghost == null || marker == null)
             {
                 if (marker != null)
@@ -108,22 +87,16 @@ public class MiniMapManager : MonoBehaviour
                 toRemove.Add(kvp.Key);
                 continue;
             }
-
-            // 📍 マーカー位置更新
             Vector3 pos = ghost.transform.position;
             Vector2 miniMapPos = WorldToMiniMap(pos);
             marker.anchoredPosition = miniMapPos;
         }
-
-        // 🔹 ループ後に安全に削除
         foreach (var g in toRemove)
             ghostMarkers.Remove(g);
     }
     public void RegisterDragon(GameObject dragon)
     {
         if (dragon == null || dragonMarkerPrefab == null) return;
-
-        // すでにある場合は再利用
         if (dragonMarker != null)
         {
             dragonMarker.gameObject.SetActive(true);
@@ -132,13 +105,9 @@ public class MiniMapManager : MonoBehaviour
 
         GameObject marker = Instantiate(dragonMarkerPrefab, mapArea);
         dragonMarker = marker.GetComponent<RectTransform>();
-
-        // 🔴 特別な色設定
         Image img = marker.GetComponent<Image>();
         if (img != null)
             img.color = new Color(1f, 0.3f, 0.3f);
-
-        // ✅ ミニマップ更新で追従できるように保存
         StartCoroutine(UpdateDragonMarker(dragon));
         Debug.Log("🐉 Dragon marker registered on minimap");
     }
@@ -151,8 +120,6 @@ public class MiniMapManager : MonoBehaviour
             dragonMarker.anchoredPosition = miniMapPos;
             yield return null;
         }
-
-        // 🐉 ドラゴンが消えたらマーカーも削除
         if (dragonMarker != null)
         {
             Destroy(dragonMarker.gameObject);
@@ -165,8 +132,6 @@ public class MiniMapManager : MonoBehaviour
 
         GameObject marker = Instantiate(graveMarkerPrefab, mapArea);
         RectTransform rect = marker.GetComponent<RectTransform>();
-
-        // ⚫ 灰色で表示
         Image img = marker.GetComponent<Image>();
         if (img != null)
             img.color = new Color(0.4f, 0.4f, 0.4f);
@@ -187,9 +152,6 @@ public class MiniMapManager : MonoBehaviour
         if (marker != null)
             Destroy(marker.gameObject);
     }
-    // ============================================================
-    // 🧮 座標変換関数：ワールド → ミニマップ
-    // ============================================================
     private Vector2 WorldToMiniMap(Vector3 worldPos)
     {
         float xNorm = Mathf.Clamp(worldPos.x / mapSizeWorld.x, -1f, 1f);
@@ -200,10 +162,6 @@ public class MiniMapManager : MonoBehaviour
 
         return new Vector2(xNorm * mapWidth, yNorm * mapHeight);
     }
-
-    // ============================================================
-    // 🎨 タイプ別カラー定義
-    // ============================================================
     private Color GetColorByType(GhostType type)
     {
         return type switch

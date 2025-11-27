@@ -4,20 +4,26 @@ using UnityEngine.Rendering.Universal;
 
 public class Light2DRadiusController : MonoBehaviour
 {
+    public static Light2DRadiusController Instance { get; private set; }
     [Header("2D Light Settings")]
     [SerializeField] private Light2D light2D;
     [SerializeField] private float minRadius = 1f;
     [SerializeField] private float maxRadius = 10f;
 
     [Header("Brightness Settings")]
-    [SerializeField] private float maxIntensity = 1.2f; // 明るくなったときの最大
-    [SerializeField] private float minIntensity = 0.2f; // 暗くなったときの最小
-    public  float fadeSpeed = 0.25f;   // 自動で暗く戻る速度
-    [SerializeField] private float expandAmount = 5f;   // 光の広がる量
-    [SerializeField] public float flashDuration = 0.3f;// 明るい状態の維持時間
+    [SerializeField] private float maxIntensity = 1.2f; 
+    [SerializeField] private float minIntensity = 0.2f; 
+    public  float fadeSpeed = 0.25f;   
+    [SerializeField] private float expandAmount = 5f;   
+    [SerializeField] public float flashDuration = 0.3f;
 
     private Coroutine fadeRoutine;
+   
 
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         if (light2D == null)
@@ -31,7 +37,7 @@ public class Light2DRadiusController : MonoBehaviour
     {
         if (light2D == null) return;
 
-        // 💫 fadeRoutineが動いていない間は、徐々に暗くなる
+        // While the fadeRoutine is not running, it gradually darkens.
         if (fadeRoutine == null)
         {
             light2D.intensity = Mathf.Lerp(light2D.intensity, minIntensity, Time.deltaTime * fadeSpeed);
@@ -39,7 +45,6 @@ public class Light2DRadiusController : MonoBehaviour
         }
     }
 
-    // 💥 囲み（交差）が発生したときに呼ぶ
     public void FlashRadius()
     {
         if (fadeRoutine != null)
@@ -54,7 +59,7 @@ public class Light2DRadiusController : MonoBehaviour
         float targetRadius = Mathf.Min(startRadius + expandAmount, maxRadius);
         float t = 0f;
 
-        // 🔆 明るく広がる
+        // Bright and Spreading
         while (t < 1f)
         {
             t += Time.deltaTime * 5f;
@@ -63,10 +68,10 @@ public class Light2DRadiusController : MonoBehaviour
             yield return null;
         }
 
-        // 明るい状態を少しキープ
+        // Keep it a little brighter
         yield return new WaitForSeconds(flashDuration);
 
-        // 🌙 自動で暗くフェードアウト
+        // Automatic fade-out
         t = 0f;
         while (t < 1f)
         {

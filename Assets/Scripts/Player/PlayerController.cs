@@ -13,8 +13,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] public LineRenderer aimLine;
     [SerializeField] private Camera mainCam;
-    [SerializeField] private LayerMask unwalkableLayer; // 🚫 歩けないタイルのレイヤー
-    [SerializeField] private float checkRadius = 0.2f;   // 当たり判定の大きさ
+    [SerializeField] private LayerMask unwalkableLayer; 
+    [SerializeField] private float checkRadius = 0.2f;  
     private bool isInvincible = false;
     private bool isMoving;
     public bool CanMove { get; set; } = true;
@@ -31,17 +31,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // シーン内から PlayerHealth を探す
         playerHealth = FindAnyObjectByType<PlayerHealth>();
-
-        if (playerHealth != null)
-        {
-            Debug.Log($"PlayerHealth をシーン '{scene.name}' から取得しました");
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ シーン '{scene.name}' に PlayerHealth が見つからない");
-        }
     }
     void Start()
     {
@@ -117,21 +107,13 @@ public class PlayerController : MonoBehaviour
 
         float elapsed = 0f;
         bool visible = true;
-
-        // 🚫 当たり判定をオフ
         if (playerCollider != null)
             playerCollider.enabled = false;
-
-        // ❤️ 一瞬だけ赤く光る
         if (spriteRenderer != null)
             spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(0.3f);
-
-        // 🎨 赤から白に戻す
         if (spriteRenderer != null)
             spriteRenderer.color = Color.white;
-
-        // ✨ 点滅フェーズ（白の半透明点滅）
         while (elapsed < invincibleDuration)
         {
             elapsed += flashInterval;
@@ -140,18 +122,14 @@ public class PlayerController : MonoBehaviour
             if (spriteRenderer != null)
             {
                 Color c = spriteRenderer.color;
-                c.a = visible ? 1f : 0.3f; // 薄くなるだけ
+                c.a = visible ? 1f : 0.3f; 
                 spriteRenderer.color = c;
             }
 
             yield return new WaitForSeconds(flashInterval);
         }
-
-        // ✅ 最後に完全に戻す
         if (spriteRenderer != null)
             spriteRenderer.color = Color.white;
-
-        // 🟢 コライダー再有効化
         if (playerCollider != null)
             playerCollider.enabled = true;
 
@@ -160,17 +138,10 @@ public class PlayerController : MonoBehaviour
 
     public void StopImmediately()
     {
-        // 動き関連のコルーチンを全部止める
         StopAllCoroutines();
-
-        // 速度ゼロ
         if (rb != null)
             rb.linearVelocity = Vector2.zero;
-
-        // フラグリセット
         isMoving = false;
-
-        // アニメーションも止める（パラメータはプロジェクトに合わせて）
         if (animator != null)
         {
             animator.SetFloat("moveX", 0);
@@ -181,7 +152,6 @@ public class PlayerController : MonoBehaviour
 
     private bool IsWalkableTile(Vector2 checkPos)
     {
-        // 半径checkRadiusの円内に「歩けないレイヤー」があればfalse
         Collider2D hit = Physics2D.OverlapCircle(checkPos, checkRadius, unwalkableLayer);
         return hit == null;
     }

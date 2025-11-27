@@ -8,9 +8,7 @@ public class BossSpawnerController : MonoBehaviour
 
     private Coroutine spawnLoop;
     private void Awake()
-    {
-        // ✅ 孵化後に自動でシーン内の EnemySpawner を探す
-        if (enemySpawner == null)
+    {        if (enemySpawner == null)
         {
             enemySpawner = FindFirstObjectByType<EnemySpawner>();
             if (enemySpawner == null)

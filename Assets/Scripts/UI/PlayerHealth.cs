@@ -14,12 +14,9 @@ public class PlayerHealth : MonoBehaviour
     {
         if (uiManager == null)
             uiManager = UIManager.Instance;
-
-        // --- バー初期化（動的生成） ---
         uiManager.CreateBar(hpBarName, maxHP);
         uiManager.CreateBar(miniHpBarName, maxHP);
 
-        // --- 現在HPを反映 ---
         UpdateAllBars();
     }
 
@@ -46,9 +43,8 @@ public class PlayerHealth : MonoBehaviour
     public void IncreaseMaxHP(int amount)
     {
         maxHP += amount;
-        currentHP = maxHP; // ←新しい上限まで全回復してもOK（演出として自然）
+        currentHP = maxHP;
 
-        // 🔁 バーを再生成（UIに反映）
         uiManager.CreateBar(hpBarName, maxHP);
         uiManager.CreateBar(miniHpBarName, maxHP);
 

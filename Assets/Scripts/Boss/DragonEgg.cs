@@ -10,12 +10,12 @@ public class DragonEgg : MonoBehaviour
 
     [Header("Hatching Settings")]
     [SerializeField] private int requiredCaptureCount = 10;
-    [SerializeField] private float shakeAmplitude = 0.05f; // 🔹揺れの強さ
-    [SerializeField] private float shakeSpeed = 2f;        // 🔹揺れの速さ
+    [SerializeField] private float shakeAmplitude = 0.05f; 
+    [SerializeField] private float shakeSpeed = 2f;       
 
     private int currentCaptured = 0;
     private bool hatched = false;
-    private bool hatching = false; // 孵化中かどうか
+    private bool hatching = false; 
     private Vector3 initialPos;
 
     private void Start()
@@ -42,9 +42,6 @@ public class DragonEgg : MonoBehaviour
         if (type != GhostType.Normal) return;
 
         currentCaptured++;
-        Debug.Log($"✅ Captured {currentCaptured}/{requiredCaptureCount} Normal ghosts");
-
-        // ゴーストを捕獲するたびに少し揺れを強く
         shakeAmplitude = Mathf.Lerp(shakeAmplitude, 0.1f, 0.3f);
 
         if (currentCaptured >= requiredCaptureCount && !hatching)
@@ -56,15 +53,8 @@ public class DragonEgg : MonoBehaviour
     private IEnumerator HatchSequence()
     {
         hatching = true;
-        Debug.Log("🐣 Dragon egg is hatching...");
-
-        // アニメーション再生
         if (animator != null)
             animator.SetTrigger("Hatch");
-
-       
-
-        // 孵化中は激しく揺れる
         float hatchTime = 2f;
         float elapsed = 0f;
         while (elapsed < hatchTime)
@@ -74,18 +64,15 @@ public class DragonEgg : MonoBehaviour
             transform.position = initialPos + new Vector3(shake, 0f, 0f);
             yield return null;
         }
-        // 光や爆発エフェクト
         if (hatchEffectPrefab != null)
         {
             GameObject fx = Instantiate(hatchEffectPrefab, transform.position, Quaternion.identity);
             Destroy(fx, 0.5f);
         }
-        // 卵削除
         hatched = true;
         transform.position = initialPos;
         Destroy(gameObject);
         GameObject boss = null;
-        // ドラゴン生成
         if (bossPrefab != null)
         {
             boss = Instantiate(bossPrefab, transform.position, Quaternion.identity);

@@ -19,7 +19,8 @@ public class CameraFollow2D : MonoBehaviour
     [Header("Player control")]
     [SerializeField] PlayerController playerController;
     public Action OnPatrolStarted;                 
-    public Action<Transform> OnReachedPoint;      
+    public Action<Transform> OnReachedPoint;
+    public Action OnPatrolEnd;
 
     private bool isPatrolling = false;
 
@@ -97,6 +98,7 @@ public class CameraFollow2D : MonoBehaviour
         }
 
         isPatrolling = false;
+        OnPatrolEnd?.Invoke();
     }
     public void SetGhostPoints(Transform[] points)
     {

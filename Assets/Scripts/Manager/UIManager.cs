@@ -36,8 +36,6 @@ public class UIManager : MonoBehaviour
 
     [Header("Common Bar Settings")]
     [SerializeField] private List<BarUI> bars = new();
-    private int commonBullet = 0;
-    private int commonBulletMax = 10;
     [Header("UI Move Settings")]
     [SerializeField] private RectTransform hpAndEnemyGroup;
     [SerializeField] private RectTransform bulletSlotsGroup;
@@ -57,7 +55,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject playerStatusPanel;
 
     private Dictionary<string, BarUI> barDict = new();
-
+    [Header("EXP UI")]
+    [SerializeField] private TextMeshProUGUI expLevelText;
+    [SerializeField] private Image expFill;
+    [SerializeField] private float expSmoothSpeed = 6f;
+    private float currentExpFill = 0f;
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -70,34 +72,15 @@ public class UIManager : MonoBehaviour
                 barLabelDict[pair.barName] = pair;
         }
     }
-
-    private void OnEnable()
-    {
-        GhostEvents.OnGhostCaptured += OnGhostCaptured;
-    }
-
-    private void OnDisable()
-    {
-        GhostEvents.OnGhostCaptured -= OnGhostCaptured;
-    }
-
     private void Start()
     {
-        CreateBar("CommonBullet", commonBulletMax);
-        UpdateBarAndCounter("CommonBullet", commonBullet, commonBulletMax);
     }
 
     private void Update()
     {
         HandleUIVisibility();
     }
-    private void OnGhostCaptured(GhostType type, Vector3 pos)
-    {
-        commonBullet++;
-        commonBullet = Mathf.Clamp(commonBullet, 0, commonBulletMax);
-
-        UpdateBarAndCounter("CommonBullet", commonBullet, commonBulletMax);
-    }
+   
     public void UpdateBarAndCounter(string barName, int current, int max)
     {
         UpdateBar(barName, current);
@@ -111,6 +94,14 @@ public class UIManager : MonoBehaviour
         if (pair.maxText != null)
             pair.maxText.text = max.ToString();
     }
+    public void UpdateExpBar(int currentExp, int maxExp, int level)
+    {
+        if (expLevelText != null)
+            expLevelText.text = $"Lv. {level}";
+        float ratio = (float)currentExp / maxExp;
+        expFill.fillAmount = ratio;
+    }
+
     public void CreateBar(string barName, int blockCount)
     {
         if (!barDict.ContainsKey(barName))

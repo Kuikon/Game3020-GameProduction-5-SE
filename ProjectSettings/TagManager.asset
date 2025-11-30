@@ -12,6 +12,7 @@ TagManager:
   - Dragon
   - Chest
   - Ground
+  - ExpMagnet
   layers:
   - Default
   - TransparentFX

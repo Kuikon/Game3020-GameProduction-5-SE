@@ -16,11 +16,6 @@ public class GameManager : MonoBehaviour
     [Header("Type Gather Control")]
     public Button sortButton;
     public float sortSpeed = 3f;
-    [Header("Ball Type Target Points")]
-    public Transform normalPoint;
-    public Transform quickPoint;
-    public Transform tankPoint;
-    public Transform suicidePoint;
     [Header("Game Stats")]
     public Dictionary<GhostType, int> capturedGhosts = new();
     public int damageTaken = 0;
@@ -138,60 +133,47 @@ public class GameManager : MonoBehaviour
                 ghost.ResumeMovement();
         }
     }
-    //private IEnumerator GatherAllBallsByType()
-    //{
-    //    Debug.Log("⚾ Gathering all balls by GhostType...");
-
-    //    BallController[] balls = FindObjectsByType<BallController>(FindObjectsSortMode.None);
-
-    //    foreach (var ball in balls)
-    //    {
-    //        if (ball == null) continue;
-    //        Collider2D col = ball.GetComponent<Collider2D>();
-    //        if (col != null)
-    //            col.enabled = true;
-
-    //        Transform target = GetTargetByType(ball.type);
-    //        if (target != null)
-    //        {
-    //            StartCoroutine(MoveBallToTarget(ball, target.position, sortSpeed));
-    //        }
-    //    }
-
-    //    yield return new WaitForSeconds(magnetHoldTime);
-
-    //    Debug.Log("✅ All balls reached their target zones!");
-    //}
-    //private IEnumerator MoveBallToTarget(BallController ball, Vector3 targetPos, float speed)
-    //{
-    //    Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
-    //    Collider2D col = ball.GetComponent<Collider2D>();
-
-    //    if (rb == null) yield break;
-
-    //    rb.simulated = false;
-    //    while (Vector3.Distance(ball.transform.position, targetPos) > 0.05f)
-    //    {
-    //        ball.transform.position = Vector3.MoveTowards(ball.transform.position, targetPos, speed * Time.deltaTime);
-    //        yield return null;
-    //    }
-
-    //    rb.simulated = true;
-    //    if (col != null)
-    //        col.enabled = true; 
-    //}
-
-    private Transform GetTargetByType(GhostType type)
+    public void DisablePlayerControl()
     {
-        switch (type)
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
         {
-            case GhostType.Normal: return normalPoint;
-            case GhostType.Quick: return quickPoint;
-            case GhostType.Tank: return tankPoint;
-            case GhostType.Suicide: return suicidePoint;
-            default: return null;
+            var controller = player.GetComponent<PlayerController>();
+            if (controller != null)
+            {
+                controller.CanMove = false;
+                controller.StopImmediately();
+            }
+            var col = player.GetComponent<Collider2D>();
+            if (col != null)
+                col.enabled = false;
         }
+        if (LineDraw.Instance != null)
+            LineDraw.Instance.enabled = false;
+
+        Debug.Log("🛑 Player + LineDraw Stopped");
     }
+
+    public void EnablePlayerControl()
+    {
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            var controller = player.GetComponent<PlayerController>();
+            if (controller != null)
+                controller.CanMove = true;
+
+            var col = player.GetComponent<Collider2D>();
+            if (col != null)
+                col.enabled = true;
+        }
+
+        if (LineDraw.Instance != null)
+            LineDraw.Instance.enabled = true;
+
+        Debug.Log("▶ Player + LineDraw Resumed");
+    }
+
     public void GameOver()
     {
         if (isGameOver) return; 
@@ -206,6 +188,7 @@ public class GameManager : MonoBehaviour
     }
     private System.Collections.IEnumerator LoadGameOverScene()
     {
+        DisablePlayerControl();
         yield return new WaitForSeconds(2f);
         SceneManager.LoadScene("GameOverScene");
     }
@@ -213,7 +196,10 @@ public class GameManager : MonoBehaviour
     {
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0f : 1f;
-
+        if (isPaused)
+            DisablePlayerControl();
+        else
+            EnablePlayerControl();
         UIManager.Instance.ShowPlayerStatus(isPaused);
     }
 }

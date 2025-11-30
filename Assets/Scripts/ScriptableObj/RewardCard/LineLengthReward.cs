@@ -7,11 +7,14 @@ public class LineLengthReward : RewardData
 
     public override void ApplyEffect(GameObject player)
     {
-        var line = player.GetComponent<LineDraw>();
-        if (line != null)
+        if (LineDraw.Instance == null)
         {
-            line.maxLineLength += extraLength;
-            Debug.Log($"Max line length +{extraLength}");
+            Debug.LogError("LineDraw Instance not found!");
+            return;
         }
+
+        LineDraw.Instance.maxLineLength += extraLength;
+
+        Debug.Log($"Max line length increased by {extraLength}! New max = {LineDraw.Instance.maxLineLength}");
     }
 }

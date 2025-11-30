@@ -1,33 +1,26 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerExp : MonoBehaviour
 {
     public int level = 1;
 
-    public int currentExp = 0;      // Œ»İ‚ÌEXPi®”j
-    public int expToNextLevel = 5;  // ŸƒŒƒxƒ‹‚Ü‚Å‚Ì•K—vEXPi®”j
+    public int currentExp = 0;
+    public int expToNextLevel = 5;
 
     public void AddExp(int amount)
     {
         currentExp += amount;
 
-        // ƒŒƒxƒ‹ƒAƒbƒvˆ—i‚·‚×‚Ä®”j
-        while (currentExp >= expToNextLevel)
+        // å¿…è¦EXPã«é”ã—ãŸã‚‰ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—
+        if (currentExp >= expToNextLevel)
         {
-            currentExp -= expToNextLevel;
             level++;
-
-            // •K—vŒoŒ±’l‚ğ®”‚Æ‚µ‚Äã¸
             expToNextLevel = Mathf.CeilToInt(expToNextLevel * 1.3f);
+            currentExp = 0;
+            RewardManager.Instance.ShowRandomRewards();
         }
 
-        // UIƒo[XVi‚ ‚È‚½‚ÌUIManager—pj
-        //UIManager.Instance?.UpdateBar("EXP", currentExp, expToNextLevel);
-    }
-
-    // UI‚ÌƒuƒƒbƒNƒo[‚ªŠ„‡‚ÅŒvZ‚µ‚½‚¢‚Æ‚«‚Ég‚¤
-    public float GetExpRatio()
-    {
-        return (float)currentExp / expToNextLevel;
+        // UIæ›´æ–°ï¼ˆå¸¸ã«ã“ã‚Œã‚’å‘¼ã¶ï¼‰
+        UIManager.Instance.UpdateExpBar(currentExp, expToNextLevel, level);
     }
 }

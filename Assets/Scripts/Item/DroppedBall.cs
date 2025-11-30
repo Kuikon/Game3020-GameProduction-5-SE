@@ -26,11 +26,26 @@ public class DroppedBall : MonoBehaviour
     {
         if (isCollected) return;
 
-        if (other.CompareTag("Player"))
+        // マグネット用の子オブジェクトに当たった？
+        if (other.CompareTag("ExpMagnet"))
         {
-            CollectTo(other.transform);
+            // 親か、上の階層から PlayerExp を探す
+            PlayerExp playerExp = other.GetComponentInParent<PlayerExp>();
+
+            if (playerExp != null)
+            {
+                Debug.Log("🧲 ExpMagnet に当たったのでプレイヤーへ吸い込み開始");
+
+                // PlayerExp が付いているオブジェクトの Transform をターゲットにする
+                CollectTo(playerExp.transform);
+            }
+            else
+            {
+                Debug.LogError("❌ ExpMagnet の親から PlayerExp が見つからない");
+            }
         }
     }
+
     public void CollectTo(Transform target)
     {
         if (isCollected) return;
@@ -68,8 +83,16 @@ public class DroppedBall : MonoBehaviour
             yield return null;
         }
         PlayerExp exp = target.GetComponent<PlayerExp>();
-        if (exp != null)
+
+        if (exp == null)
+        {
+            Debug.LogError("❌ PlayerExp が Player に付いてない！");
+        }
+        else
+        {
+            Debug.Log($"⭐ AddExp({expAmount}) を呼ぶ！");
             exp.AddExp(expAmount);
+        }
 
         Destroy(gameObject);
     }

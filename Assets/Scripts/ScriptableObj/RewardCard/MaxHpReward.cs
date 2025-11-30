@@ -7,12 +7,10 @@ public class MaxHpReward : RewardData
 
     public override void ApplyEffect(GameObject player)
     {
-        var hp = player.GetComponent<PlayerHealth>();
-        if (hp != null)
+        var health = player.GetComponentInChildren<PlayerHealth>();
+        if (health != null)
         {
-            hp.maxHP += hpIncrease;
-            hp.currentHP += hpIncrease; 
-            Debug.Log($"ç≈ëÂHP +{hpIncrease}");
+            health.IncreaseMaxHPByReward(3);
         }
     }
 }

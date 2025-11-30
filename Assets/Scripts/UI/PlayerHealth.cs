@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -6,26 +7,36 @@ public class PlayerHealth : MonoBehaviour
     public int maxHP = 10;
     public int currentHP = 10;
 
-    [SerializeField] private UIManager uiManager;
     [SerializeField] private string hpBarName = "HP";
     [SerializeField] private string miniHpBarName = "MiniHP";
-
-    private void Start()
+    private void OnEnable()
     {
-        if (uiManager == null)
-            uiManager = UIManager.Instance;
-        uiManager.CreateBar(hpBarName, maxHP);
-        uiManager.CreateBar(miniHpBarName, maxHP);
-
-        UpdateAllBars();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+   
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        CreateHPBars();
+    }
+    private void CreateHPBars()
+    {
+        if (UIManager.Instance == null) return;
+
+        UIManager.Instance.CreateBar(hpBarName, maxHP);
+        UIManager.Instance.CreateBar(miniHpBarName, maxHP);
+        UpdateAllBars();
+    }
     private void UpdateAllBars()
     {
-        uiManager.UpdateBar(hpBarName, currentHP);
-        uiManager.UpdateBar(miniHpBarName, currentHP);
-        uiManager.UpdateBarAndCounter(hpBarName, currentHP, maxHP);
-        uiManager.UpdateBarAndCounter(miniHpBarName, currentHP, maxHP);
+        UIManager.Instance.UpdateBar(hpBarName, currentHP);
+        UIManager.Instance.UpdateBar(miniHpBarName, currentHP);
+        UIManager.Instance.UpdateBarAndCounter(hpBarName, currentHP, maxHP);
+        UIManager.Instance.UpdateBarAndCounter(miniHpBarName, currentHP, maxHP);
     }
 
     public void TakeDamage(int damage)
@@ -45,13 +56,22 @@ public class PlayerHealth : MonoBehaviour
         maxHP += amount;
         currentHP = maxHP;
 
-        uiManager.CreateBar(hpBarName, maxHP);
-        uiManager.CreateBar(miniHpBarName, maxHP);
+        UIManager.Instance.CreateBar(hpBarName, maxHP);
+        UIManager.Instance.CreateBar(miniHpBarName, maxHP);
 
         UpdateAllBars();
 
         Debug.Log($"💪 Max HP increased to {maxHP}!");
     }
+    public void IncreaseMaxHPByReward(int addAmount)
+    {
+        maxHP += addAmount;
+        currentHP = Mathf.Min(currentHP, maxHP);
+        CreateHPBars();
+
+        Debug.Log($"💪 HP increased! maxHP={maxHP}, currentHP={currentHP}");
+    }
+
     public void Heal(int amount)
     {
         currentHP = Mathf.Min(maxHP, currentHP + amount);

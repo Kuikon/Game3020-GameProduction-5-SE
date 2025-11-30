@@ -5,6 +5,7 @@ using System.Collections;
 [RequireComponent(typeof(LineRenderer))]
 public class LineDraw : MonoBehaviour
 {
+    public static LineDraw Instance;
     [Header("Line Settings")]
     public float maxLineLength = 5f;
     [SerializeField] private float interval = 0.1f;
@@ -31,6 +32,12 @@ public class LineDraw : MonoBehaviour
     private GameObject endIcon;
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);  // 重複してる方を消す
+            return;
+        }
+        Instance = this;
         insideCount = new Dictionary<GameObject, int>();
         DontDestroyOnLoad(gameObject);
         if (droppedBallPrefab == null)

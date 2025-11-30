@@ -12,13 +12,14 @@ public class Light2DRadiusController : MonoBehaviour
 
     [Header("Brightness Settings")]
     [SerializeField] private float maxIntensity = 1.2f; 
-    [SerializeField] private float minIntensity = 0.2f; 
-    public  float fadeSpeed = 0.25f;   
-    [SerializeField] private float expandAmount = 5f;   
-    [SerializeField] public float flashDuration = 0.3f;
-
+    [SerializeField] private float minIntensity = 0.2f;
+    [SerializeField] float fadeSpeed = 0.25f;   
+    [SerializeField] private float expandAmount = 5f;
+    public float flashDuration = 0.3f;
+    public bool isForcedLight = false;
     private Coroutine fadeRoutine;
-   
+    public float fixedRadius;
+    public float fixedIntensity;
 
     private void Awake()
     {
@@ -36,7 +37,7 @@ public class Light2DRadiusController : MonoBehaviour
     private void Update()
     {
         if (light2D == null) return;
-
+        if (isForcedLight) return;
         // While the fadeRoutine is not running, it gradually darkens.
         if (fadeRoutine == null)
         {
@@ -55,6 +56,7 @@ public class Light2DRadiusController : MonoBehaviour
 
     private IEnumerator FlashAndFadeRoutine()
     {
+        if (isForcedLight) yield break;
         float startRadius = light2D.pointLightOuterRadius;
         float targetRadius = Mathf.Min(startRadius + expandAmount, maxRadius);
         float t = 0f;
@@ -82,5 +84,10 @@ public class Light2DRadiusController : MonoBehaviour
         }
 
         fadeRoutine = null;
+    }
+    public void SetFlashDuration(float value)
+    {
+        flashDuration = value;
+        Debug.Log($"[Light2D] flashDuration updated → {flashDuration}");
     }
 }

@@ -43,7 +43,7 @@ public class RewardManager : MonoBehaviour
     {
         rewardPanel.SetActive(true);
         Time.timeScale = 0f;
-
+        GameManager.Instance.DisablePlayerControl();
         RewardData[] selected = GetUniqueRandomRewards(3);
 
         for (int i = 0; i < 3; i++)
@@ -65,7 +65,7 @@ public class RewardManager : MonoBehaviour
             }
         }
         reward.ApplyEffect(player);
-
+        GameManager.Instance.EnablePlayerControl();
         rewardPanel.SetActive(false);
         Time.timeScale = 1f;
     }

@@ -12,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        SpawnInitialGhosts();
+       // SpawnInitialGhosts();
     }
     public void SpawnInitialGhosts()
     {

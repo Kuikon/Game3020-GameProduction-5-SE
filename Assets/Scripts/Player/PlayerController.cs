@@ -144,8 +144,6 @@ public class PlayerController : MonoBehaviour
         isMoving = false;
         if (animator != null)
         {
-            animator.SetFloat("moveX", 0);
-            animator.SetFloat("moveY", 0);
             animator.SetBool("isMoving", false);
         }
     }

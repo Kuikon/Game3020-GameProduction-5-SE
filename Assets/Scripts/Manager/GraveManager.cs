@@ -5,18 +5,11 @@ using System.Collections.Generic;
 public class GraveManager : MonoBehaviour
 {
     [Header("Grave References")]
-    [SerializeField] private List<GameObject> gravesInScene = new(); 
+    [SerializeField] private List<GameObject> gravesInScene = new();
     [SerializeField] private GameObject brokenGravePrefab;
 
-    [Header("Spawn Settings (optional, fallback)")]
-    [SerializeField] private GameObject gravePrefab;
-    [SerializeField] private Boundry xBoundary;
-    [SerializeField] private Boundry yBoundary;
-    [SerializeField] private int initialCount = 8;
+    private readonly List<GameObject> graveList = new();
 
-    private List<GameObject> graveList = new();
-    private int lastGraveCount;
-   
     // =========================================================
     // Initialization
     // =========================================================
@@ -24,29 +17,17 @@ public class GraveManager : MonoBehaviour
     {
         graveList.Clear();
 
-        if (gravesInScene != null && gravesInScene.Count > 0)
+        foreach (var g in gravesInScene)
         {
-            foreach (var g in gravesInScene)
+            if (g != null)
             {
-                if (g != null)
-                {
-                    g.SetActive(true);
-                    graveList.Add(g);
-                    if (MiniMapManager.Instance != null)
-                        MiniMapManager.Instance.RegisterGrave(g);
-                }
+                g.SetActive(true);
+                graveList.Add(g);
+                MiniMapManager.Instance?.RegisterGrave(g);
             }
-
-            lastGraveCount = graveList.Count;
-            Debug.Log($"🪦 Initialized {graveList.Count} graves from scene.");
-        }
-        else
-        {
-            lastGraveCount = initialCount;
-            SpawnGraves(initialCount);
-            Debug.Log($"⚙️ Spawned {initialCount} graves randomly.");
         }
 
+        Debug.Log($"🪦 Initialized {graveList.Count} graves.");
     }
 
     // =========================================================
@@ -58,7 +39,7 @@ public class GraveManager : MonoBehaviour
 
         foreach (var g in graveList)
         {
-            if (g != null && g.activeInHierarchy && !g.CompareTag("BrokenGrave"))
+            if (g != null && g.activeInHierarchy)
                 points.Add(g.transform.position);
         }
 
@@ -66,7 +47,7 @@ public class GraveManager : MonoBehaviour
     }
 
     // =========================================================
-    // Replace / Rebuild Logic
+    // Replace destroyed graves (called from LineDraw)
     // =========================================================
     public void ReplaceCapturedGraves(List<GameObject> captured)
     {
@@ -75,80 +56,52 @@ public class GraveManager : MonoBehaviour
             if (g == null) continue;
 
             Vector3 pos = g.transform.position;
-            graveList.Remove(g);
-            g.SetActive(false);  
+            g.SetActive(false);
+
+            // 壊れた墓を配置
             if (brokenGravePrefab != null)
             {
                 GameObject broken = Instantiate(brokenGravePrefab, pos, Quaternion.identity);
                 broken.tag = "BrokenGrave";
             }
+
+            Debug.Log($"💀 Grave replaced at {pos}");
         }
     }
 
-    public IEnumerator RebuildGravesRoutine()
+    // =========================================================
+    // Check if a broken grave exists at a position
+    // =========================================================
+    public GameObject GetBrokenGraveAt(Vector3 pos, float radius = 0.2f)
     {
-        yield return new WaitForSeconds(2f);
-
-        RemoveAllBroken();
-        foreach (var g in gravesInScene)
+        foreach (var b in GameObject.FindGameObjectsWithTag("BrokenGrave"))
         {
-            if (g != null)
-                g.SetActive(true);
+            if (Vector3.Distance(b.transform.position, pos) < radius)
+                return b;
         }
-        graveList.Clear();
-        graveList.AddRange(gravesInScene);
-
-        Debug.Log($"🧱 Graves rebuilt and reactivated ({graveList.Count}).");
+        return null;
     }
 
-    public bool AllGravesBroken()
+    // =========================================================
+    // Repair a broken grave
+    // =========================================================
+    public void RepairBrokenGrave(GameObject broken)
     {
-        foreach (var g in graveList)
+        if (broken == null) return;
+
+        Vector3 pos = broken.transform.position;
+        Destroy(broken);
+
+        // 通常の墓を復活
+        foreach (var normal in gravesInScene)
         {
-            if (g != null && g.activeInHierarchy && !g.CompareTag("BrokenGrave"))
-                return false;
-        }
-        return true;
-    }
-
-    private void RemoveAllBroken()
-    {
-        foreach (var g in GameObject.FindGameObjectsWithTag("BrokenGrave"))
-            Destroy(g);
-    }
-
-    private void SpawnGraves(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            Vector3 pos = GetValidPosition(2f);
-            GameObject g = Instantiate(gravePrefab, pos, Quaternion.identity);
-            graveList.Add(g);
-        }
-    }
-
-    private Vector3 GetValidPosition(float minDist)
-    {
-        for (int i = 0; i < 100; i++)
-        {
-            Vector3 pos = new(
-                Random.Range(xBoundary.min, xBoundary.max),
-                Random.Range(yBoundary.min, yBoundary.max),
-                0
-            );
-
-            bool valid = true;
-            foreach (var existing in graveList)
+            if (Vector3.Distance(normal.transform.position, pos) < 0.1f)
             {
-                if (existing != null && Vector3.Distance(pos, existing.transform.position) < minDist)
-                {
-                    valid = false;
-                    break;
-                }
+                normal.SetActive(true);
+                break;
             }
-
-            if (valid) return pos;
         }
-        return Vector3.zero;
+
+        Debug.Log($"🧱 Repaired grave at {pos}");
     }
 }

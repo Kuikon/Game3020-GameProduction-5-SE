@@ -79,8 +79,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1582153699
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 2802613405000559469, guid: a2b1a85df24285848bc27d5a205734f9,
     type: 3}
@@ -106,12 +106,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cc0e5273112ad04393ee2f7f0f21bc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonEgg
-  bossPrefab: {fileID: 8776474514689277757, guid: edd13a7fcac26214bbc0dc4a28d39313,
+  bossPrefab: {fileID: 5056745934393018407, guid: edd13a7fcac26214bbc0dc4a28d39313,
     type: 3}
-  hatchEffectPrefab: {fileID: 5033180708955247871, guid: 152689d6752175f4fa353ae19681fb33,
+  hatchEffectPrefab: {fileID: 3740193805690738414, guid: 626274bfa0ecf6841977f1bce8c6bf16,
     type: 3}
   animator: {fileID: 4757587701887869059}
-  requiredCaptureCount: 5
+  requiredCaptureCount: 1
   shakeAmplitude: 0.05
   shakeSpeed: 2
 --- !u!70 &8712236032815759599

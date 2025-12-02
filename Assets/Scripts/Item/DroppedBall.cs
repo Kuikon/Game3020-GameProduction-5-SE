@@ -22,22 +22,20 @@ public class DroppedBall : MonoBehaviour
         transform.position = startPos +
             Vector3.up * Mathf.Sin(Time.time * floatSpeed) * floatAmplitude;
     }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isCollected) return;
 
-        // マグネット用の子オブジェクトに当たった？
         if (other.CompareTag("ExpMagnet"))
         {
-            // 親か、上の階層から PlayerExp を探す
             PlayerExp playerExp = other.GetComponentInParent<PlayerExp>();
 
             if (playerExp != null)
             {
                 Debug.Log("🧲 ExpMagnet に当たったのでプレイヤーへ吸い込み開始");
-
-                // PlayerExp が付いているオブジェクトの Transform をターゲットにする
-                CollectTo(playerExp.transform);
+                GameManager.Instance.OnGhostCaptured();
+                CollectTo(playerExp.transform); // ← Transform を渡す
             }
             else
             {
@@ -54,7 +52,6 @@ public class DroppedBall : MonoBehaviour
         StartCoroutine(Co_CollectTo(target));
     }
 
-
     private IEnumerator Co_CollectTo(Transform target)
     {
         Vector3 start = transform.position;
@@ -68,11 +65,14 @@ public class DroppedBall : MonoBehaviour
 
         while (t < duration)
         {
-            if (target == null) break; 
+            if (target == null) break;
+
             t += Time.deltaTime;
             float p = t / duration;
+
             transform.position = Vector3.Lerp(start, end, p);
             transform.localScale = Vector3.Lerp(originalScale, originalScale * 0.1f, p);
+
             if (sr != null)
             {
                 Color c = sr.color;
@@ -82,16 +82,18 @@ public class DroppedBall : MonoBehaviour
 
             yield return null;
         }
+
+        // ⭐ ここを Tank 対応に！
         PlayerExp exp = target.GetComponent<PlayerExp>();
 
-        if (exp == null)
-        {
-            Debug.LogError("❌ PlayerExp が Player に付いてない！");
-        }
-        else
+        if (exp != null)
         {
             Debug.Log($"⭐ AddExp({expAmount}) を呼ぶ！");
             exp.AddExp(expAmount);
+        }
+        else
+        {
+            Debug.Log($"🟡 Tank または別オブジェクトが吸ったので経験値は付与しません");
         }
 
         Destroy(gameObject);

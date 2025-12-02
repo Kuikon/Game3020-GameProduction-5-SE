@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Windows;
 
 [RequireComponent(typeof(Animator))]
 public class PlayerController : MonoBehaviour
@@ -32,6 +33,12 @@ public class PlayerController : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         playerHealth = FindAnyObjectByType<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            // ★ 死亡時イベント受信登録
+            playerHealth.OnPlayerDeath -= HandlePlayerDeath;
+            playerHealth.OnPlayerDeath += HandlePlayerDeath;
+        }
     }
     void Start()
     {
@@ -58,37 +65,57 @@ public class PlayerController : MonoBehaviour
         if (!CanMove) return;
         HandleMovement();
     }
-    
+
     private void HandleMovement()
     {
-        moveInput.x = Input.GetAxisRaw("Horizontal");
-        moveInput.y = Input.GetAxisRaw("Vertical");
-        if (Mathf.Abs(moveInput.x) < 0.1f) moveInput.x = 0f;
-        if (Mathf.Abs(moveInput.y) < 0.1f) moveInput.y = 0f;
-        if (moveInput.magnitude > 1f)
-            moveInput.Normalize();
-        Vector2 targetPos = (Vector2)transform.position + moveInput * moveSpeed * Time.fixedDeltaTime;
+        // ① 入力ベクトル（アニメ用）
+        Vector2 input;
+        input.x = UnityEngine.Input.GetAxisRaw("Horizontal");
+        input.y = UnityEngine.Input.GetAxisRaw("Vertical");
+
+        if (Mathf.Abs(input.x) < 0.1f) input.x = 0f;
+        if (Mathf.Abs(input.y) < 0.1f) input.y = 0f;
+
+        // ② 実際に動かすベクトル（物理用）
+        Vector2 moveDir = input;
+
+        if (moveDir.magnitude > 1f)
+            moveDir.Normalize();
+
+        // 壁チェック用の仮ターゲット位置
+        Vector2 targetPos = (Vector2)transform.position + moveDir * moveSpeed * Time.fixedDeltaTime;
+
+        // 壁に当たるなら「移動だけ」止める（入力は残す）
         if (!IsWalkableTile(targetPos))
         {
-            moveInput = Vector2.zero;
+            moveDir = Vector2.zero;
         }
-        UpdateAnimation();
-        rb.linearVelocity = moveInput * moveSpeed;
-        FlipSprite(moveInput.x);
+
+        // ③ アニメーションは「入力」を渡す
+        UpdateAnimation(input);
+
+        // ④ 物理移動は「moveDir」を使う
+        rb.linearVelocity = moveDir * moveSpeed;
+
+        // スプライト反転も入力ベース
+        FlipSprite(input.x);
     }
-    private void UpdateAnimation()
+
+    private void UpdateAnimation(Vector2 inputDir)
     {
-        bool isMoving = Mathf.Abs(moveInput.x) > 0.1f || Mathf.Abs(moveInput.y) > 0.1f;
+        bool isMoving = Mathf.Abs(inputDir.x) > 0.1f || Mathf.Abs(inputDir.y) > 0.1f;
         animator.SetBool("isMoving", isMoving);
+
         if (isMoving)
         {
-            lastMoveDir = moveInput;
+            lastMoveDir = inputDir;
         }
-        Vector2 animDir = isMoving ? moveInput : lastMoveDir;
+
+        Vector2 animDir = isMoving ? inputDir : lastMoveDir;
         animator.SetFloat("moveX", animDir.x);
         animator.SetFloat("moveY", animDir.y);
     }
-  
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -96,11 +123,51 @@ public class PlayerController : MonoBehaviour
         {
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(1);
+                playerHealth.TakeDamage(1, collision.transform);
                 StartCoroutine(ActivateInvincibility());
             }
         }
     }
+    private void HandlePlayerDeath(Transform attacker)
+    {
+        StopImmediately();
+        CanMove = false;
+        StartCoroutine(Co_SuckIntoGhost(attacker));
+    }
+
+    // ★ 吸い込みアニメーション
+    private IEnumerator Co_SuckIntoGhost(Transform ghost)
+    {
+        Vector3 start = transform.position;
+        Vector3 end = ghost != null ? ghost.position : start;
+
+        float duration = 1.2f;
+        float t = 0f;
+
+        Vector3 originalScale = transform.localScale;
+
+        // アニメ停止
+        animator.SetBool("isMoving", false);
+        playerCollider.enabled = false;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float p = t / duration;
+
+            transform.position = Vector3.Lerp(start, end, p);
+            transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, p);
+
+            yield return null;
+        }
+
+        // 完全に消える
+        transform.localScale = Vector3.zero;
+
+        // GAME OVER
+        GameManager.Instance.GameOver();
+    }
+
     private IEnumerator ActivateInvincibility()
     {
         isInvincible = true;

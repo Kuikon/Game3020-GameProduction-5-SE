@@ -16,7 +16,7 @@ public class GhostBase : MonoBehaviour
     [Header("Movement Boundaries")]
     [SerializeField] Boundry xBoundary;
     [SerializeField] Boundry yBoundary;
-
+    public Vector3 originalScale;
     private Transform capturePoint;
  
     public  bool isDead;
@@ -46,6 +46,8 @@ public class GhostBase : MonoBehaviour
     // ============================================================
     void Start()
     {
+        
+      
         MiniMapManager.Instance?.RegisterGhost(gameObject);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -55,6 +57,7 @@ public class GhostBase : MonoBehaviour
             capturePoint = obj.transform;
         lifeTimer = data.absorbTime;
         ApplyVisualStyleByType();
+        originalScale = transform.localScale;
     }
 
     // ============================================================
@@ -457,13 +460,14 @@ public class GhostBase : MonoBehaviour
         moveDir = new Vector2(x, y).normalized;
         dirTimer = data.changeDirectionTime;
     }
-    public void Shrink(float scaleMultiplier = 0.8f, float duration = 0.3f)
+    public void Shrink(float ratio)
     {
-        if (scaleRoutine != null) StopCoroutine(scaleRoutine);
-        float currentScale = transform.localScale.x;  
-        float targetScale = currentScale * scaleMultiplier; 
+        float targetScale = originalScale.x * ratio; 
 
-        scaleRoutine = StartCoroutine(ScaleTo(targetScale, duration));
+        if (scaleRoutine != null)
+            StopCoroutine(scaleRoutine);
+
+        scaleRoutine = StartCoroutine(ScaleTo(targetScale, 0.15f));
     }
 
     public void Restore(float duration = 0.3f)

@@ -2,183 +2,152 @@
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(Animator))]
 public class BossBehaviour : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GraveManager graveManager;
-    [SerializeField] private BossSpawnerController spawnerController;
     [SerializeField] private Animator animator;
 
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 2f;
-    [SerializeField] private float waitTime = 2f;
-    [SerializeField] private float baseWaitTime = 4f;
-    [SerializeField] private Vector3 patrolOffset = new(0, 1.5f, 0);
-    [SerializeField] private Vector3 spawnOffset = new(0, -1.5f, 0);
-    private bool isSpawningAtPoint = false;
+    [SerializeField] private float pointReachDistance = 0.05f;
+    [SerializeField] private float idleDurationAtPoint = 2f;   // ← パトロールポイントで止まる時間
+    [SerializeField] private float idleDurationAfterHatch = 2.5f; // ← 生まれた時の停止
+    [SerializeField] private float stopOffset = 1.0f;
     private List<Vector3> patrolPoints = new();
     private int currentIndex = 0;
     private Vector3 basePoint;
-    private BossState state = BossState.Idle;
-    private float stateTimer = 0f;
 
-    // =========================================================
-    // Setup
-    // =========================================================
+    private BossState state = BossState.Patrol;
+    private float stateTimer = 0f;
+    [SerializeField] private BossSpawnerController spawnerController;
     private void Awake()
     {
         basePoint = transform.position;
+
         if (graveManager == null)
             graveManager = FindFirstObjectByType<GraveManager>();
+
         if (spawnerController == null)
-            spawnerController = GetComponent<BossSpawnerController>();
+            spawnerController = FindFirstObjectByType<BossSpawnerController>();
     }
 
     private void Start()
     {
-        if (graveManager != null)
-        {
-            graveManager.InitializeGraves();               
-            patrolPoints = graveManager.GetPatrolPoints();      
-            Debug.Log($"👻 Patrol points loaded: {patrolPoints.Count}");
-        }
+        graveManager.InitializeGraves();
+        patrolPoints = graveManager.GetPatrolPoints();
 
-        if (patrolPoints.Count > 0)
-            SetState(BossState.Patrol);
-        else
-            SetState(BossState.Idle);
+        Debug.Log($"🟦 Loaded {patrolPoints.Count} patrol points.");
     }
 
     private void Update()
     {
         switch (state)
         {
-            case BossState.Idle: UpdateIdle(); break;
             case BossState.Patrol: UpdatePatrol(); break;
-            case BossState.Return: UpdateReturn(); break;
-            case BossState.Rebuild: UpdateRebuild(); break;
+            case BossState.IdleAtPoint: UpdateIdleAtPoint(); break;
         }
     }
-
-    // =========================================================
-    // State Machine
-    // =========================================================
-    private void SetState(BossState newState)
-    {
-        state = newState;
-        stateTimer = 0f;
-        Debug.Log($"🌀 Boss entered state: {state}");
-
-        switch (newState)
-        {
-            case BossState.Idle:
-                animator.SetFloat("MoveX", 0);
-                animator.SetFloat("MoveY", -1);
-                break;
-            case BossState.Patrol:
-                currentIndex = 0;
-                break;
-            case BossState.Return:
-                spawnerController?.StopSpawnLoop();
-                break;
-            case BossState.Rebuild:
-                StartCoroutine(RebuildRoutine());
-                break;
-        }
-    }
-
-    // =========================================================
-    // States
-    // =========================================================
-    private void UpdateIdle()
-    {
-        stateTimer += Time.deltaTime;
-        if (stateTimer >= baseWaitTime && patrolPoints.Count > 0)
-            SetState(BossState.Patrol);
-    }
-
-    private void UpdatePatrol()
-    {
-        if (patrolPoints == null || patrolPoints.Count == 0) return;
-
-        Vector3 target = patrolPoints[currentIndex] + patrolOffset;
-        MoveTowards(target);
-        if (Vector3.Distance(transform.position, target) < 0.05f)
-        {
-            if (!isSpawningAtPoint)
-            {
-                spawnerController?.StartSpawnLoop(target + spawnOffset);
-                isSpawningAtPoint = true;
-            }
-
-            stateTimer += Time.deltaTime;
-
-            if (stateTimer >= waitTime)
-            {
-                spawnerController?.StopSpawnLoop();
-                isSpawningAtPoint = false; 
-                currentIndex++;
-
-                if (currentIndex >= patrolPoints.Count)
-                    SetState(BossState.Return);  
-                else
-                    stateTimer = 0f;           
-            }
-        }
-        else
-        {
-            isSpawningAtPoint = false;
-        }
-    }
-
-    private void UpdateReturn()
-    {
-        MoveTowards(basePoint);
-
-        if (Vector3.Distance(transform.position, basePoint) < 0.05f)
-        {
-            SetState(BossState.Idle);
-        }
-    }
-
-    private void UpdateRebuild()
-    {
-
-    }
-
-    private IEnumerator RebuildRoutine()
-    {
-        yield return StartCoroutine(graveManager.RebuildGravesRoutine());
-        patrolPoints = graveManager.GetPatrolPoints();
-        SetState(BossState.Patrol);
-    }
-
     private void MoveTowards(Vector3 target)
     {
+        // 移動方向
         Vector3 dir = (target - transform.position).normalized;
+
+        // アニメ用パラメータ
         animator.SetFloat("MoveX", dir.x);
         animator.SetFloat("MoveY", dir.y);
-        transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+        animator.SetFloat("Speed", 1f);
+
+        // 実際の移動
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            target,
+            moveSpeed * Time.deltaTime
+        );
     }
-
     // =========================================================
-    // Event Reaction
+    // Patrol
     // =========================================================
-    private void OnEnable() => GhostEvents.OnGravesCaptured += OnGravesCaptured;
-    private void OnDisable() => GhostEvents.OnGravesCaptured -= OnGravesCaptured;
-
-    private void OnGravesCaptured(List<GameObject> captured)
+    private void UpdatePatrol()
     {
-        if (graveManager == null) return;
+        if (patrolPoints.Count == 0) return;
 
-        graveManager.ReplaceCapturedGraves(captured);
-        if (graveManager.AllGravesBroken())
-            SetState(BossState.Rebuild);
+        Vector3 target = patrolPoints[currentIndex] + new Vector3(0, stopOffset, 0);
+        MoveTowards(target);
+
+        if (Vector3.Distance(transform.position, target) < pointReachDistance)
+        {
+            // 本当の墓の位置でチェックする
+            Vector3 gravePos = patrolPoints[currentIndex];
+            CheckGraveAtPoint(gravePos);
+
+            EnterIdleState(idleDurationAtPoint);
+        }
     }
 
     // =========================================================
-    // External Call (from DragonEgg)
+    // Idle state (停止中)
+    // =========================================================
+    private void EnterIdleState(float duration)
+    {
+        state = BossState.IdleAtPoint;
+        stateTimer = duration;
+
+        // Idleアニメーション（下向き）
+        animator.SetFloat("MoveX", 0);
+        animator.SetFloat("MoveY", -1);
+        animator.SetFloat("Speed", 0);
+        if (spawnerController != null)
+            spawnerController.StartSpawnLoop(transform.position);
+    }
+
+    private void UpdateIdleAtPoint()
+    {
+        stateTimer -= Time.deltaTime;
+        if (stateTimer > 0f) return;
+        if (spawnerController != null)
+            spawnerController.StopSpawnLoop();
+
+        // Idle終了 → 次のポイントへ
+        GoToNextPoint();
+        state = BossState.Patrol;
+    }
+
+    private void GoToNextPoint()
+    {
+        currentIndex++;
+        if (currentIndex >= patrolPoints.Count)
+            currentIndex = 0;
+    }
+
+    // =========================================================
+    // Grave interaction
+    // =========================================================
+    private void CheckGraveAtPoint(Vector3 pos)
+    {
+        GameObject broken = graveManager.GetBrokenGraveAt(pos);
+        if (broken != null)
+        {
+            graveManager.RepairBrokenGrave(broken);
+            Debug.Log("🪦 Boss repaired a broken grave.");
+            return;
+        }
+
+        HealBoss();
+    }
+
+    private void HealBoss()
+    {
+        var hp = GetComponent<DragonHealth>();
+        if (hp != null)
+        {
+            hp.Heal(3);
+            Debug.Log("💖 Boss healed at a normal grave.");
+        }
+    }
+
+    // =========================================================
+    // Called from DragonEgg
     // =========================================================
     public void InitializeAfterHatch(GraveManager gm)
     {
@@ -186,26 +155,18 @@ public class BossBehaviour : MonoBehaviour
         graveManager.InitializeGraves();
         patrolPoints = graveManager.GetPatrolPoints();
 
-        Debug.Log($"🐲 Dragon hatched! Found {patrolPoints.Count} graves to patrol.");
-        StartCoroutine(HatchIdleRoutine());
-    }
-    private IEnumerator HatchIdleRoutine()
-    {
-        animator.SetFloat("MoveX", 0);
-        animator.SetFloat("MoveY", -1);
+        currentIndex = 0;
         transform.position = basePoint;
-        state = BossState.Idle;
-        stateTimer = 0f;
-        yield return new WaitForSeconds(2f);
-        SetState(BossState.Patrol);
-    }
 
+        Debug.Log($"🐉 Boss: Hatched → {patrolPoints.Count} patrols loaded.");
+
+        // 生まれた直後に Idle 状態へ
+        EnterIdleState(idleDurationAfterHatch);
+    }
 }
 
 public enum BossState
 {
-    Idle,      
-    Patrol,    
-    Return,    
-    Rebuild    
+    Patrol,
+    IdleAtPoint
 }

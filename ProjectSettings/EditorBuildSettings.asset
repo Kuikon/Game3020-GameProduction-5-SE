@@ -24,7 +24,7 @@ EditorBuildSettings:
     path: Assets/Scenes/StartScene.unity
     guid: abbc961a251a04642b89be008346f13a
   - enabled: 1
-    path: Assets/Scenes/WinScene.unity
+    path: Assets/Scenes/VictoryScene.unity
     guid: 8917046e6d7d2bc48a0d22f10c724cf0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100,

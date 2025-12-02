@@ -75,6 +75,7 @@ public class CameraFollow2D : MonoBehaviour
         {
             OnPatrolStarted?.Invoke(); 
             StartCoroutine(PatrolRoutine());
+            GameManager.Instance.DisablePlayerControl();
         }
     }
     IEnumerator PatrolRoutine()
@@ -99,6 +100,7 @@ public class CameraFollow2D : MonoBehaviour
 
         isPatrolling = false;
         OnPatrolEnd?.Invoke();
+        GameManager.Instance.EnablePlayerControl();
     }
     public void SetGhostPoints(Transform[] points)
     {

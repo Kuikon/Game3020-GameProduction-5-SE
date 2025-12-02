@@ -122,13 +122,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBehaviour
   graveManager: {fileID: 0}
-  spawnerController: {fileID: 4249483882684365607}
   animator: {fileID: 636837796161663937}
   moveSpeed: 3
-  waitTime: 3
-  baseWaitTime: 4
-  patrolOffset: {x: 0, y: 2, z: 0}
-  spawnOffset: {x: 0, y: -2, z: 0}
+  pointReachDistance: 0.05
+  idleDurationAtPoint: 2
+  idleDurationAfterHatch: 2.5
+  stopOffset: 1
+  spawnerController: {fileID: 0}
 --- !u!114 &2095941551015342338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,7 +142,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonHealth
   maxHP: 20
-  currentHP: 20
+  currentHP: 1
+  confettiPrefab: {fileID: 2702084582640509696, guid: 3b005b3b860b55b4fbba16cf3703cff2,
+    type: 3}
+  victoryDelay: 2
 --- !u!95 &636837796161663937
 Animator:
   serializedVersion: 7

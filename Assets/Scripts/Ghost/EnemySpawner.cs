@@ -1,34 +1,76 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header(" Spawn Settings")]
+    [SerializeField] private Transform ghostPointsRoot;   
+    private Transform[] spawnPoints;
+        [Header(" Spawn Settings")]
     [SerializeField] GameObject[] ghostPrefabs;
     [SerializeField] GameObject spawnEffectPrefab;
     [SerializeField] float delayBeforeSpawn = 0.5f;
     [SerializeField] private int initialSpawnCount = 10;
+    [SerializeField] float spawnInterval = 2f;
     [SerializeField] private GhostType targetType = GhostType.Normal;
 
-    private void Start()
+    public void BeginSpawnFromGhostPoints()
     {
-       // SpawnInitialGhosts();
+        LoadGhostPoints();
+        StartCoroutine(SpawnGhostsFromPointsRoutine());
     }
-    public void SpawnInitialGhosts()
+    private void LoadGhostPoints()
     {
-        int count = 0;
-        for (int i = 0; i < initialSpawnCount; i++)
+        if (ghostPointsRoot == null)
         {
-            Vector3 pos = GetRandomPosition();
-            GameObject prefab = GetPrefabByType(targetType);
-            if (prefab != null)
+            GameObject obj = GameObject.Find("GhostPoints");
+            if (obj != null)
+                ghostPointsRoot = obj.transform;
+            else
             {
-                StartCoroutine(SpawnSequence(pos, prefab));
-                count++;
+                Debug.LogError("❌ GhostPoints object not found in scene!");
+                return;
             }
         }
-        Debug.Log($"👻 Spawned {count} {targetType} ghosts at start!");
+
+        // 子だけ取得（ルート自身は除外）
+        spawnPoints = ghostPointsRoot.GetComponentsInChildren<Transform>();
+
+        // 先頭は root 自身 → スキップする
+        if (spawnPoints.Length > 0)
+        {
+            List<Transform> list = new List<Transform>(spawnPoints);
+            list.RemoveAt(0); 
+
+            spawnPoints = list.ToArray();
+        }
+
+        Debug.Log($"📌 Loaded {spawnPoints.Length} GhostPoints!");
     }
+    IEnumerator SpawnGhostsFromPointsRoutine()
+    {
+        yield return new WaitForSeconds(1f);
+
+        while (true)
+        {
+            if (spawnPoints.Length > 0)
+            {
+                // ランダムなポイントを1つ選ぶ
+                Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
+
+                if (point != null)
+                {
+                    GameObject prefab = GetPrefabByType(targetType);
+                    if (prefab != null)
+                        StartCoroutine(SpawnSequence(point.position, prefab));
+                }
+            }
+
+            yield return new WaitForSeconds(spawnInterval);
+        }
+    }
+
+
     private GameObject GetPrefabByType(GhostType type)
     {
         foreach (var p in ghostPrefabs)

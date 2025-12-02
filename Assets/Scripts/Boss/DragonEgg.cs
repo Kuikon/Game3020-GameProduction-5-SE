@@ -71,7 +71,7 @@ public class DragonEgg : MonoBehaviour
         }
         hatched = true;
         transform.position = initialPos;
-        Destroy(gameObject);
+      
         GameObject boss = null;
         if (bossPrefab != null)
         {
@@ -79,6 +79,7 @@ public class DragonEgg : MonoBehaviour
             BossBehaviour bossBehaviour = boss.GetComponent<BossBehaviour>();
             GraveManager gm = FindFirstObjectByType<GraveManager>();
             bossBehaviour.InitializeAfterHatch(gm);
+            Destroy(gameObject);
             Debug.Log("🐉 Dragon has hatched!");
         }
         if (UIManager.Instance != null)

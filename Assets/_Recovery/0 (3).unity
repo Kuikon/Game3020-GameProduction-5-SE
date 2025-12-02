@@ -17547,31 +17547,6 @@ PrefabInstance:
       propertyPath: _cam
       value: 
       objectReference: {fileID: 248974397}
-    - target: {fileID: 2485962932687176043, guid: 74d828bd6ba79b84d8d147f1c087376c,
-        type: 3}
-      propertyPath: collidableTags.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 2485962932687176043, guid: 74d828bd6ba79b84d8d147f1c087376c,
-        type: 3}
-      propertyPath: 'collidableTags.Array.data[0]'
-      value: Dog
-      objectReference: {fileID: 0}
-    - target: {fileID: 2485962932687176043, guid: 74d828bd6ba79b84d8d147f1c087376c,
-        type: 3}
-      propertyPath: 'collidableTags.Array.data[1]'
-      value: Dragon
-      objectReference: {fileID: 0}
-    - target: {fileID: 2485962932687176043, guid: 74d828bd6ba79b84d8d147f1c087376c,
-        type: 3}
-      propertyPath: 'collidableTags.Array.data[2]'
-      value: Grave
-      objectReference: {fileID: 0}
-    - target: {fileID: 2485962932687176043, guid: 74d828bd6ba79b84d8d147f1c087376c,
-        type: 3}
-      propertyPath: 'collidableTags.Array.data[3]'
-      value: BrokenGrave
-      objectReference: {fileID: 0}
     - target: {fileID: 7276760965033768631, guid: 74d828bd6ba79b84d8d147f1c087376c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -19759,15 +19734,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1535593908151115680, guid: a56fd1d598b0db3429672e2b3cb7394c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1812344831920050446, guid: a56fd1d598b0db3429672e2b3cb7394c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.797
+      value: -0.48
       objectReference: {fileID: 0}
     - target: {fileID: 1812344831920050446, guid: a56fd1d598b0db3429672e2b3cb7394c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.209
+      value: -0.36
       objectReference: {fileID: 0}
     - target: {fileID: 1812344831920050446, guid: a56fd1d598b0db3429672e2b3cb7394c,
         type: 3}

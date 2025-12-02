@@ -23,7 +23,10 @@ public class GameManager : MonoBehaviour
     private bool isGameOver = false;
     [SerializeField] private List<GhostData> allGhostData;
     private Dictionary<GhostType, GhostData> ghostDataDict = new();
+    public int capturedGhostCount = 0;
+    [SerializeField] private int thresholdToStartSpawn = 10;
 
+    [SerializeField] private EnemySpawner enemySpawner;
     private bool isPaused = false;
 
     private void Awake()
@@ -182,8 +185,15 @@ public class GameManager : MonoBehaviour
     }
     public void Victory()
     {
-        if (isGameOver) return;
-        isGameOver = true;
+        if (isGameOver)
+        {
+            Debug.Log("Victory() blocked. isGameOver = true");
+            return;
+        }
+        Debug.Log("Victory() OK! Loading scene...");
+
+        isGameOver = false;
+        DisablePlayerControl();
         SceneManager.LoadScene("VictoryScene");
     }
     private System.Collections.IEnumerator LoadGameOverScene()
@@ -201,5 +211,15 @@ public class GameManager : MonoBehaviour
         else
             EnablePlayerControl();
         UIManager.Instance.ShowPlayerStatus(isPaused);
+    }
+    public void OnGhostCaptured()
+    {
+        capturedGhostCount++;
+
+        if (capturedGhostCount == thresholdToStartSpawn)
+        {
+            Debug.Log("🔥 Enough ghosts captured! Start spawning from GhostPoints!");
+            enemySpawner.BeginSpawnFromGhostPoints();
+        }
     }
 }

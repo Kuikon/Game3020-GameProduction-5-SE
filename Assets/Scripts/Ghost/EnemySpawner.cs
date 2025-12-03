@@ -106,7 +106,7 @@ public class EnemySpawner : MonoBehaviour
     public void SpawnAtPosition(Vector3 pos)
     {
         if (ghostPrefabs.Length == 0) return;
-
+        SoundManager.Instance.PlaySE(SESoundData.SE.GhostSpawn);
         GameObject ghostPrefab = ghostPrefabs[Random.Range(0, ghostPrefabs.Length)];
         StartCoroutine(SpawnSequence(pos, ghostPrefab));
     }

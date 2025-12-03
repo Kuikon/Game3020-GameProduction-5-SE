@@ -56,6 +56,7 @@ public class RewardCardUI : MonoBehaviour
         {
             if (RewardManager.Instance != null)
             {
+                SoundManager.Instance.PlaySE(SESoundData.SE.RewardSelect);
                 RewardManager.Instance.SelectReward(reward);
             }
             else

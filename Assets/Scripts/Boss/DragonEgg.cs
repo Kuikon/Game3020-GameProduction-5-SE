@@ -67,6 +67,7 @@ public class DragonEgg : MonoBehaviour
         if (hatchEffectPrefab != null)
         {
             GameObject fx = Instantiate(hatchEffectPrefab, transform.position, Quaternion.identity);
+            SoundManager.Instance.PlaySE(SESoundData.SE.HatchExplosion);
             Destroy(fx, 0.5f);
         }
         hatched = true;
@@ -78,6 +79,7 @@ public class DragonEgg : MonoBehaviour
             boss = Instantiate(bossPrefab, transform.position, Quaternion.identity);
             BossBehaviour bossBehaviour = boss.GetComponent<BossBehaviour>();
             GraveManager gm = FindFirstObjectByType<GraveManager>();
+            SoundManager.Instance.PlaySE(SESoundData.SE.DragonHatch);
             bossBehaviour.InitializeAfterHatch(gm);
             Destroy(gameObject);
             Debug.Log("🐉 Dragon has hatched!");

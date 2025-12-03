@@ -424,6 +424,7 @@ public class GhostBase : MonoBehaviour
             Vector3 pos = transform.position;
             pos.z = 0;
             var circle = Instantiate(data.fireCirclePrefab, pos, Quaternion.identity);
+            SoundManager.Instance.PlaySE(SESoundData.SE.SuicideFire);
             circle.transform.localScale = Vector3.one;
             Destroy(circle, data.fireCircleLifetime);
             Debug.Log("💥 Suicide explosion created!");

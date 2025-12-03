@@ -5,6 +5,7 @@ public class SceneLoader : MonoBehaviour
 {
     public void LoadScene(string sceneName)
     {
+        SoundManager.Instance.PlaySE(SESoundData.SE.Select);
         SceneManager.LoadScene(sceneName);
     }
     public void QuitGame()
@@ -23,7 +24,6 @@ public class SceneLoader : MonoBehaviour
 
         foreach (GameObject obj in allObjects)
         {
-            // DontDestroyOnLoad の隠しシーンにいるオブジェクトだけ削除
             if (obj.scene.name == "DontDestroyOnLoad")
             {
                 GameObject.Destroy(obj);

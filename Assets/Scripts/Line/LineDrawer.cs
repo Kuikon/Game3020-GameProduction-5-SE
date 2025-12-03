@@ -404,6 +404,7 @@ public class LineDraw : MonoBehaviour
             if (insideCount[grave] >= 5)
             {
                 brokenGraves.Add(grave);
+                SoundManager.Instance.PlaySE(SESoundData.SE.GraveBroken);
             }
         }
 
@@ -498,7 +499,7 @@ public class LineDraw : MonoBehaviour
 
         effectManager?.PlayHitEffect(ghost.transform.position);
         LineVisualEffectManager.Instance.ReleaseAllGlowsUpward();
-
+        SoundManager.Instance.PlaySE(SESoundData.SE.GhostCapture);
         Transform player = GameObject.FindWithTag("Player").transform;
 
         ExpDropManager.Instance.SpawnExpOrbs(

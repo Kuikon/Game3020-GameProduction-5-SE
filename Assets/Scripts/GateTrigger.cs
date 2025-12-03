@@ -54,7 +54,9 @@ public class GateTrigger : MonoBehaviour
     {
         if (triggered) return;
         if (!other.CompareTag("Player")) return;
-
+        GameManager.Instance.DisablePlayerControl();
+        SoundManager.Instance.StopBGM();
+        SoundManager.Instance.PlaySE(SESoundData.SE.Reaction);
         triggered = true;
         if (lightController != null)
         {
@@ -94,6 +96,7 @@ public class GateTrigger : MonoBehaviour
         
         cam.OnReachedPoint += (Transform p) =>
         {
+            SoundManager.Instance.PlaySE(SESoundData.SE.GhostSpawn);
             spawner.SpawnAroundPointsGradually(
                 p,
                 count: 1,
@@ -104,6 +107,12 @@ public class GateTrigger : MonoBehaviour
         };
         if (fence != null)
             StartCoroutine(CloseFence());
+        StartCoroutine(StartPatrolWithDelay(1f));
+    }
+    private IEnumerator StartPatrolWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SoundManager.Instance.PlayBGM(BGMSoundData.BGM.Main);
         cam.StartPatrol();
     }
     private void ReturnLightToPlayer()

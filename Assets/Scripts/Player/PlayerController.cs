@@ -123,6 +123,7 @@ public class PlayerController : MonoBehaviour
         {
             if (playerHealth != null)
             {
+                SoundManager.Instance.PlaySE(SESoundData.SE.TakeDamage);
                 playerHealth.TakeDamage(1, collision.transform);
                 StartCoroutine(ActivateInvincibility());
             }

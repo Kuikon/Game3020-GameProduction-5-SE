@@ -97,6 +97,7 @@ public class BossBehaviour : MonoBehaviour
         animator.SetFloat("MoveX", 0);
         animator.SetFloat("MoveY", -1);
         animator.SetFloat("Speed", 0);
+        SoundManager.Instance.PlaySE(SESoundData.SE.DragonStart);
         if (spawnerController != null)
             spawnerController.StartSpawnLoop(transform.position);
     }

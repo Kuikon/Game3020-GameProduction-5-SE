@@ -17,6 +17,14 @@ public class FadeManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             fadeImage = GetComponentInChildren<Image>();
+            if (fadeImage == null)
+            {
+                Debug.LogError("❌ FadeManager: 子オブジェクトに Image が見つかりません！");
+            }
+            else
+            {
+                Debug.Log("✅ FadeImage 読み込み成功: " + fadeImage.name);
+            }
             var c = fadeImage.color;
             c.a = 0;
             fadeImage.color = c;
@@ -35,6 +43,7 @@ public class FadeManager : MonoBehaviour
 
     private IEnumerator TransitionRoutine(string targetScene, float fadeDuration)
     {
+        GameManager.Instance.DisablePlayerControl();
         yield return FadeOut(fadeDuration);
         SceneManager.LoadScene(targetScene);
         yield return null;
@@ -47,19 +56,13 @@ public class FadeManager : MonoBehaviour
 
             yield return null;
         }
-        var playerObj = GameObject.FindGameObjectWithTag("Player");
-        PlayerController player = null;
+        var playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
-            player = playerObj.GetComponent<PlayerController>();
-        if (player != null)
         {
-            player.enabled = false;
-            player.transform.position = spawn.position;
+            playerObj.transform.position = spawn.position;
         }
         yield return FadeIn(fadeDuration);
-        if (player != null)
-            player.enabled = true;
-            player.CanMove = true;
+        GameManager.Instance.EnablePlayerControl();
     }
     public IEnumerator FadeOut(float duration)
     {

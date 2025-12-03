@@ -41,9 +41,8 @@ public class DragonHealth : MonoBehaviour
         // 1. 全ゴースト削除
         foreach (var g in FindObjectsOfType<GhostBase>())
             Destroy(g.gameObject);
-
-        // 2. ドラゴン位置
-
+        SoundManager.Instance.StopBGM();
+        SoundManager.Instance.PlaySE(SESoundData.SE.Audience);
         Vector3 dragonPos = transform.position;
 
         // 3. ドラゴン縮小
@@ -53,7 +52,7 @@ public class DragonHealth : MonoBehaviour
         if (confettiPrefab != null)
         {
             var confetti = Instantiate(confettiPrefab, player.position, Quaternion.identity);
-            confetti.transform.SetParent(player); // ★ここが追従ポイント
+            confetti.transform.SetParent(player); 
         }
         
         // 5. 演出待ち

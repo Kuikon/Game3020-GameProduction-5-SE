@@ -36,10 +36,7 @@ public class DroppedBall : MonoBehaviour
                 Debug.Log("🧲 ExpMagnet に当たったのでプレイヤーへ吸い込み開始");
                 GameManager.Instance.OnGhostCaptured();
                 CollectTo(playerExp.transform); // ← Transform を渡す
-            }
-            else
-            {
-                Debug.LogError("❌ ExpMagnet の親から PlayerExp が見つからない");
+                SoundManager.Instance.PlaySE(SESoundData.SE.EXPGet);
             }
         }
     }

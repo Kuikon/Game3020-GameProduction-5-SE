@@ -10,19 +10,6 @@ public class Portal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            var player = other.GetComponent<PlayerController>();
-            if (player != null)
-            {
-                // Stop player coroutine and animation
-                player.StopImmediately();
-
-                // ★ Stop player input
-                player.CanMove = false;
-
-                // stop the entire update process
-                player.enabled = false;
-            }
-
             FadeManager.Instance.StartSceneTransition(targetSceneName, spawnPointName, fadeDuration);
         }
     }

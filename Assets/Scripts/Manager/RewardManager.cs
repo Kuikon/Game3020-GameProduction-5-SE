@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class RewardManager : MonoBehaviour
@@ -17,14 +17,23 @@ public class RewardManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        if (GameManager.Instance != null)
+            GameManager.Instance.InitializeRewardCounts();
     }
 
     void Start()
     {
         rewardPanel.SetActive(false);
         player = GameObject.FindGameObjectWithTag("Player");
-    }
 
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            ShowRandomRewards();
+        }
+    }
     private RewardData[] GetUniqueRandomRewards(int count)
     {
         List<RewardData> pool = new List<RewardData>(allRewards);
@@ -41,6 +50,7 @@ public class RewardManager : MonoBehaviour
 
     public void ShowRandomRewards()
     {
+        UIManager.Instance.UpdateRewardIcons();
         rewardPanel.SetActive(true);
         Time.timeScale = 0f;
         GameManager.Instance.DisablePlayerControl();
@@ -65,6 +75,8 @@ public class RewardManager : MonoBehaviour
             }
         }
         reward.ApplyEffect(player);
+        UIManager.Instance.UpdateRewardIcons();
+        GameManager.Instance.AddRewardCount(reward);
         GameManager.Instance.EnablePlayerControl();
         rewardPanel.SetActive(false);
         Time.timeScale = 1f;

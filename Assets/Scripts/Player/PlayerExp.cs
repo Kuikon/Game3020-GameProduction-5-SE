@@ -18,6 +18,7 @@ public class PlayerExp : MonoBehaviour
             expToNextLevel = Mathf.CeilToInt(expToNextLevel * 1.3f);
             currentExp = 0;
             RewardManager.Instance.ShowRandomRewards();
+            SoundManager.Instance.PlaySE(SESoundData.SE.LevelUp);
         }
 
         // UI更新（常にこれを呼ぶ）

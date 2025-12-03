@@ -60,6 +60,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image expFill;
     [SerializeField] private float expSmoothSpeed = 6f;
     private float currentExpFill = 0f;
+    public Transform rewardListRoot;   
+    public GameObject rewardIconUIPrefab;
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -230,5 +232,18 @@ public class UIManager : MonoBehaviour
     {
         if (dragonHPUI != null)
             dragonHPUI.SetActive(show);
+    }
+    public void UpdateRewardIcons()
+    {
+        foreach (Transform child in rewardListRoot)
+            Destroy(child.gameObject);
+        foreach (var pair in GameManager.Instance.rewardCounts)
+        {
+            RewardData reward = pair.Key;
+            int count = pair.Value;
+            var ui = Instantiate(rewardIconUIPrefab, rewardListRoot);
+            ui.transform.Find("Icon").GetComponent<Image>().sprite = reward.icon;
+            ui.transform.Find("CountText").GetComponent<TMPro.TextMeshProUGUI>().text = count.ToString();
+        }
     }
 }

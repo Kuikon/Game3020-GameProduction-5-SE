@@ -19,13 +19,14 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private EnemySpawner enemySpawner;
     private bool isPaused = false;
-
+    public Dictionary<RewardData, int> rewardCounts = new();
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -40,6 +41,11 @@ public class GameManager : MonoBehaviour
             if (data != null && !ghostDataDict.ContainsKey(data.type))
                 ghostDataDict.Add(data.type, data);
         }
+
+    }
+    void Start()
+    {
+      
     }
     void Update()
     {
@@ -47,6 +53,15 @@ public class GameManager : MonoBehaviour
         {
             TogglePause();
         }
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        enemySpawner = FindAnyObjectByType<EnemySpawner>();
+
+        if (enemySpawner != null)
+            Debug.Log($"🔍 EnemySpawner refreshed: {enemySpawner.name}");
+        else
+            Debug.Log("⚠ EnemySpawner NOT found in this scene");
     }
     public void RegisterGhostCapture(GhostType type)
     {
@@ -149,8 +164,26 @@ public class GameManager : MonoBehaviour
 
         if (capturedGhostCount == thresholdToStartSpawn)
         {
-            Debug.Log("🔥 Enough ghosts captured! Start spawning from GhostPoints!");
             enemySpawner.BeginSpawnFromGhostPoints();
+        }
+    }
+    public void AddRewardCount(RewardData reward)
+    {
+        if (!rewardCounts.ContainsKey(reward))
+            rewardCounts[reward] = 0;
+
+        rewardCounts[reward]++;
+
+        UIManager.Instance.UpdateRewardIcons();
+    }
+    public void InitializeRewardCounts()
+    {
+        if (RewardManager.Instance == null) return;
+
+        foreach (var reward in RewardManager.Instance.allRewards)
+        {
+            if (!rewardCounts.ContainsKey(reward))
+                rewardCounts.Add(reward, 0);
         }
     }
 }

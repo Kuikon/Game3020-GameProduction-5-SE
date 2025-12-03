@@ -37,7 +37,7 @@ public class LineDraw : MonoBehaviour
     [SerializeField] private string[] collidableTags;
     // Flash 管理
     private readonly HashSet<SpriteRenderer> flashingSet = new();
-
+    private bool isForceStopped = false;
     // =========================================================
     // INITIALIZE
     // =========================================================
@@ -82,6 +82,8 @@ public class LineDraw : MonoBehaviour
     // =========================================================
     void Update()
     {
+        if (isForceStopped)
+            return;
         Vector3 mouse = Input.mousePosition;
         if (!new Rect(0, 0, Screen.width, Screen.height).Contains(mouse))
             return;
@@ -94,7 +96,7 @@ public class LineDraw : MonoBehaviour
         {
             RemoveIcons();
             CreateIcons(mouse);
-            if (edgeCol != null) DestroyImmediate(edgeCol);
+            if (edgeCol != null) Destroy(edgeCol);
             edgeCol = gameObject.AddComponent<EdgeCollider2D>();
             edgeCol.isTrigger = true;
         }
@@ -204,6 +206,8 @@ public class LineDraw : MonoBehaviour
 
     void UpdateEdgeCollider()
     {
+         if (edgeCol == null) return;
+         if (!edgeCol.enabled) return;
         Vector3[] arr = linePoints.ToArray();
         posCount = arr.Length;
 
@@ -272,10 +276,24 @@ public class LineDraw : MonoBehaviour
     {
         List<Vector3> pts = new List<Vector3>(linePoints);
 
-        // startIndex+1 以降を全部削って、最後の点を交差点にする
-        pts.RemoveRange(startIndex + 1, pts.Count - (startIndex + 1));
-        pts[pts.Count - 1] = crossPoint;
+        // ★ RemoveRange を使う前に安全チェック
+        int removeStart = startIndex + 1;
+        int removeCount = pts.Count - removeStart;
 
+        if (removeStart < 0 || removeStart > pts.Count)
+            return;
+
+        if (removeCount < 0)
+            removeCount = 0;
+
+        if (removeCount > 0)
+            pts.RemoveRange(removeStart, removeCount);
+
+        // 最後の点を交差点に置き換える
+        if (pts.Count > 0)
+            pts[pts.Count - 1] = crossPoint;
+
+        // 再セット
         linePoints.Clear();
         foreach (var p in pts)
             linePoints.Enqueue(p);
@@ -284,14 +302,17 @@ public class LineDraw : MonoBehaviour
         _rend.SetPositions(pts.ToArray());
         posCount = pts.Count;
 
+        // コライダー更新
         Vector2[] colPoints = new Vector2[pts.Count];
         for (int i = 0; i < pts.Count; i++)
             colPoints[i] = pts[i];
 
-        edgeCol.points = colPoints;
+        if (edgeCol != null)
+            edgeCol.points = colPoints;
 
-        Debug.Log($"[TrimLoop] Loop trimmed. New vertex count = {pts.Count}");
+        Debug.Log($"[TrimLoop] Loop trimmed safely. New vertex count = {pts.Count}");
     }
+
 
     // =========================================================
     // POLYGON CREATION
@@ -546,7 +567,7 @@ public class LineDraw : MonoBehaviour
     // =========================================================
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!edgeCol.enabled) return;
+        if (edgeCol == null || !edgeCol.enabled) return;
         foreach (var tag in collidableTags)
         {
             if (other.CompareTag(tag))
@@ -571,20 +592,41 @@ public class LineDraw : MonoBehaviour
         ResetLine();
         insideCount.Clear();
 
-        // ★ EdgeCollider を完全削除（最重要）★
+        if (edgeCol != null) Destroy(edgeCol);
+        if (poly != null) Destroy(poly);
+        edgeCol = null;
+        poly = null;
+    }
+
+    public void ForceStopDrawing()
+    {
+        // Update() の描画処理を止めるためのフラグ
+        isForceStopped = true;
+
+        // ラインポイントを完全クリア
+        linePoints.Clear();
+        posCount = 0;
+        currentLineLength = 0f;
+
+        // LineRenderer を消す
+        if (_rend != null)
+            _rend.positionCount = 0;
+
+        // EdgeCollider を安全に破棄
         if (edgeCol != null)
         {
-            DestroyImmediate(edgeCol);
+            Destroy(edgeCol);
             edgeCol = null;
         }
 
-        // ★ Polygon も即削除
+        // PolygonCollider も破棄
         if (poly != null)
         {
-            DestroyImmediate(poly);
+            Destroy(poly);
             poly = null;
         }
+
+        // アイコン削除
+        RemoveIcons();
     }
-
-
 }

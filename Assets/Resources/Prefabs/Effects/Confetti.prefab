@@ -672,7 +672,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 20, y: 10, z: 1}
+    m_Scale: {x: 20, y: 22.37, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -4801,8 +4801,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1582153699
-  m_SortingLayer: 2
+  m_SortingLayerID: -1757989153
+  m_SortingLayer: 3
   m_SortingOrder: 10
   m_RenderMode: 4
   m_MeshDistribution: 0

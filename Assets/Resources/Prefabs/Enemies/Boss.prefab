@@ -123,7 +123,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossBehaviour
   graveManager: {fileID: 0}
   animator: {fileID: 636837796161663937}
-  moveSpeed: 3
+  moveSpeed: 1
   pointReachDistance: 0.05
   idleDurationAtPoint: 2
   idleDurationAfterHatch: 2.5

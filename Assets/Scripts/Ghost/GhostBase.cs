@@ -429,10 +429,6 @@ public class GhostBase : MonoBehaviour
             Debug.Log("💥 Suicide explosion created!");
         }
 
-        if (data.type == GhostType.Lucky)
-        {
-            GameManager.Instance?.AddLuckyScore();
-        }
     }
 
     public void Absorb(Transform absorbPoint, bool isFromDragon = false)

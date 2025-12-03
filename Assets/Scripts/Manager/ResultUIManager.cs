@@ -23,7 +23,6 @@ public class ResultUIManager : MonoBehaviour
         }
 
         ghostStatsText.text = " Ghosts Captured:\n" + ghostText;
-        damageText.text = $" Damage Taken: {gm.damageTaken}";
-        sortFailText.text = $" Sort Fails: {gm.sortFails}";
+      
     }
 }

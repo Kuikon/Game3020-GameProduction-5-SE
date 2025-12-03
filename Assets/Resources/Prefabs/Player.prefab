@@ -548,7 +548,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHP: 10
-  currentHP: 10
+  currentHP: 1
   lastHitGhostPos: {x: 0, y: 0, z: 0}
   hasLastHitGhost: 0
   hpBarName: PlayerHP

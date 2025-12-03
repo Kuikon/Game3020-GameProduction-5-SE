@@ -7,19 +7,10 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
-    [Header("Lucky Control")]
-    public int luckyScore = 0;
-    public Button luckyButton;
-    public Transform magnetPoint;
-    public float magnetHoldTime = 3f;
     [Header("Type Gather Control")]
-    public Button sortButton;
     public float sortSpeed = 3f;
     [Header("Game Stats")]
     public Dictionary<GhostType, int> capturedGhosts = new();
-    public int damageTaken = 0;
-    public int sortFails = 0;
     private bool isGameOver = false;
     [SerializeField] private List<GhostData> allGhostData;
     private Dictionary<GhostType, GhostData> ghostDataDict = new();
@@ -39,16 +30,6 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }
-        if (luckyButton != null)
-            luckyButton.gameObject.SetActive(false);
-        if (sortButton != null)
-        {
-            sortButton.onClick.RemoveAllListeners();
-            sortButton.onClick.AddListener(() =>
-            {
-                //StartCoroutine(GatherAllBallsByType());
-            });
         }
         foreach (GhostType type in System.Enum.GetValues(typeof(GhostType)))
         {
@@ -72,15 +53,6 @@ public class GameManager : MonoBehaviour
         capturedGhosts[type]++;
     }
 
-    public void RegisterDamage()
-    {
-        damageTaken++;
-    }
-
-    public void RegisterSortFail()
-    {
-        sortFails++;
-    }
     public Color GetGhostColor(GhostType type)
     {
         if (ghostDataDict.TryGetValue(type, out var data))
@@ -93,49 +65,7 @@ public class GameManager : MonoBehaviour
             return data;
         return null;
     }
-    public void AddLuckyScore()
-    {
-        luckyScore++;
-        Debug.Log($"🍀 Lucky Score: {luckyScore}");
-
-        if (luckyScore >= 3 && luckyButton != null)
-        {
-            luckyButton.gameObject.SetActive(true);
-            luckyButton.onClick.RemoveAllListeners();
-            luckyButton.onClick.AddListener(() =>
-            {
-                StartCoroutine(GatherAllGhosts());
-                luckyButton.gameObject.SetActive(false);
-                luckyScore = 0;
-            });
-        }
-    }
-
-    private IEnumerator GatherAllGhosts()
-    {
-        if (magnetPoint == null)
-        {
-            Debug.LogWarning("⚠️ Magnet Point not assigned!");
-            yield break;
-        }
-
-        GhostBase[] ghosts = FindObjectsByType<GhostBase>(FindObjectsSortMode.None);
-        foreach (var ghost in ghosts)
-        {
-            if (ghost == null || ghost.isDead) continue;
-            if (ghost.gameObject == null) continue;
-            StartCoroutine(ghost.MoveToPointAndFreeze(magnetPoint.position, 3f));
-            yield return new WaitForSeconds(0.02f);
-        }
-
-        yield return new WaitForSeconds(magnetHoldTime);
-
-        foreach (var ghost in ghosts)
-        {
-            if (ghost != null && ghost.gameObject != null && !ghost.isDead)
-                ghost.ResumeMovement();
-        }
-    }
+   
     public void DisablePlayerControl()
     {
         var player = GameObject.FindWithTag("Player");
@@ -192,7 +122,8 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log("Victory() OK! Loading scene...");
 
-        isGameOver = false;
+
+        isGameOver = true;
         DisablePlayerControl();
         SceneManager.LoadScene("VictoryScene");
     }

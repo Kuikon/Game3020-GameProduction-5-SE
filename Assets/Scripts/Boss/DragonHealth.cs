@@ -10,12 +10,13 @@ public class DragonHealth : MonoBehaviour
     [SerializeField] private GameObject confettiPrefab;
     [SerializeField] private float victoryDelay = 2f;
     private UIManager ui;
-
+    Transform player;
     private void Start()
     {
         ui = UIManager.Instance;
         ui.CreateBar("DragonHP", maxHP);
         ui.UpdateBar("DragonHP", currentHP);
+        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     public void TakeDamage(int damage)
@@ -35,25 +36,51 @@ public class DragonHealth : MonoBehaviour
 
     private IEnumerator HandleVictorySequence()
     {
-        // 1. すべてのゴースト消去
-        GhostBase[] ghosts = FindObjectsOfType<GhostBase>();
-        foreach (var g in ghosts)
-        {
+        if (LineDraw.Instance != null)
+            LineDraw.Instance.ForceStopDrawing();
+        // 1. 全ゴースト削除
+        foreach (var g in FindObjectsOfType<GhostBase>())
             Destroy(g.gameObject);
-        }
 
-        // 2. 花吹雪エフェクト再生
+        // 2. ドラゴン位置
+
+        Vector3 dragonPos = transform.position;
+
+        // 3. ドラゴン縮小
+        yield return StartCoroutine(ShrinkAndDisappear(1f));
+
+        // 4. 紙吹雪を プレイヤー追従で生成！
         if (confettiPrefab != null)
-            Instantiate(confettiPrefab, transform.position, Quaternion.identity);
-
-        // 3. ボス自身を消す
-        Destroy(gameObject);
-
-        // 4. エフェクト待ち
+        {
+            var confetti = Instantiate(confettiPrefab, player.position, Quaternion.identity);
+            confetti.transform.SetParent(player); // ★ここが追従ポイント
+        }
+        
+        // 5. 演出待ち
         yield return new WaitForSeconds(victoryDelay);
 
-        // 5. Victory へ遷移
+        // 6. 勝利シーンへ
         GameManager.Instance.Victory();
+        Destroy(gameObject);
+    }
+
+    private IEnumerator ShrinkAndDisappear(float duration)
+    {
+        Vector3 startScale = transform.localScale;
+        Vector3 endScale = Vector3.zero;
+
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float normalized = t / duration;
+
+            // 線形縮小
+            transform.localScale = Vector3.Lerp(startScale, endScale, normalized);
+
+            yield return null;
+        }
     }
 
     public void Heal(int amount)

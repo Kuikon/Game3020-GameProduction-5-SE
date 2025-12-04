@@ -542,8 +542,8 @@ public class GhostBase : MonoBehaviour
                 if (isFinalCaptureShrink && !isCaptured)
                 {
                     isCaptured = true;
-                    Kill();               // フラグ処理のみ
-                    Destroy(gameObject);  // ★Shrink完了した瞬間に消える！
+                    Kill();              
+                    Destroy(gameObject);  
                 }
             })
         );
@@ -573,7 +573,7 @@ public class GhostBase : MonoBehaviour
 
         transform.localScale = endScale;
 
-        onComplete?.Invoke();  // ★追加：Shrink完了後の処理
+        onComplete?.Invoke(); 
     }
 
 

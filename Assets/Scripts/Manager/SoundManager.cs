@@ -71,6 +71,11 @@ public class SoundManager : MonoBehaviour
         if (!bgmAudioSource.isPlaying)
             bgmAudioSource.UnPause();
     }
+    public void SetMasterVolume(float value)
+    {
+        masterVolume = value;
+        bgmAudioSource.volume = bgmMasterVolume * masterVolume;
+    }
 }
 
 [System.Serializable]

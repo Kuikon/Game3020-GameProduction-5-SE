@@ -68,30 +68,20 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
-        // ① 入力ベクトル（アニメ用）
         Vector2 input;
         input.x = UnityEngine.Input.GetAxisRaw("Horizontal");
         input.y = UnityEngine.Input.GetAxisRaw("Vertical");
 
         if (Mathf.Abs(input.x) < 0.1f) input.x = 0f;
         if (Mathf.Abs(input.y) < 0.1f) input.y = 0f;
-
-        // ② 実際に動かすベクトル（物理用）
         Vector2 moveDir = input;
-
         if (moveDir.magnitude > 1f)
             moveDir.Normalize();
-
-        // 壁チェック用の仮ターゲット位置
         Vector2 targetPos = (Vector2)transform.position + moveDir * moveSpeed * Time.fixedDeltaTime;
-
-        // 壁に当たるなら「移動だけ」止める（入力は残す）
         if (!IsWalkableTile(targetPos))
         {
             moveDir = Vector2.zero;
         }
-
-        // ③ アニメーションは「入力」を渡す
         UpdateAnimation(input);
 
         // ④ 物理移動は「moveDir」を使う

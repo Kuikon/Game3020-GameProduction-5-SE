@@ -11,8 +11,8 @@ public class BossBehaviour : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float pointReachDistance = 0.05f;
-    [SerializeField] private float idleDurationAtPoint = 2f;   // ← パトロールポイントで止まる時間
-    [SerializeField] private float idleDurationAfterHatch = 2.5f; // ← 生まれた時の停止
+    [SerializeField] private float idleDurationAtPoint = 2f;  
+    [SerializeField] private float idleDurationAfterHatch = 2.5f;
     [SerializeField] private float stopOffset = 1.0f;
     private List<Vector3> patrolPoints = new();
     private int currentIndex = 0;
@@ -50,10 +50,7 @@ public class BossBehaviour : MonoBehaviour
     }
     private void MoveTowards(Vector3 target)
     {
-        // 移動方向
         Vector3 dir = (target - transform.position).normalized;
-
-        // アニメ用パラメータ
         animator.SetFloat("MoveX", dir.x);
         animator.SetFloat("MoveY", dir.y);
         animator.SetFloat("Speed", 1f);
@@ -92,8 +89,6 @@ public class BossBehaviour : MonoBehaviour
     {
         state = BossState.IdleAtPoint;
         stateTimer = duration;
-
-        // Idleアニメーション（下向き）
         animator.SetFloat("MoveX", 0);
         animator.SetFloat("MoveY", -1);
         animator.SetFloat("Speed", 0);
@@ -108,8 +103,6 @@ public class BossBehaviour : MonoBehaviour
         if (stateTimer > 0f) return;
         if (spawnerController != null)
             spawnerController.StopSpawnLoop();
-
-        // Idle終了 → 次のポイントへ
         GoToNextPoint();
         state = BossState.Patrol;
     }
@@ -160,8 +153,6 @@ public class BossBehaviour : MonoBehaviour
         transform.position = basePoint;
 
         Debug.Log($"🐉 Boss: Hatched → {patrolPoints.Count} patrols loaded.");
-
-        // 生まれた直後に Idle 状態へ
         EnterIdleState(idleDurationAfterHatch);
     }
 }

@@ -104,8 +104,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0, g: 0.51931334, b: 1, a: 1}
+      key1: {r: 0, g: 0.8851509, b: 1, a: 1}
       key2: {r: 1, g: 1, b: 1, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29ca91311f765a342903792ee3a5b879, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LineDrawer
-  maxLineLength: 15
+  maxLineLength: 12
   interval: 0.1
   _cam: {fileID: 0}
   effectManager: {fileID: 5558477681175231571}
@@ -163,6 +163,7 @@ MonoBehaviour:
   endIconPrefab: {fileID: 0}
   droppedBallPrefab: {fileID: 6333566123753073161, guid: d49c2e61a4918534bb3823b4ed1e9c83,
     type: 3}
+  collidableTags: []
 --- !u!114 &5558477681175231571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,7 +183,7 @@ MonoBehaviour:
   captureColor: {r: 1, g: 0.68161863, b: 0.12641507, a: 1}
   fadeMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   afterImageLifetime: 0.5
-  afterImageColor: {r: 0.09803921, g: 1, b: 0.39563006, a: 0.7254902}
+  afterImageColor: {r: 0.9622642, g: 0.8045144, b: 0.1797436, a: 0.7254902}
   reverseColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!50 &7138441254776050512
 Rigidbody2D:

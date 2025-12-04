@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonHealth
   maxHP: 20
-  currentHP: 1
+  currentHP: 20
   confettiPrefab: {fileID: 2702084582640509696, guid: 3b005b3b860b55b4fbba16cf3703cff2,
     type: 3}
   victoryDelay: 2
@@ -265,7 +265,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.5, y: 1.975}
+    oldSize: {x: 1.6666666, y: 1.3166667}
     newSize: {x: 4, y: 3.16}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

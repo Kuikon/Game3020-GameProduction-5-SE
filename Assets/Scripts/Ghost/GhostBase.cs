@@ -21,8 +21,9 @@ public class GhostBase : MonoBehaviour
  
     public  bool isDead;
     private bool isStartIdle = true;
-    private bool quickSpeedBoosted = false;
+    public bool isCaptured = false;
     private bool suicideTargetSet = false;
+    private bool isAbsorbing = false;
 
     private Vector3 suicideTargetPos;
     private Vector2 moveDir;
@@ -41,13 +42,16 @@ public class GhostBase : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private DroppedBall targetBall = null;
+    private float orbitAngle = 0f;      
+    private float orbitRadius = 2.5f;   
+    private float orbitSpeed = 2f;
     // ============================================================
     // Initialization
     // ============================================================
     void Start()
     {
-        
-      
+
+        lifeTimer = data.absorbTime;
         MiniMapManager.Instance?.RegisterGhost(gameObject);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -99,16 +103,14 @@ public class GhostBase : MonoBehaviour
     private bool HandleDeadState()
     {
         if (!isDead) return false;
+        if (isAbsorbing)
+            return true;
         StartCoroutine(DestroyAfterDelay(0.2f));
         return true;
     }
     private IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        //if (GhostBallSpawner.Instance != null)
-        //{
-        //    GhostBallSpawner.Instance.SpawnBulletByType(data.type, transform.position);
-        //}
         Destroy(gameObject);
     }
     // ============================================================
@@ -174,20 +176,33 @@ public class GhostBase : MonoBehaviour
     private void HandleLifeTimer()
     {
         lifeTimer -= Time.deltaTime;
-        if (lifeTimer > 0f) return;
 
-        if (data.type == GhostType.Normal || data.type == GhostType.Quick || data.type == GhostType.Tank||data.type == GhostType.Suicide|| data.type == GhostType.Lucky)
+        // 10秒 → 9.9 → ... → 0.0 → -0.01
+        if (lifeTimer > 0f)
+            return;
+
+        // 一度だけ実行
+        lifeTimer = 0f;
+
+        if (data.type == GhostType.Normal ||
+            data.type == GhostType.Quick ||
+            data.type == GhostType.Tank ||
+            data.type == GhostType.Suicide ||
+            data.type == GhostType.Lucky)
         {
-            GameObject dragon = GameObject.Find("Dragon");
+            GameObject dragon = GameObject.Find("Boss(Clone)");
+
             if (dragon != null)
                 Absorb(dragon.transform, true);
+            else
+                Debug.Log("❌ Dragon not found");
         }
     }
 
     // ============================================================
     // Change appearance depending on GhostType
     // ============================================================
-  private void ApplyVisualStyleByType()
+    private void ApplyVisualStyleByType()
 {
     if (data == null)
     {
@@ -248,12 +263,7 @@ public class GhostBase : MonoBehaviour
                 UpdateNormal();   
                 break;
             case GhostType.Quick:
-                if (!quickSpeedBoosted)
-                {
-                    data.walkSpeed *= 2f;
-                    quickSpeedBoosted = true;
-                }
-                UpdateNormal();
+                UpdateQuick();
                 break;
             case GhostType.Tank:
                 UpdateTank();
@@ -318,6 +328,46 @@ public class GhostBase : MonoBehaviour
             suicideTargetSet = false;
             Kill(DeathCause.Suicide);
         }
+    }
+
+
+    private void UpdateQuick()
+    {
+        if (capturePoint == null) return;
+
+        float dist = Vector2.Distance(transform.position, capturePoint.position);
+
+        //① プレイヤーから離れすぎている → 近づく
+        if (dist > orbitRadius + 0.2f)
+        {
+            moveDir = (capturePoint.position - transform.position).normalized;
+            rb.linearVelocity = moveDir * data.walkSpeed;
+            return;
+        }
+
+        //② プレイヤーに近すぎる → 離れる
+        if (dist < orbitRadius - 0.2f)
+        {
+            moveDir = (transform.position - capturePoint.position).normalized;
+            rb.linearVelocity = moveDir * data.walkSpeed;
+            return;
+        }
+
+        //③ ちょうどの距離 → 周回運動
+        orbitAngle += orbitSpeed * Time.deltaTime;
+        float rad = orbitAngle;
+
+        Vector2 orbitPos = new Vector2(
+            capturePoint.position.x + Mathf.Cos(rad) * orbitRadius,
+            capturePoint.position.y + Mathf.Sin(rad) * orbitRadius
+        );
+
+        moveDir = (orbitPos - (Vector2)transform.position).normalized;
+        rb.linearVelocity = moveDir * data.walkSpeed;
+
+        animator.SetFloat("MoveX", moveDir.x);
+        animator.SetFloat("MoveY", moveDir.y);
+        animator.SetFloat("Speed", rb.linearVelocity.magnitude);
     }
 
 
@@ -416,7 +466,8 @@ public class GhostBase : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-        animator.SetBool("Dead", true);
+        isCaptured = true;
+
         if (cause == DeathCause.Suicide &&
             data.type == GhostType.Suicide &&
             data.fireCirclePrefab != null)
@@ -427,23 +478,42 @@ public class GhostBase : MonoBehaviour
             SoundManager.Instance.PlaySE(SESoundData.SE.SuicideFire);
             circle.transform.localScale = Vector3.one;
             Destroy(circle, data.fireCircleLifetime);
-            Debug.Log("💥 Suicide explosion created!");
         }
 
+        // ★ Destroy は HandleDeadState() に任せるので入れない
     }
+
 
     public void Absorb(Transform absorbPoint, bool isFromDragon = false)
     {
         if (isDead) return;
         isDead = true;
-
+        isAbsorbing = true;
+        animator.SetBool("Dead", true);
         rb.linearVelocity = Vector2.zero;
         rb.simulated = false;
-        animator.SetBool("Dead", true);
-
-        capturePoint = absorbPoint;
+        StartCoroutine(AbsorbSequence(absorbPoint));
     }
+    private IEnumerator AbsorbSequence(Transform absorbPoint)
+    {
+        float speed = 8f;
 
+        while (Vector3.Distance(transform.position, absorbPoint.position) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                absorbPoint.position,
+                speed * Time.deltaTime
+            );
+            yield return null;
+        }
+        var dragonHP = absorbPoint.GetComponent<DragonHealth>();
+        if (dragonHP != null)
+        {
+            dragonHP.Heal(1);
+        }
+        Destroy(gameObject);
+    }
     private void PickRandomDirection()
     {
         int x, y;
@@ -459,13 +529,26 @@ public class GhostBase : MonoBehaviour
     }
     public void Shrink(float ratio)
     {
-        float targetScale = originalScale.x * ratio; 
+        float targetScale = originalScale.x * ratio;
 
         if (scaleRoutine != null)
             StopCoroutine(scaleRoutine);
 
-        scaleRoutine = StartCoroutine(ScaleTo(targetScale, 0.15f));
+        bool isFinalCaptureShrink = ratio <= 0.6f;
+
+        scaleRoutine = StartCoroutine(
+            ScaleTo(targetScale, 0.15f, () =>
+            {
+                if (isFinalCaptureShrink && !isCaptured)
+                {
+                    isCaptured = true;
+                    Kill();               // フラグ処理のみ
+                    Destroy(gameObject);  // ★Shrink完了した瞬間に消える！
+                }
+            })
+        );
     }
+
 
     public void Restore(float duration = 0.3f)
     {
@@ -475,7 +558,7 @@ public class GhostBase : MonoBehaviour
         scaleRoutine = StartCoroutine(ScaleTo(targetScale, duration));
     }
 
-    private IEnumerator ScaleTo(float targetScale, float duration)
+    private IEnumerator ScaleTo(float targetScale, float duration, System.Action onComplete = null)
     {
         Vector3 startScale = transform.localScale;
         Vector3 endScale = Vector3.one * targetScale;
@@ -488,7 +571,10 @@ public class GhostBase : MonoBehaviour
             yield return null;
         }
 
-        transform.localScale = endScale; 
+        transform.localScale = endScale;
+
+        onComplete?.Invoke();  // ★追加：Shrink完了後の処理
     }
+
 
 }

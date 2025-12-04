@@ -14,7 +14,8 @@ public class SoundManager : MonoBehaviour
     public float masterVolume = 1;
     public float bgmMasterVolume = 1;
     public float seMasterVolume = 1;
-
+    private int sePlayCountThisFrame = 0;
+    private const int SE_HARD_LIMIT = 5;
     public static SoundManager Instance { get; private set; }
 
     private void Awake()
@@ -29,6 +30,10 @@ public class SoundManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    void Update()
+    {
+        sePlayCountThisFrame = 0;
+    }
 
     public void PlayBGM(BGMSoundData.BGM bgm)
     {
@@ -42,7 +47,11 @@ public class SoundManager : MonoBehaviour
     public void PlaySE(SESoundData.SE se)
     {
         SESoundData data = seSoundDatas.Find(data => data.se == se);
-        seAudioSource.volume = data.volume * seMasterVolume * masterVolume;
+        if (data == null) return;
+        sePlayCountThisFrame++;
+        float overlapFactor = Mathf.Clamp01(1f - (sePlayCountThisFrame - 1) * 0.15f);
+        float volume = data.volume * seMasterVolume * masterVolume * overlapFactor;
+        seAudioSource.volume = volume;
         seAudioSource.PlayOneShot(data.audioClip);
     }
     public void StopBGM()
@@ -101,7 +110,11 @@ public class SESoundData
         DragonHatch,
         DragonStart,
         HatchExplosion,
-        SuicideFire
+        SuicideFire,
+        CaptureEmpty,
+        CaptureFail,
+        CaptureProgress
+
     }
 
     public SE se;

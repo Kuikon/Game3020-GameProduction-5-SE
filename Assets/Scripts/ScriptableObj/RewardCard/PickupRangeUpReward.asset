@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: PickupRangeUpReward
   m_EditorClassIdentifier: Assembly-CSharp::PickupRangeUpReward
   rewardName: 'Pick up '
-  icon: {fileID: -2284709939801385208, guid: 0bf7e406062bfe34886e79408121e892, type: 3}
-  description: Magnet
+  icon: {fileID: 9140990700335514166, guid: 24aafb7344e5e244bab6713b76256b9f, type: 3}
+  description: Expands your pickup range
   radiusIncrease: 0.5

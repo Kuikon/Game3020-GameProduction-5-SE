@@ -1,13 +1,25 @@
 fileFormatVersion: 2
-guid: 25f5aee73b87c7c4b95ff4cae0fd1109
+guid: 24aafb7344e5e244bab6713b76256b9f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7730486409907412771
-    second: preview_0
+      213: -6960103915912079152
+    second: RewrdIcon_0
   - first:
-      213: 8184059568181860812
-    second: preview_1
+      213: 1851402477308149753
+    second: RewrdIcon_1
+  - first:
+      213: -6757196179022784305
+    second: RewrdIcon_2
+  - first:
+      213: 8931921878616652922
+    second: RewrdIcon_3
+  - first:
+      213: 8367152156593750884
+    second: RewrdIcon_4
+  - first:
+      213: 9140990700335514166
+    second: RewrdIcon_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,7 +52,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -54,7 +66,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 200
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -129,45 +141,133 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: preview_0
+      name: RewrdIcon_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 7
-        width: 140
-        height: 83
+        x: 19
+        y: 512
+        width: 341
+        height: 512
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dd0eb7c619bc7b490800000000000000
-      internalID: -7730486409907412771
+      spriteID: 0d8514c5d5eb86f90800000000000000
+      internalID: -6960103915912079152
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: preview_1
+      name: RewrdIcon_1
       rect:
         serializedVersion: 2
-        x: 61
-        y: 80
-        width: 115
-        height: 91
+        x: 350
+        y: 487
+        width: 341
+        height: 512
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cc9dd16f0de939170800000000000000
-      internalID: 8184059568181860812
+      spriteID: 9fffa347eb081b910800000000000000
+      internalID: 1851402477308149753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RewrdIcon_2
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 492
+        width: 341
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc858b750ed9932a0800000000000000
+      internalID: -6757196179022784305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RewrdIcon_3
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 36
+        width: 341
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7c3c7010af84fb70800000000000000
+      internalID: 8931921878616652922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RewrdIcon_4
+      rect:
+        serializedVersion: 2
+        x: 355
+        y: 24
+        width: 307
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4630a6b2e881e1470800000000000000
+      internalID: 8367152156593750884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RewrdIcon_5
+      rect:
+        serializedVersion: 2
+        x: 667
+        y: 14
+        width: 324
+        height: 512
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 632c5a46c925bde70800000000000000
+      internalID: 9140990700335514166
       vertices: []
       indices: 
       edges: []
@@ -176,7 +276,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d6c4eec201c712a4fb9a8fcf7b8feea6
     internalID: 0
     vertices: []
     indices: 
@@ -184,10 +284,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":3.0,"y":2.0},"gridSpriteSize":{"x":341.0,"y":512.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      preview_0: -7730486409907412771
-      preview_1: 8184059568181860812
+      RewrdIcon_0: -6960103915912079152
+      RewrdIcon_1: 1851402477308149753
+      RewrdIcon_2: -6757196179022784305
+      RewrdIcon_3: 8931921878616652922
+      RewrdIcon_4: 8367152156593750884
+      RewrdIcon_5: 9140990700335514166
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

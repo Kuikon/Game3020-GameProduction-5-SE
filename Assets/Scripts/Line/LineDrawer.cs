@@ -238,7 +238,7 @@ public class LineDraw : MonoBehaviour
                 // エフェクト
                 effectManager?.CreateLineAfterImage(_rend);
                 Light2DRadiusController.Instance?.FlashRadius();
-
+                SoundManager.Instance.PlaySE(SESoundData.SE.CaptureEmpty);
                 // 1フレームだけ有効にするポリゴン
                 CreatePolygon(i, cross);
                 CheckInsideObjects();   // この瞬間だけ poly が生きてる
@@ -361,7 +361,7 @@ public class LineDraw : MonoBehaviour
         foreach (GameObject ghost in GameObject.FindGameObjectsWithTag("Dog"))
         {
             if (!IsInside(ghost)) continue;
-
+            SoundManager.Instance.PlaySE(SESoundData.SE.CaptureProgress);
             var gb = ghost.GetComponent<GhostBase>();
             if (gb == null)
             {
@@ -392,7 +392,7 @@ public class LineDraw : MonoBehaviour
         {
             if (!IsInside(grave)) continue;
             LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, grave.transform);
-
+            SoundManager.Instance.PlaySE(SESoundData.SE.CaptureProgress);
             var sr = grave.GetComponent<SpriteRenderer>();
             if (sr != null)
                 StartCoroutine(FlashOnce(sr, new Color(1f, 0.7f, 0f)));
@@ -430,7 +430,7 @@ public class LineDraw : MonoBehaviour
         {
             if (!IsInside(dragon)) continue;
             LineVisualEffectManager.Instance.PlayCaptureEffect(_rend, dragon.transform);
-
+            SoundManager.Instance.PlaySE(SESoundData.SE.CaptureProgress);
             var sr = dragon.GetComponent<SpriteRenderer>();
             if (sr != null)
                 StartCoroutine(FlashOnce(sr, Color.yellow));
@@ -574,7 +574,7 @@ public class LineDraw : MonoBehaviour
             if (other.CompareTag(tag))
             {
                 Transform target = other.transform;
-
+                SoundManager.Instance.PlaySE(SESoundData.SE.CaptureFail);
                 LineVisualEffectManager.Instance.PlayReverseCaptureEffect(_rend, target.transform);
 
                 RestoreAllGhosts();

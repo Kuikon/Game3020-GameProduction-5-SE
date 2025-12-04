@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Max Hp Reward
   m_EditorClassIdentifier: Assembly-CSharp::MaxHpReward
   rewardName: Max HP
-  icon: {fileID: 21300000, guid: f73f68fe6815f5548a6c2a61b9e49add, type: 3}
-  description: wwwwww
-  hpIncrease: 5
+  icon: {fileID: 1851402477308149753, guid: 24aafb7344e5e244bab6713b76256b9f, type: 3}
+  description: Increases your max HP
+  hpIncrease: 1

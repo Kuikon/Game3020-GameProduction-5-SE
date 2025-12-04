@@ -6637,13 +6637,13 @@ MonoBehaviour:
     volume: 1
   - se: 4
     audioClip: {fileID: 8300000, guid: 6a1c6bbdd0419a04ba696867d2d5fa7e, type: 3}
-    volume: 1
+    volume: 0.3
   - se: 5
     audioClip: {fileID: 8300000, guid: 08f7e29ff14f5e740816ab66d43e06cb, type: 3}
     volume: 1
   - se: 6
     audioClip: {fileID: 8300000, guid: e0b6e156945cb7a43a2a485e1cda6897, type: 3}
-    volume: 1
+    volume: 0.3
   - se: 7
     audioClip: {fileID: 8300000, guid: db6fb3415b09516458550a0e7b14fcb9, type: 3}
     volume: 1
@@ -6664,6 +6664,15 @@ MonoBehaviour:
     volume: 1
   - se: 13
     audioClip: {fileID: 8300000, guid: 8f305e64d37a95c4db4f29e46f10eca3, type: 3}
+    volume: 1
+  - se: 14
+    audioClip: {fileID: 8300000, guid: 6ad05e4af9119984db574333476416f5, type: 3}
+    volume: 1
+  - se: 15
+    audioClip: {fileID: 8300000, guid: e6430a0b3b0b5f04187909d42a74d72a, type: 3}
+    volume: 1
+  - se: 16
+    audioClip: {fileID: 8300000, guid: c6a7d2ff7f22b074086bbae260707195, type: 3}
     volume: 1
   masterVolume: 0.7
   bgmMasterVolume: 0.5

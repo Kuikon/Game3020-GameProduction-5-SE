@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Move Speed Reward
   m_EditorClassIdentifier: Assembly-CSharp::MoveSpeedReward
   rewardName: Move Speed
-  icon: {fileID: -525753861, guid: a37e8466236089c45b610370218b5353, type: 3}
-  description: vvvvvvvvv
+  icon: {fileID: 8367152156593750884, guid: 24aafb7344e5e244bab6713b76256b9f, type: 3}
+  description: Boosts your movement speed
   amount: 1

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Line Length Reward
   m_EditorClassIdentifier: Assembly-CSharp::LineLengthReward
   rewardName: Line Length
-  icon: {fileID: -3180762507664444075, guid: 90617ec1588e07f41bdf65f87e0b2628, type: 3}
-  description: ccccccc
+  icon: {fileID: -8235240356089354877, guid: e81f8ad200468814ab31f387b00c75b0, type: 3}
+  description: Increases the maximum line length
   extraLength: 2

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c31adad16dcbb204d8312343ca6b6560, type: 3}
+  m_Name: Heal Hp Reward
+  m_EditorClassIdentifier: Assembly-CSharp::HealHpReward
+  rewardName: Heal
+  icon: {fileID: -6960103915912079152, guid: 24aafb7344e5e244bab6713b76256b9f, type: 3}
+  description: Restores a small amount of HP
+  healAmount: 3

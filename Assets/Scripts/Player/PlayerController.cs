@@ -206,7 +206,10 @@ public class PlayerController : MonoBehaviour
 
     public void StopImmediately()
     {
-        StopAllCoroutines();
+        if (this != null)
+        {
+            StopAllCoroutines();
+        }
         if (rb != null)
             rb.linearVelocity = Vector2.zero;
         isMoving = false;

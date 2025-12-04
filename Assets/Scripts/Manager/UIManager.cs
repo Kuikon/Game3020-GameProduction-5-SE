@@ -203,12 +203,6 @@ public class UIManager : MonoBehaviour
             Time.deltaTime * moveSpeed
         );
 
-        bulletSlotsGroup.anchoredPosition = Vector3.Lerp(
-            bulletSlotsGroup.anchoredPosition,
-            rightClick ? bulletVisiblePos : bulletHiddenPos,
-            Time.deltaTime * moveSpeed
-        );
-
         miniHpUI.anchoredPosition = Vector3.Lerp(
             miniHpUI.anchoredPosition,
             (leftClick && !rightClick) ? miniHpVisiblePos : miniHpHiddenPos,

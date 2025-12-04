@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Light Recovery Reward
   m_EditorClassIdentifier: Assembly-CSharp::LightRecoveryReward
   rewardName: Light
-  icon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
-  description: wwwwww
+  icon: {fileID: -8519531949352421789, guid: 36b0d312df5794144ac44d66eea8e945, type: 3}
+  description: Restores a small amount of Light
   slowMultiplier: 1.5

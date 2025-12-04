@@ -142,7 +142,7 @@ public class BossBehaviour : MonoBehaviour
         var hp = GetComponent<DragonHealth>();
         if (hp != null)
         {
-            hp.Heal(3);
+            hp.Heal(1);
             Debug.Log("💖 Boss healed at a normal grave.");
         }
     }
